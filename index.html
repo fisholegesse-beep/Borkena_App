@@ -11,6 +11,7 @@
     <!-- SheetJS & jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     
     <!-- Firebase SDKs for Live Realtime Cloud Database -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -65,26 +66,28 @@
     <div id="app" class="hidden flex-1 flex flex-col md:flex-row">
         
         <!-- SIDEBAR NAVIGATION -->
-        <aside class="w-full md:w-64 bg-purple-950 text-white flex-shrink-0">
-            <div class="p-4 bg-purple-900 flex items-center justify-between border-b border-amber-400">
-                <div class="flex items-center space-x-2">
-                    <i class="fa-solid fa-university text-amber-400 text-xl"></i>
-                    <span class="font-bold text-sm tracking-wide">CBE BORKENA</span>
+        <aside class="w-full md:w-64 bg-purple-950 text-white flex-shrink-0 flex flex-col justify-between min-h-screen">
+            <div>
+                <div class="p-4 bg-purple-900 flex items-center justify-between border-b border-amber-400">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-university text-amber-400 text-xl"></i>
+                        <span class="font-bold text-sm tracking-wide">CBE BORKENA</span>
+                    </div>
+                    <span id="user-role-badge" class="bg-amber-400 text-purple-950 text-xs px-2 py-0.5 rounded font-bold">Role</span>
                 </div>
-                <span id="user-role-badge" class="bg-amber-400 text-purple-950 text-xs px-2 py-0.5 rounded font-bold">Role</span>
-            </div>
 
-            <div class="p-4 border-b border-purple-800 flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-full bg-amber-400 flex items-center justify-center text-purple-900 font-bold">
-                    <i class="fa-solid fa-user"></i>
+                <div class="p-4 border-b border-purple-800 flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-amber-400 flex items-center justify-center text-purple-900 font-bold">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div>
+                        <div id="logged-user-name" class="font-bold text-sm">User Name</div>
+                        <div id="logged-user-role" class="text-xs text-gray-300">Staff Member</div>
+                    </div>
                 </div>
-                <div>
-                    <div id="logged-user-name" class="font-bold text-sm">User Name</div>
-                    <div id="logged-user-role" class="text-xs text-gray-300">Staff Member</div>
-                </div>
-            </div>
 
-            <nav class="p-2 space-y-1 text-sm font-medium" id="sidebar-menu"></nav>
+                <nav class="p-2 space-y-1 text-sm font-medium" id="sidebar-menu"></nav>
+            </div>
 
             <div class="p-4 border-t border-purple-900">
                 <button onclick="handleLogout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-xs font-bold transition">
@@ -170,6 +173,8 @@
                                     <option value="Customer Base Acquisition">Customer Base Acquisition</option>
                                     <option value="Mobile Banking Users">Mobile Banking Users</option>
                                     <option value="CBE Birr Registration">CBE Birr Registration</option>
+                                    <option value="ATM / POS Growth">ATM / POS Merchant Growth</option>
+                                    <option value="Loan Recovery">Loan & NPL Recovery</option>
                                 </select>
                             </div>
                         </div>
@@ -247,6 +252,49 @@
                     </div>
                 </section>
 
+                <!-- 5. PERFORMANCE REPORTS MENU -->
+                <section id="section-reports" class="hidden space-y-6">
+                    <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
+                        <h3 class="text-md font-bold text-purple-900 mb-2">Performance Reports & Analytics</h3>
+                        <p class="text-xs text-gray-500 mb-4">ተግባራዊ ሪፖርቶችን እዚህ ማመንጨት እና ማውረድ ይችላሉ።</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                                <h4 class="font-bold text-purple-900 text-sm mb-1">Excel Data Export</h4>
+                                <p class="text-xs text-gray-600 mb-3">ሁሉንም የኦንላይን አፈጻጸም መረጃዎች በ Excel ፋይል ማውረድ።</p>
+                                <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded font-bold">
+                                    <i class="fa-solid fa-file-excel mr-1"></i> Download Excel
+                                </button>
+                            </div>
+                            <div class="p-4 bg-amber-50 rounded-lg border border-amber-200">
+                                <h4 class="font-bold text-purple-900 text-sm mb-1">PDF Performance Summary</h4>
+                                <p class="text-xs text-gray-600 mb-3">ለቅርንጫፉ ማኔጅመንት የሚቀርብ ይፋዊ PDF ሪፖርት ማዘጋጀት።</p>
+                                <button onclick="exportToPDF()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-4 py-2 rounded font-bold">
+                                    <i class="fa-solid fa-file-pdf mr-1"></i> Download PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. SYSTEM SETTINGS MENU -->
+                <section id="section-settings" class="hidden space-y-6">
+                    <div class="bg-white p-6 rounded-xl shadow border border-gray-200 max-w-xl">
+                        <h3 class="text-md font-bold text-purple-900 mb-4 border-b pb-2">System Configuration</h3>
+                        <div class="space-y-4 text-xs">
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Branch Name</label>
+                                <input type="text" value="CBE Borkena Branch" disabled class="w-full p-2 border bg-gray-100 rounded text-gray-600">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Database Connection Status</label>
+                                <span class="inline-block bg-green-100 text-green-800 px-3 py-1 rounded font-bold">
+                                    <i class="fa-solid fa-check-circle mr-1"></i> Firebase Live Connected
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
             </div>
         </main>
     </div>
@@ -313,18 +361,16 @@
         let state = {
             currentUser: null,
             activeFilter: 'all',
-            users: [...defaultUsers], // Initialize with default users immediately
+            users: [...defaultUsers],
             entries: []
         };
 
         // START REALTIME SYNC LISTENERS
         function initRealtimeSync() {
-            // 1. Listen for Users Live Updates
             db.ref('users').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     const cloudUsers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-                    // Merge cloud users with defaults without duplication
                     const combined = [...defaultUsers];
                     cloudUsers.forEach(cu => {
                         if (!combined.some(u => u.username.toLowerCase() === cu.username.toLowerCase())) {
@@ -338,7 +384,6 @@
                 renderUsers();
             });
 
-            // 2. Listen for Performance Entries Live Updates across ALL phones
             db.ref('entries').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -355,13 +400,12 @@
             defaultUsers.forEach(u => db.ref('users').push(u));
         }
 
-        // AUTHENTICATION (GUARANTEED LOGIN WORKAROUND)
+        // AUTHENTICATION
         function handleLogin(e) {
             e.preventDefault();
             const uInput = document.getElementById('username').value.trim().toLowerCase();
             const pInput = document.getElementById('password').value.trim();
 
-            // Search in combined users list
             let matched = state.users.find(u => u.username.toLowerCase() === uInput && u.password === pInput);
 
             if (!matched) {
@@ -387,12 +431,13 @@
             document.getElementById('login-section').classList.remove('hidden');
         }
 
+        // NAVIGATION BUILDER - RESTRUCTURED & FULLY RESTORED
         function buildNavigation() {
             const nav = document.getElementById('sidebar-menu');
             const role = state.currentUser.role;
 
             let items = [
-                { id: 'dashboard', label: 'Live Dashboard', icon: 'fa-chart-line' },
+                { id: 'dashboard', label: 'Dashboard Overview', icon: 'fa-chart-line' },
                 { id: 'entry', label: 'Daily Entry Form', icon: 'fa-pen-to-square' },
             ];
 
@@ -404,6 +449,10 @@
                 items.push({ id: 'users', label: 'User Management', icon: 'fa-users-gear' });
             }
 
+            // Public / General Restored Menus
+            items.push({ id: 'reports', label: 'Performance Reports', icon: 'fa-file-lines' });
+            items.push({ id: 'settings', label: 'System Settings', icon: 'fa-gears' });
+
             nav.innerHTML = items.map(item => `
                 <a href="#" onclick="switchTab('${item.id}', '${item.label}')" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-purple-900 transition">
                     <i class="fa-solid ${item.icon} text-amber-400 w-5"></i>
@@ -414,16 +463,18 @@
 
         function switchTab(tabId, title) {
             document.getElementById('page-title').innerText = title;
-            ['dashboard', 'entry', 'approval', 'users'].forEach(s => {
+            ['dashboard', 'entry', 'approval', 'users', 'reports', 'settings'].forEach(s => {
                 const el = document.getElementById(`section-${s}`);
                 if (el) el.classList.add('hidden');
             });
-            document.getElementById(`section-${tabId}`).classList.remove('hidden');
+            const selected = document.getElementById(`section-${tabId}`);
+            if (selected) selected.classList.remove('hidden');
         }
 
         // DASHBOARD RENDER
         function filterPeriod(p) {
             state.activeFilter = p;
+            document.getElementById('current-period-label').innerText = `Showing: ${p.toUpperCase()} Records`;
             renderDashboard();
         }
 
@@ -476,7 +527,6 @@
                 timestamp: Date.now()
             };
 
-            // Push to Realtime Cloud Database
             db.ref('entries').push(entryData, (error) => {
                 if(!error) {
                     alert("መረጃው በስኬት ኦንላይን ላይ ተልኳል! በሁሉም ስልኮች ላይ ወዲያውኑ ይታያል።");
@@ -487,7 +537,7 @@
             });
         }
 
-        // APPROVALS LOGIC (LIVE UPDATE ACROSS ALL DEVICES)
+        // APPROVALS LOGIC
         function renderApprovals() {
             const tbody = document.getElementById('approval-table-body');
             const pendings = state.entries.filter(e => e.status === 'Pending');
@@ -523,7 +573,7 @@
             }
         }
 
-        // USER MANAGEMENT (CLOUD)
+        // USER MANAGEMENT
         function renderUsers() {
             const tbody = document.getElementById('users-table-body');
             tbody.innerHTML = state.users.map(u => `
@@ -563,7 +613,7 @@
 
         function deleteUser(id) {
             if (confirm("ተጠቃሚውን ማስወገድ ይፈልጋሉ?")) {
-                if (id.startsWith('def')) {
+                if (id && id.startsWith('def')) {
                     alert("የመጀመሪያ ደረጃ System Admin አካውንትን መሰረዝ አይቻልም።");
                     return;
                 }
@@ -571,19 +621,53 @@
             }
         }
 
-        // EXPORT FUNCTIONS
+        // FIXED REPORT EXPORT FUNCTIONS
         function exportToPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.text("CBE Borkena Branch Live Report", 10, 10);
-            doc.save("CBE_Report.pdf");
+            
+            doc.setFontSize(16);
+            doc.text("Commercial Bank of Ethiopia - Borkena Branch", 14, 15);
+            doc.setFontSize(12);
+            doc.text("Live Performance Report", 14, 22);
+            
+            const approvedEntries = state.entries.filter(e => e.status === 'Approved');
+            const tableData = approvedEntries.map(e => [
+                e.period.toUpperCase(),
+                e.kpi,
+                e.staff,
+                e.supervisor,
+                e.plan,
+                e.actual,
+                ((e.actual / e.plan) * 100).toFixed(1) + '%'
+            ]);
+
+            doc.autoTable({
+                startY: 28,
+                head: [['Period', 'KPI Category', 'Staff', 'Supervisor', 'Plan', 'Actual', 'Achievement']],
+                body: tableData,
+                headStyles: { fillColor: [74, 21, 75] }
+            });
+
+            doc.save("CBE_Borkena_Performance_Report.pdf");
         }
 
         function exportToExcel() {
-            const ws = XLSX.utils.json_to_sheet(state.entries);
+            const dataToExport = state.entries.map(e => ({
+                Period: e.period,
+                KPI: e.kpi,
+                Staff: e.staff,
+                Supervisor: e.supervisor,
+                Plan: e.plan,
+                Actual: e.actual,
+                Achievement_Percent: ((e.actual / e.plan) * 100).toFixed(1) + '%',
+                Status: e.status
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(dataToExport);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Performance");
-            XLSX.writeFile(wb, "CBE_Report.xlsx");
+            XLSX.writeFile(wb, "CBE_Borkena_Performance_Report.xlsx");
         }
 
         // Initialize Live Sync on Startup
