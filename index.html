@@ -153,7 +153,7 @@
                     </div>
                 </section>
 
-                <!-- 2. DAILY ENTRY MENU (UPDATED KPI OPTIONS) -->
+                <!-- 2. DAILY ENTRY MENU -->
                 <section id="section-entry" class="hidden max-w-2xl mx-auto bg-white p-6 rounded-xl shadow border border-gray-200">
                     <h3 class="text-lg font-bold text-purple-900 mb-4 border-b pb-2" id="entry-form-title">Submit Performance Entry</h3>
                     <form id="daily-entry-form" onsubmit="submitEntry(event)" class="space-y-4">
@@ -408,7 +408,6 @@
                     const cloudUsers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
                     const combined = [];
                     
-                    // Merge default users with firebase users safely
                     defaultUsers.forEach(du => {
                         const match = cloudUsers.find(cu => cu.username.toLowerCase() === du.username.toLowerCase());
                         if (match) {
@@ -426,7 +425,7 @@
 
                     state.users = combined;
                 } else {
-                    seedDefaultUsers();
+                    state.users = [...defaultUsers];
                 }
                 renderUsers();
                 populateStaffSelect();
@@ -441,13 +440,6 @@
                 }
                 renderDashboard();
                 renderApprovals();
-            });
-        }
-
-        function seedDefaultUsers() {
-            defaultUsers.forEach(u => {
-                const { id, ...userWithoutId } = u;
-                db.ref('users').push(userWithoutId);
             });
         }
 
@@ -476,7 +468,6 @@
             renderDashboard();
             populateStaffSelect();
 
-            // Set today's date in form by default
             document.getElementById('entry-date').valueAsDate = new Date();
         }
 
@@ -489,7 +480,7 @@
         // NAVIGATION BUILDER
         function buildNavigation() {
             const nav = document.getElementById('sidebar-menu');
-            const role = state.currentUser.role;
+            const role = state.currentUser ? state.currentUser.role : 'Staff';
 
             let items = [
                 { id: 'dashboard', label: 'Dashboard Overview', icon: 'fa-chart-line' },
@@ -546,6 +537,8 @@
 
         function renderDashboard() {
             const tbody = document.getElementById('performance-table-body');
+            if (!tbody) return;
+
             let filtered = state.entries.filter(e => e.status === 'Approved');
 
             if (state.activeFilter !== 'all') {
@@ -560,8 +553,8 @@
             const canManage = state.currentUser && (state.currentUser.role === 'Super Admin' || state.currentUser.role === 'Admin');
 
             tbody.innerHTML = filtered.map(e => {
-                const pct = ((e.actual / e.plan) * 100).toFixed(1);
-                const ok = pct >= 50;
+                const pct = e.plan > 0 ? ((e.actual / e.plan) * 100).toFixed(1) : '0.0';
+                const ok = parseFloat(pct) >= 50;
                 const entryDate = e.date ? e.date : (e.timestamp ? new Date(e.timestamp).toISOString().split('T')[0] : '-');
 
                 return `
@@ -599,16 +592,18 @@
             e.preventDefault();
             
             const editId = document.getElementById('entry-editing-id').value;
+            const isAutoApproved = state.currentUser && (state.currentUser.role === 'Super Admin' || state.currentUser.role === 'Admin');
+
             const entryData = {
                 date: document.getElementById('entry-date').value,
                 period: document.getElementById('entry-period').value,
                 staff: document.getElementById('entry-staff-select').value,
                 kpi: document.getElementById('entry-kpi').value,
-                plan: parseFloat(document.getElementById('entry-plan').value),
-                actual: parseFloat(document.getElementById('entry-actual').value),
+                plan: parseFloat(document.getElementById('entry-plan').value) || 0,
+                actual: parseFloat(document.getElementById('entry-actual').value) || 0,
                 supervisor: document.getElementById('entry-supervisor').value,
                 remarks: document.getElementById('entry-remarks').value.trim(),
-                status: (state.currentUser.role === 'Super Admin' || state.currentUser.role === 'Admin') ? 'Approved' : 'Pending',
+                status: isAutoApproved ? 'Approved' : 'Pending',
                 timestamp: Date.now()
             };
 
@@ -620,7 +615,7 @@
                         resetEntryForm();
                         switchTab('dashboard', 'Dashboard Overview');
                     } else {
-                        alert("ማስተካከል አልተቻለም። ድጋሚ ይሞክሩ።");
+                        alert("ማስተካከል አልተቻለም። ድጋሚ ይሞክሩ። " + error.message);
                     }
                 });
             } else {
@@ -630,7 +625,7 @@
                         alert("መረጃው በስኬት ኦንላይን ላይ ተልኳል!");
                         resetEntryForm();
                     } else {
-                        alert("መረጃውን መላክ አልተቻለም። ኢንተርኔትዎን ያረጋግጡ።");
+                        alert("መረጃውን መላክ አልተቻለም። ኢንተርኔትዎን ያረጋግጡ። " + error.message);
                     }
                 });
             }
@@ -672,8 +667,11 @@
         // APPROVALS LOGIC
         function renderApprovals() {
             const tbody = document.getElementById('approval-table-body');
+            if (!tbody) return;
+
             const pendings = state.entries.filter(e => e.status === 'Pending');
-            document.getElementById('pending-count-badge').innerText = `${pendings.length} Pending`;
+            const badge = document.getElementById('pending-count-badge');
+            if (badge) badge.innerText = `${pendings.length} Pending`;
 
             if (!pendings.length) {
                 tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-500">የሚጸድቅ አዲስ መረጃ የለም።</td></tr>`;
@@ -710,6 +708,8 @@
         // USER MANAGEMENT
         function renderUsers() {
             const tbody = document.getElementById('users-table-body');
+            if (!tbody) return;
+
             tbody.innerHTML = state.users.map(u => `
                 <tr class="hover:bg-gray-50">
                     <td class="p-3 font-bold text-gray-700">${u.username}</td>
@@ -763,21 +763,23 @@
             };
 
             if (editId && !editId.startsWith('def')) {
+                // Cloud user update
                 db.ref('users/' + editId).update(userData, (error) => {
                     if (!error) {
                         alert("የተጠቃሚው መረጃ በስኬት ተስተካክሏል!");
                         toggleUserModal(false);
                     } else {
-                        alert("ተጠቃሚውን ማስተካከል አልተቻለም።");
+                        alert("ተጠቃሚውን ማስተካከል አልተቻለም። " + error.message);
                     }
                 });
             } else {
+                // New user push
                 db.ref('users').push(userData, (error) => {
                     if (!error) {
                         alert("አዲስ ተጠቃሚ በስኬት ተመዝግቧል!");
                         toggleUserModal(false);
                     } else {
-                        alert("ተጠቃሚውን ማስመዝገብ አልተቻለም።");
+                        alert("ተጠቃሚውን ማስመዝገብ አልተቻለም። " + error.message);
                     }
                 });
             }
@@ -812,7 +814,7 @@
                 e.supervisor,
                 e.plan,
                 e.actual,
-                ((e.actual / e.plan) * 100).toFixed(1) + '%'
+                (e.plan > 0 ? ((e.actual / e.plan) * 100).toFixed(1) : '0.0') + '%'
             ]);
 
             doc.autoTable({
@@ -834,7 +836,7 @@
                 Supervisor: e.supervisor,
                 Plan: e.plan,
                 Actual: e.actual,
-                Achievement_Percent: ((e.actual / e.plan) * 100).toFixed(1) + '%',
+                Achievement_Percent: (e.plan > 0 ? ((e.actual / e.plan) * 100).toFixed(1) : '0.0') + '%',
                 Remarks: e.remarks || '',
                 Status: e.status
             }));
