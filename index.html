@@ -126,7 +126,8 @@
                     <!-- Time Filters -->
                     <div class="flex flex-wrap items-center justify-between bg-white p-3 rounded-lg shadow-sm border border-gray-200">
                         <div class="flex space-x-2">
-                            <button onclick="filterPeriod('daily')" id="btn-daily" class="filter-btn bg-purple-900 text-amber-400 text-xs px-4 py-1.5 rounded font-bold">Daily</button>
+                            <button onclick="filterPeriod('all')" id="btn-all" class="filter-btn bg-purple-900 text-amber-400 text-xs px-4 py-1.5 rounded font-bold">All</button>
+                            <button onclick="filterPeriod('daily')" id="btn-daily" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Daily</button>
                             <button onclick="filterPeriod('weekly')" id="btn-weekly" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Weekly</button>
                             <button onclick="filterPeriod('monthly')" id="btn-monthly" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Monthly</button>
                             <button onclick="filterPeriod('quarterly')" id="btn-quarterly" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Quarterly</button>
@@ -208,8 +209,16 @@
                     </form>
                 </section>
 
-                <!-- 3. APPROVAL & AUDIT MENU (Admin / Super Admin) -->
+                <!-- 3. APPROVAL & AUDIT MENU (Super Admin / Admin) -->
                 <section id="section-approval" class="hidden space-y-4">
+                    <div class="bg-white p-4 rounded-xl shadow border border-gray-200 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-md font-bold text-purple-900">Super Admin Work Approval & Review Center</h3>
+                            <p class="text-xs text-gray-500">Review, verify, and approve staff performance submissions</p>
+                        </div>
+                        <span id="pending-count-badge" class="bg-amber-400 text-purple-950 text-xs px-3 py-1 rounded-full font-bold">0 Pending</span>
+                    </div>
+
                     <div class="bg-white rounded-xl shadow border border-gray-200 overflow-x-auto">
                         <table class="w-full text-left text-xs">
                             <thead class="bg-purple-900 text-amber-400 uppercase font-bold">
@@ -218,8 +227,9 @@
                                     <th class="p-3">KPI</th>
                                     <th class="p-3">Period</th>
                                     <th class="p-3">Plan / Actual</th>
+                                    <th class="p-3">Achievement Rate</th>
                                     <th class="p-3">Supervisor</th>
-                                    <th class="p-3">Actions</th>
+                                    <th class="p-3 text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="approval-table-body" class="divide-y divide-gray-200">
@@ -233,11 +243,11 @@
                 <section id="section-users" class="hidden space-y-6">
                     <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-gray-200">
                         <div>
-                            <h3 class="text-md font-bold text-purple-900">Branch Staff Roster, User Creation & Role Management</h3>
-                            <p class="text-xs text-gray-500">Super Admin Portal: Add user, change roles, update permissions & password</p>
+                            <h3 class="text-md font-bold text-purple-900">Branch Staff Roster & User Management</h3>
+                            <p class="text-xs text-gray-500">Super Admin Portal: Add user, update roles, assign responsibilities</p>
                         </div>
-                        <button onclick="toggleUserModal(true)" class="bg-amber-400 text-purple-950 font-bold px-4 py-2 rounded text-xs shadow hover:bg-amber-300">
-                            <i class="fa-solid fa-user-plus mr-1"></i> Register New User
+                        <button onclick="openAddUser()" class="bg-amber-400 text-purple-950 font-bold px-4 py-2 rounded text-xs shadow hover:bg-amber-300 transition flex items-center gap-1">
+                            <i class="fa-solid fa-user-plus"></i> Register New User
                         </button>
                     </div>
 
@@ -259,7 +269,61 @@
                     </div>
                 </section>
 
-                <!-- 5. RECOGNITION & PENALTY CERTIFICATES -->
+                <!-- 5. PASSWORD MANAGEMENT & RESET MENU -->
+                <section id="section-password" class="hidden space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Change Own Password -->
+                        <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
+                            <h3 class="text-md font-bold text-purple-900 mb-2 border-b pb-2">
+                                <i class="fa-solid fa-key text-amber-500 mr-2"></i>Change My Password
+                            </h3>
+                            <form onsubmit="handleSelfPasswordChange(event)" class="space-y-4 text-xs">
+                                <div>
+                                    <label class="block font-bold text-gray-700 mb-1">Current Password</label>
+                                    <input type="password" id="self-current-pass" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-400 outline-none" required>
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-gray-700 mb-1">New Password</label>
+                                    <input type="password" id="self-new-pass" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-400 outline-none" required>
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-gray-700 mb-1">Confirm New Password</label>
+                                    <input type="password" id="self-confirm-pass" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-400 outline-none" required>
+                                </div>
+                                <button type="submit" class="w-full bg-purple-900 text-amber-400 font-bold py-2 rounded hover:bg-purple-800 transition">
+                                    Update My Password
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Admin Reset Staff Password -->
+                        <div id="admin-password-reset-box" class="bg-white p-6 rounded-xl shadow border border-gray-200">
+                            <h3 class="text-md font-bold text-purple-900 mb-2 border-b pb-2">
+                                <i class="fa-solid fa-user-shield text-amber-500 mr-2"></i>Super Admin Staff Password Reset
+                            </h3>
+                            <p class="text-xs text-gray-500 mb-4">Reset any branch staff member's password immediately.</p>
+                            <form onsubmit="handleAdminPasswordReset(event)" class="space-y-4 text-xs">
+                                <div>
+                                    <label class="block font-bold text-gray-700 mb-1">Select Staff Member</label>
+                                    <select id="reset-user-select" class="w-full p-2 border rounded outline-none focus:ring-2 focus:ring-amber-400" required>
+                                        <!-- User options populated dynamically -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-gray-700 mb-1">Set New Password</label>
+                                    <input type="password" id="reset-new-pass" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-400 outline-none" placeholder="Enter new password" required>
+                                </div>
+                                <button type="submit" class="w-full bg-amber-400 text-purple-950 font-bold py-2 rounded hover:bg-amber-300 transition">
+                                    Reset Staff Password
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- 6. RECOGNITION & PENALTY CERTIFICATES -->
                 <section id="section-certificates" class="hidden space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- High Performers (>= 50%) -->
@@ -275,7 +339,7 @@
                     </div>
                 </section>
 
-                <!-- 6. CBE BORKENA DIGITAL LIBRARY -->
+                <!-- 7. CBE BORKENA DIGITAL LIBRARY -->
                 <section id="section-library" class="hidden space-y-4">
                     <div class="bg-white p-4 rounded-xl shadow border border-gray-200">
                         <h4 class="font-bold text-purple-900 text-sm mb-2">Upload Branch Policy/Report Document</h4>
@@ -292,7 +356,7 @@
                     </div>
                 </section>
 
-                <!-- 7. REPORTS & DOWNLOADS MENU -->
+                <!-- 8. REPORTS & DOWNLOADS MENU -->
                 <section id="section-downloads" class="hidden space-y-4">
                     <div class="bg-white p-6 rounded-xl shadow border border-gray-200 space-y-4">
                         <h3 class="text-md font-bold text-purple-900 border-b pb-2">Generate & Download Official Reports with CBE Logo</h3>
@@ -331,19 +395,19 @@
                 <input type="hidden" id="modal-user-id">
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Username</label>
-                    <input type="text" id="modal-username" class="w-full p-2 border rounded text-xs" required>
+                    <input type="text" id="modal-username" class="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-amber-400 outline-none" required>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Full Name</label>
-                    <input type="text" id="modal-fullname" class="w-full p-2 border rounded text-xs" required>
+                    <input type="text" id="modal-fullname" class="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-amber-400 outline-none" required>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Password</label>
-                    <input type="password" id="modal-password" class="w-full p-2 border rounded text-xs" placeholder="••••••••" required>
+                    <input type="password" id="modal-password" class="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-amber-400 outline-none" placeholder="••••••••" required>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">User Role</label>
-                    <select id="modal-role" class="w-full p-2 border rounded text-xs">
+                    <select id="modal-role" class="w-full p-2 border rounded text-xs outline-none focus:ring-2 focus:ring-amber-400">
                         <option value="Staff">Staff</option>
                         <option value="Admin">Admin</option>
                         <option value="Super Admin">Super Admin</option>
@@ -351,11 +415,11 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Assigned Responsibility</label>
-                    <input type="text" id="modal-responsibility" class="w-full p-2 border rounded text-xs" placeholder="e.g., Digital Banking" required>
+                    <input type="text" id="modal-responsibility" class="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-amber-400 outline-none" placeholder="e.g., Digital Banking" required>
                 </div>
                 <div class="flex justify-end space-x-2 pt-3 border-t">
-                    <button type="button" onclick="toggleUserModal(false)" class="px-4 py-2 bg-gray-300 text-xs font-bold rounded">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-purple-900 text-amber-400 text-xs font-bold rounded">Save User</button>
+                    <button type="button" onclick="toggleUserModal(false)" class="px-4 py-2 bg-gray-300 text-xs font-bold rounded hover:bg-gray-400">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-purple-900 text-amber-400 text-xs font-bold rounded hover:bg-purple-800">Save User</button>
                 </div>
             </form>
         </div>
@@ -411,6 +475,7 @@
             buildNavigation();
             renderDashboard();
             renderDocumentList();
+            populatePasswordResetDropdown();
         }
 
         function handleLogout() {
@@ -430,13 +495,14 @@
             ];
 
             if (role === 'Super Admin' || role === 'Admin') {
-                items.push({ id: 'approval', label: 'Approve Entries', icon: 'fa-check-double' });
+                items.push({ id: 'approval', label: 'Super Admin Approvals', icon: 'fa-check-double' });
             }
 
             if (role === 'Super Admin') {
                 items.push({ id: 'users', label: 'User & Staff Management', icon: 'fa-users-gear' });
             }
 
+            items.push({ id: 'password', label: 'Password & Security', icon: 'fa-key' });
             items.push({ id: 'certificates', label: 'Certificates & Recognition', icon: 'fa-certificate' });
             items.push({ id: 'library', label: 'CBE Library / Cloud', icon: 'fa-cloud-arrow-down' });
             items.push({ id: 'downloads', label: 'Reports & Downloads', icon: 'fa-download' });
@@ -452,7 +518,7 @@
         // View Switcher
         function switchTab(tabId, title) {
             document.getElementById('page-title').innerText = title;
-            const sections = ['dashboard', 'entry', 'approval', 'users', 'certificates', 'library', 'downloads'];
+            const sections = ['dashboard', 'entry', 'approval', 'users', 'password', 'certificates', 'library', 'downloads'];
             sections.forEach(s => {
                 const el = document.getElementById(`section-${s}`);
                 if (el) el.classList.add('hidden');
@@ -462,6 +528,7 @@
             if (tabId === 'dashboard') renderDashboard();
             if (tabId === 'approval') renderApprovals();
             if (tabId === 'users') renderUsers();
+            if (tabId === 'password') populatePasswordResetDropdown();
             if (tabId === 'certificates') renderCertificates();
         }
 
@@ -533,43 +600,58 @@
             document.getElementById('daily-entry-form').reset();
         }
 
-        // Render Approvals
+        // Render Approvals (Super Admin Work Approval Center)
         function renderApprovals() {
             const tbody = document.getElementById('approval-table-body');
             const pendings = state.entries.filter(e => e.status === 'Pending');
             
+            document.getElementById('pending-count-badge').innerText = `${pendings.length} Pending Approval`;
+
             if(pendings.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500">No pending approvals found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">No pending performance entries awaiting approval.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = pendings.map(e => `
-                <tr>
-                    <td class="p-3 font-bold">${e.staff}</td>
-                    <td class="p-3">${e.kpi}</td>
-                    <td class="p-3 font-bold uppercase">${e.period}</td>
-                    <td class="p-3">${e.plan} / ${e.actual}</td>
-                    <td class="p-3">${e.supervisor}</td>
-                    <td class="p-3 space-x-2">
-                        <button onclick="approveEntry(${e.id})" class="bg-emerald-600 text-white px-2 py-1 rounded text-xs">Approve</button>
-                        <button onclick="deleteEntry(${e.id})" class="bg-red-600 text-white px-2 py-1 rounded text-xs">Reject</button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = pendings.map(e => {
+                const pct = ((e.actual / e.plan) * 100).toFixed(1);
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 font-bold text-purple-900">${e.staff}</td>
+                        <td class="p-3">${e.kpi}</td>
+                        <td class="p-3 font-bold uppercase text-gray-600">${e.period}</td>
+                        <td class="p-3">${e.plan.toLocaleString()} / ${e.actual.toLocaleString()}</td>
+                        <td class="p-3 font-bold ${pct >= 50 ? 'text-emerald-600' : 'text-red-600'}">${pct}%</td>
+                        <td class="p-3">${e.supervisor}</td>
+                        <td class="p-3 text-center space-x-2">
+                            <button onclick="approveEntry(${e.id})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded text-xs font-bold shadow">
+                                <i class="fa-solid fa-check mr-1"></i> Approve
+                            </button>
+                            <button onclick="deleteEntry(${e.id})" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-bold shadow">
+                                <i class="fa-solid fa-xmark mr-1"></i> Reject
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         function approveEntry(id) {
             const item = state.entries.find(e => e.id === id);
-            if (item) item.status = 'Approved';
+            if (item) {
+                item.status = 'Approved';
+                alert(`Work entry for ${item.staff} approved successfully!`);
+            }
             renderApprovals();
         }
 
         function deleteEntry(id) {
-            state.entries = state.entries.filter(e => e.id !== id);
-            renderApprovals();
+            if(confirm("Are you sure you want to reject and remove this submission?")) {
+                state.entries = state.entries.filter(e => e.id !== id);
+                renderApprovals();
+            }
         }
 
-        // User Management (Super Admin)
+        // User Management (Super Admin) - FIX FOR USER ADDING BUG
         function renderUsers() {
             const tbody = document.getElementById('users-table-body');
             tbody.innerHTML = state.users.map(u => `
@@ -590,7 +672,14 @@
 
         function toggleUserModal(show) {
             document.getElementById('user-modal').classList.toggle('hidden', !show);
-            if(!show) document.getElementById('user-form').reset();
+        }
+
+        // Open Modal specifically for NEW USER registration (Clears old ID bug)
+        function openAddUser() {
+            document.getElementById('user-form').reset();
+            document.getElementById('modal-user-id').value = ''; // FIX: Ensures new user is added instead of overwriting
+            document.getElementById('modal-title').innerText = "Register New Staff/User";
+            toggleUserModal(true);
         }
 
         function openEditUser(id) {
@@ -609,36 +698,102 @@
         function saveUser(e) {
             e.preventDefault();
             const id = document.getElementById('modal-user-id').value;
-            const username = document.getElementById('modal-username').value;
-            const name = document.getElementById('modal-fullname').value;
-            const password = document.getElementById('modal-password').value;
+            const username = document.getElementById('modal-username').value.trim();
+            const name = document.getElementById('modal-fullname').value.trim();
+            const password = document.getElementById('modal-password').value.trim();
             const role = document.getElementById('modal-role').value;
-            const resp = document.getElementById('modal-responsibility').value;
+            const resp = document.getElementById('modal-responsibility').value.trim();
 
             if(id) {
-                // Update User
+                // Update Existing User
                 const user = state.users.find(u => u.id == id);
-                user.username = username;
-                user.name = name;
-                user.password = password;
-                user.role = role;
-                user.responsibility = resp;
+                if(user) {
+                    user.username = username;
+                    user.name = name;
+                    user.password = password;
+                    user.role = role;
+                    user.responsibility = resp;
+                }
+                alert("User details updated successfully!");
             } else {
-                // Create New User
-                state.users.push({ id: Date.now(), username, name, password, role, responsibility: resp });
+                // Register Brand New User
+                const newUser = {
+                    id: Date.now(),
+                    username: username,
+                    name: name,
+                    password: password,
+                    role: role,
+                    responsibility: resp
+                };
+                state.users.push(newUser);
+                alert(`New user "${name}" registered successfully!`);
             }
             toggleUserModal(false);
             renderUsers();
+            populatePasswordResetDropdown();
         }
 
         function deleteUser(id) {
             if (state.currentUser.role !== 'Super Admin') {
-                alert("Only Super Admin (Fisseha) can delete staff!");
+                alert("Only Super Admin can delete staff!");
                 return;
             }
             if(confirm("Are you sure you want to remove this user?")) {
                 state.users = state.users.filter(u => u.id !== id);
                 renderUsers();
+                populatePasswordResetDropdown();
+            }
+        }
+
+        // PASSWORD MANAGEMENT LOGIC
+        function populatePasswordResetDropdown() {
+            const select = document.getElementById('reset-user-select');
+            const adminBox = document.getElementById('admin-password-reset-box');
+            
+            // Only show Admin Reset box to Super Admin or Admin
+            if (state.currentUser && (state.currentUser.role === 'Super Admin' || state.currentUser.role === 'Admin')) {
+                adminBox.classList.remove('hidden');
+                select.innerHTML = state.users.map(u => `<option value="${u.id}">${u.name} (${u.username} - ${u.role})</option>`).join('');
+            } else {
+                adminBox.classList.add('hidden');
+            }
+        }
+
+        function handleSelfPasswordChange(e) {
+            e.preventDefault();
+            const curr = document.getElementById('self-current-pass').value;
+            const newP = document.getElementById('self-new-pass').value;
+            const confP = document.getElementById('self-confirm-pass').value;
+
+            if (curr !== state.currentUser.password) {
+                alert("Incorrect current password!");
+                return;
+            }
+            if (newP !== confP) {
+                alert("New passwords do not match!");
+                return;
+            }
+
+            // Update user password
+            const userInState = state.users.find(u => u.id === state.currentUser.id);
+            if (userInState) {
+                userInState.password = newP;
+                state.currentUser.password = newP;
+            }
+            alert("Your password has been changed successfully!");
+            e.target.reset();
+        }
+
+        function handleAdminPasswordReset(e) {
+            e.preventDefault();
+            const userId = document.getElementById('reset-user-select').value;
+            const newPass = document.getElementById('reset-new-pass').value;
+
+            const targetUser = state.users.find(u => u.id == userId);
+            if(targetUser) {
+                targetUser.password = newPass;
+                alert(`Password for ${targetUser.name} (${targetUser.username}) has been successfully reset!`);
+                e.target.reset();
             }
         }
 
@@ -679,11 +834,11 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
-            // CBE Header Header Style
+            // CBE Header Style
             doc.setFillColor(74, 21, 75); // CBE Purple
             doc.rect(0, 0, 210, 40, 'F');
 
-            doc.setFillColor(255, 184, 0); // CBE Gold Sunburst
+            doc.setFillColor(255, 184, 0); // CBE Gold
             doc.circle(25, 20, 12, 'F');
             doc.setTextColor(74, 21, 75);
             doc.setFontSize(10);
