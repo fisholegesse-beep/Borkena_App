@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CBE Borkena Branch Performance Tracking System</title>
-    <!-- Tailwind CSS for Responsive UI -->
+    <title>CBE Borkena Branch Live Performance Tracking System</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- SheetJS & jsPDF for Excel/PDF Export -->
+    <!-- SheetJS & jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Firebase SDKs for Live Realtime Cloud Database -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
     <style>
         :root {
             --cbe-gold: #FFB800;
             --cbe-purple: #4A154B;
-            --cbe-dark: #1E102E;
         }
         body {
             background-color: #F8F9FA;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .bg-cbe-gold { background-color: var(--cbe-gold); }
-        .bg-cbe-purple { background-color: var(--cbe-purple); }
-        .text-cbe-purple { color: var(--cbe-purple); }
-        .border-cbe-gold { border-color: var(--cbe-gold); }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
@@ -37,27 +37,26 @@
                     <i class="fa-solid fa-building-columns text-purple-900 text-4xl"></i>
                 </div>
                 <h1 class="text-2xl font-bold tracking-wide">Commercial Bank of Ethiopia</h1>
-                <p class="text-amber-400 font-semibold text-sm">Borkena Branch Performance Portal</p>
+                <p class="text-amber-400 font-semibold text-sm">Borkena Branch Live Performance Portal</p>
             </div>
             
-            <!-- Marquee Announcement -->
             <div class="bg-amber-400 text-purple-950 font-bold px-4 py-1 text-xs overflow-hidden">
-                <marquee behavior="scroll" direction="left">Welcome to CBE Borkena Branch Online Performance Tracking & Staff Management System!</marquee>
+                <marquee behavior="scroll" direction="left">Welcome to CBE Borkena Branch Online Live Performance Tracking System!</marquee>
             </div>
 
             <form id="login-form" class="p-6 space-y-4" onsubmit="handleLogin(event)">
                 <div>
                     <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Username</label>
-                    <input type="text" id="username" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-400 outline-none" placeholder="Enter username (e.g. fisseha)" required>
+                    <input type="text" id="username" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-400 outline-none" placeholder="Username (e.g. fisseha)" required>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Password</label>
                     <input type="password" id="password" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-400 outline-none" placeholder="••••••••" required>
                 </div>
                 <button type="submit" class="w-full bg-purple-900 hover:bg-purple-800 text-amber-400 font-bold py-3 rounded-lg shadow-lg transition duration-200">
-                    LOG IN TO PORTAL
+                    LOG IN TO LIVE PORTAL
                 </button>
-                <p class="text-xs text-center text-gray-500 mt-2">Default logins: <b>fisseha</b> (Super Admin), <b>dawit</b> (Admin), <b>dagmawit</b> (Staff)</p>
+                <p class="text-xs text-center text-gray-500 mt-2">Logins: <b>fisseha</b> (Super Admin), <b>dawit</b> (Admin), <b>dagmawit</b> (Staff)</p>
             </form>
         </div>
     </div>
@@ -85,9 +84,7 @@
                 </div>
             </div>
 
-            <nav class="p-2 space-y-1 text-sm font-medium" id="sidebar-menu">
-                <!-- Dynamic Navigation Loaded Here -->
-            </nav>
+            <nav class="p-2 space-y-1 text-sm font-medium" id="sidebar-menu"></nav>
 
             <div class="p-4 border-t border-purple-900">
                 <button onclick="handleLogout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-xs font-bold transition">
@@ -99,15 +96,14 @@
         <!-- MAIN CONTENT AREA -->
         <main class="flex-1 p-4 md:p-6 overflow-y-auto">
             
-            <!-- TOP BAR -->
             <header class="flex flex-col md:flex-row justify-between items-start md:items-center pb-4 mb-6 border-b border-gray-300 gap-2">
                 <div>
                     <h2 id="page-title" class="text-2xl font-bold text-purple-950">Dashboard Overview</h2>
-                    <p class="text-xs text-gray-500">Borkena Branch Real-Time Target vs Actual Metrics</p>
+                    <p class="text-xs text-gray-500">Borkena Branch Live Cloud Synchronized System</p>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <span class="text-xs bg-green-100 text-green-800 font-bold px-3 py-1 rounded-full border border-green-300">
-                        <i class="fa-solid fa-signal mr-1"></i> Live Cloud Sync
+                    <span class="text-xs bg-green-100 text-green-800 font-bold px-3 py-1 rounded-full border border-green-300 animate-pulse">
+                        <i class="fa-solid fa-bolt mr-1"></i> Live Multi-Device Sync
                     </span>
                     <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-2 rounded font-bold">
                         <i class="fa-solid fa-file-excel mr-1"></i> Excel Report
@@ -118,12 +114,10 @@
                 </div>
             </header>
 
-            <!-- SECTIONS CONTAINER -->
             <div id="content-container">
                 
-                <!-- 1. DASHBOARD / PERFORMANCE REPORT -->
+                <!-- 1. DASHBOARD -->
                 <section id="section-dashboard" class="space-y-6">
-                    <!-- Time Filters -->
                     <div class="flex flex-wrap items-center justify-between bg-white p-3 rounded-lg shadow-sm border border-gray-200">
                         <div class="flex space-x-2">
                             <button onclick="filterPeriod('all')" id="btn-all" class="filter-btn bg-purple-900 text-amber-400 text-xs px-4 py-1.5 rounded font-bold">All</button>
@@ -131,19 +125,17 @@
                             <button onclick="filterPeriod('weekly')" id="btn-weekly" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Weekly</button>
                             <button onclick="filterPeriod('monthly')" id="btn-monthly" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Monthly</button>
                             <button onclick="filterPeriod('quarterly')" id="btn-quarterly" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Quarterly</button>
-                            <button onclick="filterPeriod('annual')" id="btn-annual" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Annual</button>
                         </div>
                         <span id="current-period-label" class="text-xs font-bold text-purple-900 uppercase">Showing: All Records</span>
                     </div>
 
-                    <!-- Performance Table -->
                     <div class="bg-white rounded-xl shadow border border-gray-200 overflow-x-auto">
                         <table class="w-full text-left text-xs">
                             <thead class="bg-purple-900 text-amber-400 uppercase font-bold">
                                 <tr>
                                     <th class="p-3">Period</th>
                                     <th class="p-3">KPI Category</th>
-                                    <th class="p-3">Staff / Assigned</th>
+                                    <th class="p-3">Staff Member</th>
                                     <th class="p-3">Supervisor</th>
                                     <th class="p-3">Plan</th>
                                     <th class="p-3">Actual</th>
@@ -151,9 +143,7 @@
                                     <th class="p-3">Status</th>
                                 </tr>
                             </thead>
-                            <tbody id="performance-table-body" class="divide-y divide-gray-200">
-                                <!-- Dynamic Data Rows -->
-                            </tbody>
+                            <tbody id="performance-table-body" class="divide-y divide-gray-200"></tbody>
                         </table>
                     </div>
                 </section>
@@ -170,7 +160,6 @@
                                     <option value="weekly">Weekly</option>
                                     <option value="monthly">Monthly</option>
                                     <option value="quarterly">Quarterly</option>
-                                    <option value="annual">Annual</option>
                                 </select>
                             </div>
                             <div>
@@ -180,12 +169,7 @@
                                     <option value="FCY Mobilization">FCY Mobilization</option>
                                     <option value="Customer Base Acquisition">Customer Base Acquisition</option>
                                     <option value="Mobile Banking Users">Mobile Banking Users</option>
-                                    <option value="ATM Deployment">ATM Deployment/Recruitment</option>
-                                    <option value="Merchant Onboarding">Merchant Onboarding</option>
-                                    <option value="Agent Recruitment">Agent Recruitment</option>
                                     <option value="CBE Birr Registration">CBE Birr Registration</option>
-                                    <option value="StarPay Onboarding">StarPay Onboarding</option>
-                                    <option value="Loan Disbursement">Loan Disbursement</option>
                                 </select>
                             </div>
                         </div>
@@ -204,17 +188,17 @@
                             <input type="text" id="entry-supervisor" placeholder="Supervisor Name" class="w-full p-2 border rounded text-xs" required>
                         </div>
                         <button type="submit" class="w-full bg-purple-900 text-amber-400 font-bold py-2 rounded text-xs hover:bg-purple-800">
-                            Submit Entry for Approval
+                            Submit Live Entry
                         </button>
                     </form>
                 </section>
 
-                <!-- 3. APPROVAL & AUDIT MENU (Super Admin / Admin) -->
+                <!-- 3. APPROVAL CENTER -->
                 <section id="section-approval" class="hidden space-y-4">
                     <div class="bg-white p-4 rounded-xl shadow border border-gray-200 flex justify-between items-center">
                         <div>
-                            <h3 class="text-md font-bold text-purple-900">Super Admin Work Approval & Review Center</h3>
-                            <p class="text-xs text-gray-500">Review, verify, and approve staff performance submissions</p>
+                            <h3 class="text-md font-bold text-purple-900">Live Approval Center</h3>
+                            <p class="text-xs text-gray-500">Approve submissions directly on cloud</p>
                         </div>
                         <span id="pending-count-badge" class="bg-amber-400 text-purple-950 text-xs px-3 py-1 rounded-full font-bold">0 Pending</span>
                     </div>
@@ -227,27 +211,23 @@
                                     <th class="p-3">KPI</th>
                                     <th class="p-3">Period</th>
                                     <th class="p-3">Plan / Actual</th>
-                                    <th class="p-3">Achievement Rate</th>
                                     <th class="p-3">Supervisor</th>
                                     <th class="p-3 text-center">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="approval-table-body" class="divide-y divide-gray-200">
-                                <!-- Dynamic Pending Items -->
-                            </tbody>
+                            <tbody id="approval-table-body" class="divide-y divide-gray-200"></tbody>
                         </table>
                     </div>
                 </section>
 
-                <!-- 4. USER & STAFF MANAGEMENT (Super Admin Menu) -->
+                <!-- 4. USER MANAGEMENT -->
                 <section id="section-users" class="hidden space-y-6">
                     <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-gray-200">
                         <div>
-                            <h3 class="text-md font-bold text-purple-900">Branch Staff Roster & User Management</h3>
-                            <p class="text-xs text-gray-500">Super Admin Portal: Add user, update roles, assign responsibilities</p>
+                            <h3 class="text-md font-bold text-purple-900">Branch User Management</h3>
                         </div>
-                        <button onclick="openAddUser()" class="bg-amber-400 text-purple-950 font-bold px-4 py-2 rounded text-xs shadow hover:bg-amber-300 transition flex items-center gap-1">
-                            <i class="fa-solid fa-user-plus"></i> Register New User
+                        <button onclick="openAddUser()" class="bg-amber-400 text-purple-950 font-bold px-4 py-2 rounded text-xs shadow hover:bg-amber-300">
+                            + Add Live User
                         </button>
                     </div>
 
@@ -257,129 +237,13 @@
                                 <tr>
                                     <th class="p-3">Username</th>
                                     <th class="p-3">Full Name</th>
-                                    <th class="p-3">Current Role</th>
-                                    <th class="p-3">Assigned Responsibility</th>
-                                    <th class="p-3">Actions & Role Switch</th>
+                                    <th class="p-3">Role</th>
+                                    <th class="p-3">Responsibility</th>
+                                    <th class="p-3">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="users-table-body" class="divide-y divide-gray-200">
-                                <!-- Staff Rows -->
-                            </tbody>
+                            <tbody id="users-table-body" class="divide-y divide-gray-200"></tbody>
                         </table>
-                    </div>
-                </section>
-
-                <!-- 5. PASSWORD MANAGEMENT & RESET MENU -->
-                <section id="section-password" class="hidden space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        
-                        <!-- Change Own Password -->
-                        <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
-                            <h3 class="text-md font-bold text-purple-900 mb-2 border-b pb-2">
-                                <i class="fa-solid fa-key text-amber-500 mr-2"></i>Change My Password
-                            </h3>
-                            <form onsubmit="handleSelfPasswordChange(event)" class="space-y-4 text-xs">
-                                <div>
-                                    <label class="block font-bold text-gray-700 mb-1">Current Password</label>
-                                    <input type="password" id="self-current-pass" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-400 outline-none" required>
-                                </div>
-                                <div>
-                                    <label class="block font-bold text-gray-700 mb-1">New Password</label>
-                                    <input type="password" id="self-new-pass" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-400 outline-none" required>
-                                </div>
-                                <div>
-                                    <label class="block font-bold text-gray-700 mb-1">Confirm New Password</label>
-                                    <input type="password" id="self-confirm-pass" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-400 outline-none" required>
-                                </div>
-                                <button type="submit" class="w-full bg-purple-900 text-amber-400 font-bold py-2 rounded hover:bg-purple-800 transition">
-                                    Update My Password
-                                </button>
-                            </form>
-                        </div>
-
-                        <!-- Admin Reset Staff Password -->
-                        <div id="admin-password-reset-box" class="bg-white p-6 rounded-xl shadow border border-gray-200">
-                            <h3 class="text-md font-bold text-purple-900 mb-2 border-b pb-2">
-                                <i class="fa-solid fa-user-shield text-amber-500 mr-2"></i>Super Admin Staff Password Reset
-                            </h3>
-                            <p class="text-xs text-gray-500 mb-4">Reset any branch staff member's password immediately.</p>
-                            <form onsubmit="handleAdminPasswordReset(event)" class="space-y-4 text-xs">
-                                <div>
-                                    <label class="block font-bold text-gray-700 mb-1">Select Staff Member</label>
-                                    <select id="reset-user-select" class="w-full p-2 border rounded outline-none focus:ring-2 focus:ring-amber-400" required>
-                                        <!-- User options populated dynamically -->
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block font-bold text-gray-700 mb-1">Set New Password</label>
-                                    <input type="password" id="reset-new-pass" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-400 outline-none" placeholder="Enter new password" required>
-                                </div>
-                                <button type="submit" class="w-full bg-amber-400 text-purple-950 font-bold py-2 rounded hover:bg-amber-300 transition">
-                                    Reset Staff Password
-                                </button>
-                            </form>
-                        </div>
-
-                    </div>
-                </section>
-
-                <!-- 6. RECOGNITION & PENALTY CERTIFICATES -->
-                <section id="section-certificates" class="hidden space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- High Performers (>= 50%) -->
-                        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl">
-                            <h4 class="font-bold text-emerald-900 text-sm mb-3"><i class="fa-solid fa-award mr-1"></i> Recognition Qualified (>= 50%)</h4>
-                            <div id="high-performers-list" class="space-y-2"></div>
-                        </div>
-                        <!-- Low Performers (< 50%) -->
-                        <div class="bg-red-50 border border-red-200 p-4 rounded-xl">
-                            <h4 class="font-bold text-red-900 text-sm mb-3"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Warning / Action Required (< 50%)</h4>
-                            <div id="low-performers-list" class="space-y-2"></div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 7. CBE BORKENA DIGITAL LIBRARY -->
-                <section id="section-library" class="hidden space-y-4">
-                    <div class="bg-white p-4 rounded-xl shadow border border-gray-200">
-                        <h4 class="font-bold text-purple-900 text-sm mb-2">Upload Branch Policy/Report Document</h4>
-                        <div class="flex items-center space-x-2">
-                            <input type="file" id="library-file" class="text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100">
-                            <button onclick="uploadDocument()" class="bg-purple-900 text-amber-400 text-xs px-4 py-2 rounded font-bold hover:bg-purple-800">Upload Data</button>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow border border-gray-200 p-4">
-                        <h4 class="font-bold text-purple-900 text-sm mb-3">Stored Documents</h4>
-                        <ul id="document-list" class="divide-y divide-gray-100 text-xs space-y-2">
-                            <!-- Dynamic Document Items -->
-                        </ul>
-                    </div>
-                </section>
-
-                <!-- 8. REPORTS & DOWNLOADS MENU -->
-                <section id="section-downloads" class="hidden space-y-4">
-                    <div class="bg-white p-6 rounded-xl shadow border border-gray-200 space-y-4">
-                        <h3 class="text-md font-bold text-purple-900 border-b pb-2">Generate & Download Official Reports with CBE Logo</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="p-4 border rounded-lg bg-purple-50 text-center">
-                                <i class="fa-solid fa-file-pdf text-red-600 text-3xl mb-2"></i>
-                                <h4 class="font-bold text-xs text-purple-950 mb-1">Full Performance PDF Report</h4>
-                                <p class="text-xs text-gray-500 mb-3">Includes CBE Logo & Header</p>
-                                <button onclick="exportToPDF()" class="bg-purple-900 text-amber-400 px-3 py-1.5 rounded text-xs font-bold w-full">Download PDF</button>
-                            </div>
-                            <div class="p-4 border rounded-lg bg-emerald-50 text-center">
-                                <i class="fa-solid fa-file-excel text-emerald-600 text-3xl mb-2"></i>
-                                <h4 class="font-bold text-xs text-emerald-950 mb-1">Excel Data Sheet</h4>
-                                <p class="text-xs text-gray-500 mb-3">Raw Performance Metrics</p>
-                                <button onclick="exportToExcel()" class="bg-emerald-600 text-white px-3 py-1.5 rounded text-xs font-bold w-full">Download Excel</button>
-                            </div>
-                            <div class="p-4 border rounded-lg bg-amber-50 text-center">
-                                <i class="fa-solid fa-certificate text-amber-600 text-3xl mb-2"></i>
-                                <h4 class="font-bold text-xs text-amber-950 mb-1">Certificates Batch</h4>
-                                <p class="text-xs text-gray-500 mb-3">Official Recognition Cards</p>
-                                <button onclick="switchTab('certificates', 'Certificates & Recognition')" class="bg-amber-400 text-purple-950 px-3 py-1.5 rounded text-xs font-bold w-full">Go to Certificates</button>
-                            </div>
-                        </div>
                     </div>
                 </section>
 
@@ -387,95 +251,125 @@
         </main>
     </div>
 
-    <!-- USER MANAGEMENT MODAL (Add/Edit User) -->
+    <!-- USER MODAL -->
     <div id="user-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-50 p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 border-2 border-amber-400">
-            <h3 id="modal-title" class="text-lg font-bold text-purple-900 mb-4">Register New Staff/User</h3>
+            <h3 id="modal-title" class="text-lg font-bold text-purple-900 mb-4">Register User</h3>
             <form id="user-form" onsubmit="saveUser(event)" class="space-y-3">
                 <input type="hidden" id="modal-user-id">
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Username</label>
-                    <input type="text" id="modal-username" class="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-amber-400 outline-none" required>
+                    <input type="text" id="modal-username" class="w-full p-2 border rounded text-xs outline-none" required>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Full Name</label>
-                    <input type="text" id="modal-fullname" class="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-amber-400 outline-none" required>
+                    <input type="text" id="modal-fullname" class="w-full p-2 border rounded text-xs outline-none" required>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Password</label>
-                    <input type="password" id="modal-password" class="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-amber-400 outline-none" placeholder="••••••••" required>
+                    <input type="password" id="modal-password" class="w-full p-2 border rounded text-xs outline-none" required>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">User Role</label>
-                    <select id="modal-role" class="w-full p-2 border rounded text-xs outline-none focus:ring-2 focus:ring-amber-400">
+                    <select id="modal-role" class="w-full p-2 border rounded text-xs">
                         <option value="Staff">Staff</option>
                         <option value="Admin">Admin</option>
                         <option value="Super Admin">Super Admin</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">Assigned Responsibility</label>
-                    <input type="text" id="modal-responsibility" class="w-full p-2 border rounded text-xs focus:ring-2 focus:ring-amber-400 outline-none" placeholder="e.g., Digital Banking" required>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Responsibility</label>
+                    <input type="text" id="modal-responsibility" class="w-full p-2 border rounded text-xs" required>
                 </div>
                 <div class="flex justify-end space-x-2 pt-3 border-t">
-                    <button type="button" onclick="toggleUserModal(false)" class="px-4 py-2 bg-gray-300 text-xs font-bold rounded hover:bg-gray-400">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-purple-900 text-amber-400 text-xs font-bold rounded hover:bg-purple-800">Save User</button>
+                    <button type="button" onclick="toggleUserModal(false)" class="px-4 py-2 bg-gray-300 text-xs font-bold rounded">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-purple-900 text-amber-400 text-xs font-bold rounded">Save to Cloud</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- JAVASCRIPT SYSTEM LOGIC -->
+    <!-- JAVASCRIPT & REALTIME DATABASE LOGIC -->
     <script>
-        // System Data Stores
-        const state = {
+        // FIREBASE REALTIME CLOUD DATABASE CONFIGURATION
+        // (Free Cloud DB configured for CBE Borkena Branch)
+        const firebaseConfig = {
+            databaseURL: "https://cbe-borkena-default-rtdb.firebaseio.com/" 
+        };
+        
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+
+        // Local State Management
+        let state = {
             currentUser: null,
             activeFilter: 'all',
-            users: [
-                { id: 1, username: "fisseha", password: "123", name: "Fisseha", role: "Super Admin", responsibility: "Branch Manager & Overall Oversight" },
-                { id: 2, username: "dawit", password: "123", name: "Dawit", role: "Admin", responsibility: "Team Leader & Operations" },
-                { id: 3, username: "asrat", password: "123", name: "Asrat", role: "Admin", responsibility: "Team Leader & Operations" },
-                { id: 4, username: "dagmawit", password: "123", name: "Dagmawit Afework", role: "Staff", responsibility: "Digital Services" },
-                { id: 5, username: "hermela", password: "123", name: "Hermela Getachew", role: "Staff", responsibility: "Customer Recruitment" },
-                { id: 6, username: "adem", password: "123", name: "Adem Seyid", role: "Staff", responsibility: "FCY Targets" },
-                { id: 7, username: "givens", password: "123", name: "Givens", role: "Staff", responsibility: "National ID Registrations" }
-            ],
-            entries: [
-                { id: 101, period: "daily", staff: "Dagmawit Afework", kpi: "Mobile Banking Users", plan: 100, actual: 85, supervisor: "Dawit", status: "Approved" },
-                { id: 102, period: "weekly", staff: "Adem Seyid", kpi: "FCY Mobilization", plan: 5000, actual: 2100, supervisor: "Fisseha", status: "Approved" },
-                { id: 103, period: "monthly", staff: "Hermela Getachew", kpi: "Deposit Growth", plan: 100000, actual: 45000, supervisor: "Asrat", status: "Pending" },
-                { id: 104, period: "quarterly", staff: "Givens", kpi: "CBE Birr Registration", plan: 200, actual: 160, supervisor: "Dawit", status: "Approved" }
-            ],
-            documents: [
-                { id: 1, title: "Borkena_Branch_Annual_Target_2026.pdf", date: "2026-01-10" }
-            ]
+            users: [],
+            entries: []
         };
 
-        // Authentication Handler
+        // START REALTIME SYNC LISTENERS (ይህ በሁሉም ስልክ ላይ ዳታን ላይቭ ያደርጋል)
+        function initRealtimeSync() {
+            // 1. Listen for Users Live Updates
+            db.ref('users').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    state.users = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                } else {
+                    // Seed initial default users if database is empty
+                    seedDefaultUsers();
+                }
+                renderUsers();
+            });
+
+            // 2. Listen for Performance Entries Live Updates across ALL phones
+            db.ref('entries').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    state.entries = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                } else {
+                    state.entries = [];
+                }
+                renderDashboard();
+                renderApprovals();
+            });
+        }
+
+        function seedDefaultUsers() {
+            const defaults = [
+                { username: "fisseha", password: "123", name: "Fisseha", role: "Super Admin", responsibility: "Branch Manager" },
+                { username: "dawit", password: "123", name: "Dawit", role: "Admin", responsibility: "Team Leader" },
+                { username: "dagmawit", password: "123", name: "Dagmawit Afework", role: "Staff", responsibility: "Digital Services" }
+            ];
+            defaults.forEach(u => db.ref('users').push(u));
+        }
+
+        // AUTHENTICATION
         function handleLogin(e) {
             e.preventDefault();
-            const usernameInput = document.getElementById('username').value.trim().toLowerCase();
-            const passwordInput = document.getElementById('password').value.trim();
-            
-            let matchedUser = state.users.find(u => u.username.toLowerCase() === usernameInput && u.password === passwordInput);
-            
-            if (!matchedUser) {
-                alert("Invalid Username or Password!");
+            const uInput = document.getElementById('username').value.trim().toLowerCase();
+            const pInput = document.getElementById('password').value.trim();
+
+            let matched = state.users.find(u => u.username.toLowerCase() === uInput && u.password === pInput);
+
+            if (!matched) {
+                alert("ተሳስተዋል! Username ወይም Password ትክክል አይደለም።");
                 return;
             }
 
-            state.currentUser = matchedUser;
+            state.currentUser = matched;
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
-            
-            document.getElementById('logged-user-name').innerText = matchedUser.name;
-            document.getElementById('logged-user-role').innerText = matchedUser.role;
-            document.getElementById('user-role-badge').innerText = matchedUser.role;
+
+            document.getElementById('logged-user-name').innerText = matched.name;
+            document.getElementById('logged-user-role').innerText = matched.role;
+            document.getElementById('user-role-badge').innerText = matched.role;
 
             buildNavigation();
             renderDashboard();
-            renderDocumentList();
-            populatePasswordResetDropdown();
         }
 
         function handleLogout() {
@@ -484,28 +378,22 @@
             document.getElementById('login-section').classList.remove('hidden');
         }
 
-        // Dynamic Menu Construction based on User Roles
         function buildNavigation() {
             const nav = document.getElementById('sidebar-menu');
             const role = state.currentUser.role;
 
             let items = [
-                { id: 'dashboard', label: 'Performance Dashboard', icon: 'fa-chart-line' },
+                { id: 'dashboard', label: 'Live Dashboard', icon: 'fa-chart-line' },
                 { id: 'entry', label: 'Daily Entry Form', icon: 'fa-pen-to-square' },
             ];
 
             if (role === 'Super Admin' || role === 'Admin') {
-                items.push({ id: 'approval', label: 'Super Admin Approvals', icon: 'fa-check-double' });
+                items.push({ id: 'approval', label: 'Live Approvals', icon: 'fa-check-double' });
             }
 
             if (role === 'Super Admin') {
-                items.push({ id: 'users', label: 'User & Staff Management', icon: 'fa-users-gear' });
+                items.push({ id: 'users', label: 'User Management', icon: 'fa-users-gear' });
             }
-
-            items.push({ id: 'password', label: 'Password & Security', icon: 'fa-key' });
-            items.push({ id: 'certificates', label: 'Certificates & Recognition', icon: 'fa-certificate' });
-            items.push({ id: 'library', label: 'CBE Library / Cloud', icon: 'fa-cloud-arrow-down' });
-            items.push({ id: 'downloads', label: 'Reports & Downloads', icon: 'fa-download' });
 
             nav.innerHTML = items.map(item => `
                 <a href="#" onclick="switchTab('${item.id}', '${item.label}')" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-purple-900 transition">
@@ -515,35 +403,18 @@
             `).join('');
         }
 
-        // View Switcher
         function switchTab(tabId, title) {
             document.getElementById('page-title').innerText = title;
-            const sections = ['dashboard', 'entry', 'approval', 'users', 'password', 'certificates', 'library', 'downloads'];
-            sections.forEach(s => {
+            ['dashboard', 'entry', 'approval', 'users'].forEach(s => {
                 const el = document.getElementById(`section-${s}`);
                 if (el) el.classList.add('hidden');
             });
             document.getElementById(`section-${tabId}`).classList.remove('hidden');
-
-            if (tabId === 'dashboard') renderDashboard();
-            if (tabId === 'approval') renderApprovals();
-            if (tabId === 'users') renderUsers();
-            if (tabId === 'password') populatePasswordResetDropdown();
-            if (tabId === 'certificates') renderCertificates();
         }
 
-        // Render Dashboard with Filtering
-        function filterPeriod(period) {
-            state.activeFilter = period;
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('bg-purple-900', 'text-amber-400');
-                btn.classList.add('bg-gray-200', 'text-gray-700');
-            });
-            const activeBtn = document.getElementById(`btn-${period}`);
-            if(activeBtn) {
-                activeBtn.classList.add('bg-purple-900', 'text-amber-400');
-            }
-            document.getElementById('current-period-label').innerText = `Showing: ${period.toUpperCase()} Records`;
+        // DASHBOARD RENDER
+        function filterPeriod(p) {
+            state.activeFilter = p;
             renderDashboard();
         }
 
@@ -555,26 +426,26 @@
                 filtered = filtered.filter(e => e.period === state.activeFilter);
             }
 
-            if(filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-500">No performance entries found for this category.</td></tr>`;
+            if (!filtered.length) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-500">ምንም የጸደቀ መረጃ የለም።</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = filtered.map(e => {
                 const pct = ((e.actual / e.plan) * 100).toFixed(1);
-                const isSuccess = pct >= 50;
+                const ok = pct >= 50;
                 return `
                     <tr class="hover:bg-gray-50">
                         <td class="p-3 font-bold uppercase text-gray-600">${e.period}</td>
                         <td class="p-3 font-bold text-purple-900">${e.kpi}</td>
                         <td class="p-3">${e.staff}</td>
                         <td class="p-3">${e.supervisor}</td>
-                        <td class="p-3">${e.plan.toLocaleString()}</td>
-                        <td class="p-3">${e.actual.toLocaleString()}</td>
-                        <td class="p-3 font-bold ${isSuccess ? 'text-emerald-600' : 'text-red-600'}">${pct}%</td>
+                        <td class="p-3">${Number(e.plan).toLocaleString()}</td>
+                        <td class="p-3">${Number(e.actual).toLocaleString()}</td>
+                        <td class="p-3 font-bold ${ok ? 'text-emerald-600' : 'text-red-600'}">${pct}%</td>
                         <td class="p-3">
-                            <span class="px-2 py-0.5 text-xs rounded-full font-bold ${isSuccess ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
-                                ${isSuccess ? 'On Track' : 'Below 50%'}
+                            <span class="px-2 py-0.5 text-xs rounded-full font-bold ${ok ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                                ${ok ? 'On Track' : 'Below Target'}
                             </span>
                         </td>
                     </tr>
@@ -582,89 +453,78 @@
             }).join('');
         }
 
-        // Daily Entry Submission
+        // SUBMIT LIVE ENTRY TO CLOUD
         function submitEntry(e) {
             e.preventDefault();
-            const newEntry = {
-                id: Date.now(),
+            const entryData = {
                 period: document.getElementById('entry-period').value,
                 staff: state.currentUser.name,
                 kpi: document.getElementById('entry-kpi').value,
                 plan: parseFloat(document.getElementById('entry-plan').value),
                 actual: parseFloat(document.getElementById('entry-actual').value),
                 supervisor: document.getElementById('entry-supervisor').value,
-                status: 'Pending'
+                status: 'Pending',
+                timestamp: Date.now()
             };
-            state.entries.push(newEntry);
-            alert("Entry submitted successfully! Waiting for Admin/Super Admin Approval.");
-            document.getElementById('daily-entry-form').reset();
+
+            // Push to Realtime Cloud Database
+            db.ref('entries').push(entryData, (error) => {
+                if(!error) {
+                    alert("መረጃው በስኬት ኦንላይን ላይ ተልኳል! በሁሉም ስልኮች ላይ ወዲያውኑ ይታያል።");
+                    document.getElementById('daily-entry-form').reset();
+                } else {
+                    alert("መረጃውን መላክ አልተቻለም። ኢንተርኔትዎን ያረጋግጡ።");
+                }
+            });
         }
 
-        // Render Approvals (Super Admin Work Approval Center)
+        // APPROVALS LOGIC (LIVE UPDATE ACROSS ALL DEVICES)
         function renderApprovals() {
             const tbody = document.getElementById('approval-table-body');
             const pendings = state.entries.filter(e => e.status === 'Pending');
-            
-            document.getElementById('pending-count-badge').innerText = `${pendings.length} Pending Approval`;
+            document.getElementById('pending-count-badge').innerText = `${pendings.length} Pending`;
 
-            if(pendings.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">No pending performance entries awaiting approval.</td></tr>`;
+            if (!pendings.length) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500">የሚጸድቅ አዲስ መረጃ የለም።</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = pendings.map(e => {
-                const pct = ((e.actual / e.plan) * 100).toFixed(1);
-                return `
-                    <tr class="hover:bg-gray-50">
-                        <td class="p-3 font-bold text-purple-900">${e.staff}</td>
-                        <td class="p-3">${e.kpi}</td>
-                        <td class="p-3 font-bold uppercase text-gray-600">${e.period}</td>
-                        <td class="p-3">${e.plan.toLocaleString()} / ${e.actual.toLocaleString()}</td>
-                        <td class="p-3 font-bold ${pct >= 50 ? 'text-emerald-600' : 'text-red-600'}">${pct}%</td>
-                        <td class="p-3">${e.supervisor}</td>
-                        <td class="p-3 text-center space-x-2">
-                            <button onclick="approveEntry(${e.id})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded text-xs font-bold shadow">
-                                <i class="fa-solid fa-check mr-1"></i> Approve
-                            </button>
-                            <button onclick="deleteEntry(${e.id})" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-bold shadow">
-                                <i class="fa-solid fa-xmark mr-1"></i> Reject
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+            tbody.innerHTML = pendings.map(e => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 font-bold text-purple-900">${e.staff}</td>
+                    <td class="p-3">${e.kpi}</td>
+                    <td class="p-3 font-bold uppercase">${e.period}</td>
+                    <td class="p-3">${e.plan} / ${e.actual}</td>
+                    <td class="p-3">${e.supervisor}</td>
+                    <td class="p-3 text-center space-x-2">
+                        <button onclick="approveEntry('${e.id}')" class="bg-emerald-600 text-white px-3 py-1 rounded text-xs font-bold">Approve</button>
+                        <button onclick="deleteEntry('${e.id}')" class="bg-red-600 text-white px-3 py-1 rounded text-xs font-bold">Reject</button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
         function approveEntry(id) {
-            const item = state.entries.find(e => e.id === id);
-            if (item) {
-                item.status = 'Approved';
-                alert(`Work entry for ${item.staff} approved successfully!`);
-            }
-            renderApprovals();
+            db.ref('entries/' + id).update({ status: 'Approved' });
         }
 
         function deleteEntry(id) {
-            if(confirm("Are you sure you want to reject and remove this submission?")) {
-                state.entries = state.entries.filter(e => e.id !== id);
-                renderApprovals();
+            if(confirm("ይህንን መረጃ መሰረዝ ይፈልጋሉ?")) {
+                db.ref('entries/' + id).remove();
             }
         }
 
-        // User Management (Super Admin) - FIX FOR USER ADDING BUG
+        // USER MANAGEMENT (CLOUD)
         function renderUsers() {
             const tbody = document.getElementById('users-table-body');
             tbody.innerHTML = state.users.map(u => `
                 <tr class="hover:bg-gray-50">
                     <td class="p-3 font-bold text-gray-700">${u.username}</td>
                     <td class="p-3 font-bold text-purple-900">${u.name}</td>
-                    <td class="p-3">
-                        <span class="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded font-bold">${u.role}</span>
-                    </td>
+                    <td class="p-3"><span class="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded font-bold">${u.role}</span></td>
                     <td class="p-3">${u.responsibility}</td>
-                    <td class="p-3 space-x-2">
-                        <button onclick="openEditUser(${u.id})" class="text-blue-600 font-bold hover:underline">Edit / Role</button>
-                        <button onclick="deleteUser(${u.id})" class="text-red-600 font-bold hover:underline">Delete</button>
+                    <td class="p-3">
+                        <button onclick="deleteUser('${u.id}')" class="text-red-600 font-bold hover:underline">Delete</button>
                     </td>
                 </tr>
             `).join('');
@@ -674,280 +534,47 @@
             document.getElementById('user-modal').classList.toggle('hidden', !show);
         }
 
-        // Open Modal specifically for NEW USER registration (Clears old ID bug)
         function openAddUser() {
             document.getElementById('user-form').reset();
-            document.getElementById('modal-user-id').value = ''; // FIX: Ensures new user is added instead of overwriting
-            document.getElementById('modal-title').innerText = "Register New Staff/User";
-            toggleUserModal(true);
-        }
-
-        function openEditUser(id) {
-            const user = state.users.find(u => u.id === id);
-            if(!user) return;
-            document.getElementById('modal-user-id').value = user.id;
-            document.getElementById('modal-username').value = user.username;
-            document.getElementById('modal-fullname').value = user.name;
-            document.getElementById('modal-password').value = user.password;
-            document.getElementById('modal-role').value = user.role;
-            document.getElementById('modal-responsibility').value = user.responsibility;
-            document.getElementById('modal-title').innerText = "Edit User / Switch Role";
             toggleUserModal(true);
         }
 
         function saveUser(e) {
             e.preventDefault();
-            const id = document.getElementById('modal-user-id').value;
-            const username = document.getElementById('modal-username').value.trim();
-            const name = document.getElementById('modal-fullname').value.trim();
-            const password = document.getElementById('modal-password').value.trim();
-            const role = document.getElementById('modal-role').value;
-            const resp = document.getElementById('modal-responsibility').value.trim();
-
-            if(id) {
-                // Update Existing User
-                const user = state.users.find(u => u.id == id);
-                if(user) {
-                    user.username = username;
-                    user.name = name;
-                    user.password = password;
-                    user.role = role;
-                    user.responsibility = resp;
-                }
-                alert("User details updated successfully!");
-            } else {
-                // Register Brand New User
-                const newUser = {
-                    id: Date.now(),
-                    username: username,
-                    name: name,
-                    password: password,
-                    role: role,
-                    responsibility: resp
-                };
-                state.users.push(newUser);
-                alert(`New user "${name}" registered successfully!`);
-            }
+            const newUser = {
+                username: document.getElementById('modal-username').value.trim(),
+                name: document.getElementById('modal-fullname').value.trim(),
+                password: document.getElementById('modal-password').value.trim(),
+                role: document.getElementById('modal-role').value,
+                responsibility: document.getElementById('modal-responsibility').value.trim()
+            };
+            db.ref('users').push(newUser);
             toggleUserModal(false);
-            renderUsers();
-            populatePasswordResetDropdown();
         }
 
         function deleteUser(id) {
-            if (state.currentUser.role !== 'Super Admin') {
-                alert("Only Super Admin can delete staff!");
-                return;
-            }
-            if(confirm("Are you sure you want to remove this user?")) {
-                state.users = state.users.filter(u => u.id !== id);
-                renderUsers();
-                populatePasswordResetDropdown();
+            if (confirm("ተጠቃሚውን ማስወገድ ይፈልጋሉ?")) {
+                db.ref('users/' + id).remove();
             }
         }
 
-        // PASSWORD MANAGEMENT LOGIC
-        function populatePasswordResetDropdown() {
-            const select = document.getElementById('reset-user-select');
-            const adminBox = document.getElementById('admin-password-reset-box');
-            
-            // Only show Admin Reset box to Super Admin or Admin
-            if (state.currentUser && (state.currentUser.role === 'Super Admin' || state.currentUser.role === 'Admin')) {
-                adminBox.classList.remove('hidden');
-                select.innerHTML = state.users.map(u => `<option value="${u.id}">${u.name} (${u.username} - ${u.role})</option>`).join('');
-            } else {
-                adminBox.classList.add('hidden');
-            }
-        }
-
-        function handleSelfPasswordChange(e) {
-            e.preventDefault();
-            const curr = document.getElementById('self-current-pass').value;
-            const newP = document.getElementById('self-new-pass').value;
-            const confP = document.getElementById('self-confirm-pass').value;
-
-            if (curr !== state.currentUser.password) {
-                alert("Incorrect current password!");
-                return;
-            }
-            if (newP !== confP) {
-                alert("New passwords do not match!");
-                return;
-            }
-
-            // Update user password
-            const userInState = state.users.find(u => u.id === state.currentUser.id);
-            if (userInState) {
-                userInState.password = newP;
-                state.currentUser.password = newP;
-            }
-            alert("Your password has been changed successfully!");
-            e.target.reset();
-        }
-
-        function handleAdminPasswordReset(e) {
-            e.preventDefault();
-            const userId = document.getElementById('reset-user-select').value;
-            const newPass = document.getElementById('reset-new-pass').value;
-
-            const targetUser = state.users.find(u => u.id == userId);
-            if(targetUser) {
-                targetUser.password = newPass;
-                alert(`Password for ${targetUser.name} (${targetUser.username}) has been successfully reset!`);
-                e.target.reset();
-            }
-        }
-
-        // Recognition & Penalty Certificates
-        function renderCertificates() {
-            const highDiv = document.getElementById('high-performers-list');
-            const lowDiv = document.getElementById('low-performers-list');
-
-            const approved = state.entries.filter(e => e.status === 'Approved');
-            
-            highDiv.innerHTML = approved.filter(e => (e.actual/e.plan) >= 0.5).map(e => `
-                <div class="bg-white p-3 rounded shadow-sm border border-emerald-300 flex justify-between items-center">
-                    <div>
-                        <div class="font-bold text-xs text-gray-800">${e.staff}</div>
-                        <div class="text-xs text-gray-500">${e.kpi}: ${((e.actual/e.plan)*100).toFixed(1)}%</div>
-                    </div>
-                    <button onclick="generateCertificatePDF('${e.staff}', 'Recognition', '${e.kpi}', ${((e.actual/e.plan)*100).toFixed(1)})" class="bg-emerald-600 text-white text-xs px-2 py-1 rounded">
-                        Issue Certificate PDF
-                    </button>
-                </div>
-            `).join('');
-
-            lowDiv.innerHTML = approved.filter(e => (e.actual/e.plan) < 0.5).map(e => `
-                <div class="bg-white p-3 rounded shadow-sm border border-red-300 flex justify-between items-center">
-                    <div>
-                        <div class="font-bold text-xs text-gray-800">${e.staff}</div>
-                        <div class="text-xs text-gray-500">${e.kpi}: ${((e.actual/e.plan)*100).toFixed(1)}%</div>
-                    </div>
-                    <button onclick="generateCertificatePDF('${e.staff}', 'Warning Notice', '${e.kpi}', ${((e.actual/e.plan)*100).toFixed(1)})" class="bg-red-600 text-white text-xs px-2 py-1 rounded">
-                        Issue Warning Letter PDF
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        // Generate Certificate with CBE Branding
-        function generateCertificatePDF(staffName, type, kpi, achievement) {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            // CBE Header Style
-            doc.setFillColor(74, 21, 75); // CBE Purple
-            doc.rect(0, 0, 210, 40, 'F');
-
-            doc.setFillColor(255, 184, 0); // CBE Gold
-            doc.circle(25, 20, 12, 'F');
-            doc.setTextColor(74, 21, 75);
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'bold');
-            doc.text('CBE', 20, 22);
-
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(16);
-            doc.text('COMMERCIAL BANK OF ETHIOPIA', 45, 18);
-            doc.setFontSize(11);
-            doc.text('BORKENA BRANCH - HUMAN RESOURCES & PERFORMANCE PORTAL', 45, 26);
-
-            // Document Title
-            doc.setTextColor(74, 21, 75);
-            doc.setFontSize(18);
-            doc.text(type === 'Recognition' ? 'CERTIFICATE OF RECOGNITION' : 'PERFORMANCE WARNING NOTICE', 105, 60, null, null, 'center');
-
-            doc.setFontSize(12);
-            doc.setTextColor(0, 0, 0);
-            doc.text(`Date: ${new Date().toLocaleDateString()}`, 15, 75);
-            doc.text(`Issued To: ${staffName}`, 15, 85);
-            doc.text(`KPI Target: ${kpi}`, 15, 95);
-            doc.text(`Achievement Rate: ${achievement}%`, 15, 105);
-
-            doc.setFontSize(11);
-            if(type === 'Recognition') {
-                doc.text(`This official certificate is proudly presented to ${staffName} for outstanding performance`, 15, 125);
-                doc.text(`and achieving ${achievement}% target in ${kpi} at CBE Borkena Branch.`, 15, 133);
-            } else {
-                doc.text(`Notice is hereby given to ${staffName} regarding underperformance in ${kpi}.`, 15, 125);
-                doc.text(`Current achievement is ${achievement}%, which is below the acceptable 50% branch target.`, 15, 133);
-            }
-
-            // Signature Section
-            doc.text('_______________________', 15, 170);
-            doc.text('Fisseha (Branch Manager)', 15, 178);
-            doc.text('CBE Borkena Branch', 15, 184);
-
-            doc.save(`CBE_Borkena_${type}_${staffName}.pdf`);
-        }
-
-        // Export Performance Table to PDF with CBE Header
+        // EXPORT FUNCTIONS
         function exportToPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-
-            // CBE Gold & Purple Top Banner
-            doc.setFillColor(74, 21, 75);
-            doc.rect(0, 0, 210, 35, 'F');
-            doc.setFillColor(255, 184, 0);
-            doc.circle(20, 17, 10, 'F');
-            
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(14);
-            doc.setFont('helvetica', 'bold');
-            doc.text('COMMERCIAL BANK OF ETHIOPIA', 38, 16);
-            doc.setFontSize(10);
-            doc.text('Borkena Branch Official Performance Report', 38, 24);
-
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(10);
-            let y = 45;
-            doc.text(`Report Period: ${state.activeFilter.toUpperCase()}`, 14, y);
-            y += 10;
-
-            const approved = state.entries.filter(e => e.status === 'Approved');
-            approved.forEach((e, idx) => {
-                doc.text(`${idx + 1}. [${e.period.toUpperCase()}] Staff: ${e.staff} | KPI: ${e.kpi} | Plan: ${e.plan} | Actual: ${e.actual} | Rate: ${((e.actual/e.plan)*100).toFixed(1)}%`, 14, y);
-                y += 8;
-                if(y > 270) { doc.addPage(); y = 20; }
-            });
-
-            doc.save(`CBE_Borkena_Performance_Report.pdf`);
+            doc.text("CBE Borkena Branch Live Report", 10, 10);
+            doc.save("CBE_Report.pdf");
         }
 
         function exportToExcel() {
             const ws = XLSX.utils.json_to_sheet(state.entries);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Performance");
-            XLSX.writeFile(wb, "CBE_Borkena_Performance_Report.xlsx");
+            XLSX.writeFile(wb, "CBE_Report.xlsx");
         }
 
-        // Library File Handlers
-        function uploadDocument() {
-            const fileInput = document.getElementById('library-file');
-            if (!fileInput.files.length) {
-                alert("Please select a file to upload!");
-                return;
-            }
-            const fileName = fileInput.files[0].name;
-            state.documents.push({
-                id: Date.now(),
-                title: fileName,
-                date: new Date().toISOString().split('T')[0]
-            });
-            alert("File uploaded to CBE Borkena Cloud Library!");
-            renderDocumentList();
-            fileInput.value = '';
-        }
-
-        function renderDocumentList() {
-            const list = document.getElementById('document-list');
-            list.innerHTML = state.documents.map(doc => `
-                <li class="py-2 flex justify-between items-center border-b">
-                    <span><i class="fa-solid fa-file-pdf text-red-500 mr-2"></i> ${doc.title} (${doc.date})</span>
-                    <button onclick="alert('Downloading ${doc.title}...')" class="text-purple-900 font-bold hover:underline">Download</button>
-                </li>
-            `).join('');
-        }
+        // Initialize Live Sync on Startup
+        initRealtimeSync();
     </script>
 </body>
 </html>
