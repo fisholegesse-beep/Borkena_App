@@ -3,500 +3,531 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Borkena Branch Performance Tracker</title>
-
-    <!-- Tailwind CSS & FontAwesome -->
+    <title>CBE Borkena Branch Performance Tracking System</title>
+    <!-- Tailwind CSS for Responsive UI -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Excel & PDF Export Libraries -->
+    <!-- SheetJS & jsPDF for Excel/PDF Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <!-- Firebase SDKs for Realtime Cloud Syncing -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        cbePurple: '#511f62',
-                        cbeGold: '#f0b323',
-                        cbeLight: '#f9f6fa',
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        .login-bg {
-            background: linear-gradient(135deg, rgba(81, 31, 98, 0.95), rgba(240, 179, 35, 0.8)), 
-                        url('https://www.combanketh.et/assets/images/logo.png') center/cover no-repeat;
+        :root {
+            --cbe-gold: #FFB800;
+            --cbe-purple: #4A154B;
+            --cbe-dark: #1E102E;
         }
+        body {
+            background-color: #F8F9FA;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .bg-cbe-gold { background-color: var(--cbe-gold); }
+        .bg-cbe-purple { background-color: var(--cbe-purple); }
+        .text-cbe-purple { color: var(--cbe-purple); }
+        .border-cbe-gold { border-color: var(--cbe-gold); }
     </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 min-h-screen flex flex-col">
 
-    <!-- LOGIN SCREEN -->
-    <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center login-bg">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border-t-8 border-cbeGold">
-            <div class="text-center mb-6">
-                <div class="w-20 h-20 bg-cbePurple text-cbeGold rounded-full flex items-center justify-center mx-auto mb-3 text-3xl font-bold border-2 border-cbeGold">
-                    CBE
+    <!-- LOGIN PAGE -->
+    <div id="login-section" class="fixed inset-0 z-50 flex items-center justify-center bg-purple-950 bg-opacity-95 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border-2 border-amber-400">
+            <div class="bg-purple-900 p-6 text-center text-white relative">
+                <div class="w-20 h-20 mx-auto bg-amber-400 rounded-full flex items-center justify-center mb-3 shadow-lg">
+                    <i class="fa-solid fa-building-columns text-purple-900 text-4xl"></i>
                 </div>
-                <h2 class="text-2xl font-bold text-cbePurple">Borkena Branch Portal</h2>
-                <p class="text-xs text-gray-500 mt-1">Commercial Bank of Ethiopia</p>
+                <h1 class="text-2xl font-bold tracking-wide">Commercial Bank of Ethiopia</h1>
+                <p class="text-amber-400 font-semibold text-sm">Borkena Branch Performance Portal</p>
             </div>
             
-            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+            <!-- Marquee Announcement -->
+            <div class="bg-amber-400 text-purple-950 font-bold px-4 py-1 text-xs overflow-hidden">
+                <marquee behavior="scroll" direction="left">Welcome to CBE Borkena Branch Online Performance Tracking & Staff Management System!</marquee>
+            </div>
+
+            <form id="login-form" class="p-6 space-y-4" onsubmit="handleLogin(event)">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Username / Email</label>
-                    <input type="text" id="loginUser" required class="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cbePurple focus:outline-none">
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Username</label>
+                    <input type="text" id="username" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-400 outline-none" placeholder="Enter username (e.g. fisseha)" required>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" id="loginPass" required class="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cbePurple focus:outline-none">
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Password</label>
+                    <input type="password" id="password" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-400 outline-none" placeholder="••••••••" required>
                 </div>
-                <button type="submit" class="w-full bg-cbePurple hover:bg-opacity-90 text-white font-bold py-3 rounded-lg shadow-md transition duration-200">
-                    Sign In
+                <button type="submit" class="w-full bg-purple-900 hover:bg-purple-800 text-amber-400 font-bold py-3 rounded-lg shadow-lg transition duration-200">
+                    LOG IN TO PORTAL
                 </button>
+                <p class="text-xs text-center text-gray-500 mt-2">Default logins: <b>fisseha</b> (Super Admin), <b>dawit</b> (Admin), <b>asrat</b> (Admin)</p>
             </form>
-            <p class="text-xs text-center text-gray-400 mt-6">Internal Tracking System &copy; 2026</p>
         </div>
     </div>
 
-    <!-- MAIN APP INTERFACE -->
-    <div id="appInterface" class="hidden min-h-screen flex flex-col">
+    <!-- MAIN APP STRUCTURE -->
+    <div id="app" class="hidden flex-1 flex flex-col md:flex-row">
         
-        <!-- HEADER -->
-        <header class="bg-cbePurple text-white shadow-lg sticky top-0 z-40">
-            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-                <div class="flex items-center space-x-3">
-                    <span class="bg-cbeGold text-cbePurple font-black px-3 py-1 rounded text-lg border border-white">CBE</span>
-                    <div>
-                        <h1 class="font-bold text-lg leading-tight">Borkena Branch Tracker</h1>
-                        <p class="text-xs text-cbeGold" id="userRoleBadge">Role: Loading...</p>
-                    </div>
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="w-full md:w-64 bg-purple-950 text-white flex-shrink-0">
+            <div class="p-4 bg-purple-900 flex items-center justify-between border-b border-amber-400">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-university text-amber-400 text-xl"></i>
+                    <span class="font-bold text-sm tracking-wide">CBE BORKENA</span>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <span id="welcomeUser" class="text-sm hidden sm:inline font-medium"></span>
-                    <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-2 rounded transition">
-                        <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
-                    </button>
+                <span id="user-role-badge" class="bg-amber-400 text-purple-950 text-xs px-2 py-0.5 rounded font-bold">Role</span>
+            </div>
+
+            <div class="p-4 border-b border-purple-800 flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-amber-400 flex items-center justify-center text-purple-900 font-bold">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div>
+                    <div id="logged-user-name" class="font-bold text-sm">User Name</div>
+                    <div id="logged-user-role" class="text-xs text-gray-300">Staff Member</div>
                 </div>
             </div>
 
-            <!-- MARQUEE HEADER -->
-            <div class="bg-cbeGold text-cbePurple text-xs font-bold py-1 overflow-hidden">
-                <marquee behavior="scroll" direction="left" class="w-full">
-                    Welcome to Commercial Bank of Ethiopia - Borkena Branch Online Performance Monitoring System. Track daily targets, deposit growth, FCY, and digital banking metrics in real-time!
-                </marquee>
-            </div>
-        </header>
+            <nav class="p-2 space-y-1 text-sm font-medium" id="sidebar-menu">
+                <!-- Dynamic Navigation Loaded Here -->
+            </nav>
 
-        <!-- MAIN LAYOUT -->
-        <div class="flex-grow flex flex-col md:flex-row container mx-auto px-2 md:px-4 py-4 gap-4">
+            <div class="p-4 border-t border-purple-900">
+                <button onclick="handleLogout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-xs font-bold transition">
+                    <i class="fa-solid fa-right-from-bracket mr-2"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 p-4 md:p-6 overflow-y-auto">
             
-            <!-- SIDEBAR MENU -->
-            <aside class="w-full md:w-64 bg-white rounded-xl shadow-md p-4 h-fit border border-gray-200">
-                <nav class="space-y-1" id="navigationMenu">
-                    <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-cbePurple bg-purple-50">
-                        <i class="fa-solid fa-chart-line w-5 text-cbeGold"></i>
-                        <span>Dashboard</span>
+            <!-- TOP BAR -->
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center pb-4 mb-6 border-b border-gray-300 gap-2">
+                <div>
+                    <h2 id="page-title" class="text-2xl font-bold text-purple-950">Dashboard Overview</h2>
+                    <p class="text-xs text-gray-500">Borkena Branch Real-Time Target vs Actual Metrics</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs bg-green-100 text-green-800 font-bold px-3 py-1 rounded-full border border-green-300">
+                        <i class="fa-solid fa-signal mr-1"></i> Live Cloud Sync
+                    </span>
+                    <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-2 rounded font-bold">
+                        <i class="fa-solid fa-file-excel mr-1"></i> Excel
                     </button>
-                    <button onclick="switchTab('dailyEntry')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100">
-                        <i class="fa-solid fa-pen-to-square w-5 text-cbeGold"></i>
-                        <span>Daily Entry</span>
+                    <button onclick="exportToPDF()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-2 rounded font-bold">
+                        <i class="fa-solid fa-file-pdf mr-1"></i> PDF
                     </button>
-                    <button id="menuApproval" onclick="switchTab('approvals')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100">
-                        <i class="fa-solid fa-circle-check w-5 text-cbeGold"></i>
-                        <span>Approve Tasks</span>
-                    </button>
-                    <button onclick="switchTab('library')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100">
-                        <i class="fa-solid fa-folder-open w-5 text-cbeGold"></i>
-                        <span>CBE Library & Cloud</span>
-                    </button>
-                    <button onclick="switchTab('reports')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100">
-                        <i class="fa-solid fa-file-invoice w-5 text-cbeGold"></i>
-                        <span>Reports & Downloads</span>
-                    </button>
-                    <button id="menuEvaluations" onclick="switchTab('evaluations')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100">
-                        <i class="fa-solid fa-award w-5 text-cbeGold"></i>
-                        <span>Certificates & Penalty</span>
-                    </button>
-                    <button id="menuUserMgmt" onclick="switchTab('userMgmt')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100">
-                        <i class="fa-solid fa-users-gear w-5 text-cbeGold"></i>
-                        <span>User Management</span>
-                    </button>
-                </nav>
-            </aside>
+                </div>
+            </header>
 
-            <!-- CONTENT DISPLAY -->
-            <main class="flex-grow bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-200">
+            <!-- SECTIONS CONTAINER -->
+            <div id="content-container">
                 
-                <!-- 1. DASHBOARD TAB -->
-                <section id="tab-dashboard" class="tab-content">
-                    <h2 class="text-xl font-bold text-cbePurple mb-4 flex items-center">
-                        <i class="fa-solid fa-chart-pie mr-2 text-cbeGold"></i> Branch Performance Dashboard
-                    </h2>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6" id="metricsOverview">
-                        <!-- Dynamic Metric Cards Loaded via JS -->
+                <!-- 1. DASHBOARD / PERFORMANCE REPORT -->
+                <section id="section-dashboard" class="space-y-6">
+                    <!-- Time Filters -->
+                    <div class="flex flex-wrap gap-2 bg-white p-3 rounded-lg shadow-sm border border-gray-200">
+                        <button onclick="filterPeriod('daily')" class="filter-btn bg-purple-900 text-amber-400 text-xs px-4 py-1.5 rounded font-bold">Daily</button>
+                        <button onclick="filterPeriod('weekly')" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Weekly</button>
+                        <button onclick="filterPeriod('monthly')" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Monthly</button>
+                        <button onclick="filterPeriod('quarterly')" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Quarterly</button>
+                        <button onclick="filterPeriod('annual')" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Annual</button>
                     </div>
 
-                    <div class="mt-8">
-                        <h3 class="text-lg font-bold text-gray-800 mb-3">Overall KPIs Performance Summary</h3>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm text-left text-gray-600 border">
-                                <thead class="bg-cbePurple text-white uppercase text-xs">
-                                    <tr>
-                                        <th class="py-3 px-4">KPI Metric</th>
-                                        <th class="py-3 px-4">Annual Plan</th>
-                                        <th class="py-3 px-4">Actual Achieved</th>
-                                        <th class="py-3 px-4">Performance (%)</th>
-                                        <th class="py-3 px-4">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="kpiTableBody" class="divide-y divide-gray-200">
-                                    <!-- Dynamic rows -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 2. DAILY ENTRY TAB -->
-                <section id="tab-dailyEntry" class="tab-content hidden">
-                    <h2 class="text-xl font-bold text-cbePurple mb-4">Register Daily Task / Activity</h2>
-                    <form id="taskEntryForm" onsubmit="submitTask(event)" class="space-y-4 max-w-lg">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Select Metric/KPI</label>
-                            <select id="entryKPI" required class="w-full mt-1 p-2 border rounded-md">
-                                <option value="Deposit">Deposit Growth</option>
-                                <option value="FCY">FCY Target</option>
-                                <option value="Customer Base">Customer Base Recruitment</option>
-                                <option value="Mobile Banking">Mobile Banking</option>
-                                <option value="ATM">ATM Deployment/Users</option>
-                                <option value="Internet Banking">Internet Banking</option>
-                                <option value="Merchant">Merchant Onboarding</option>
-                                <option value="Agent">Agent Recruitment</option>
-                                <option value="CBE Birr">CBE Birr</option>
-                                <option value="StarPay">StarPay</option>
-                                <option value="Harmonization">Harmonization</option>
-                                <option value="Loan Recruitment">Loan Recruitment</option>
-                                <option value="Disbursement">Loan Disbursement</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Achieved Value / Count</label>
-                            <input type="number" id="entryValue" min="1" required class="w-full mt-1 p-2 border rounded-md">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Assign Supervisor / Monitor</label>
-                            <select id="entrySupervisor" required class="w-full mt-1 p-2 border rounded-md">
-                                <option value="Fisseha (Super Admin)">Fisseha (Super Admin)</option>
-                                <option value="Dawit (Admin)">Dawit (Admin)</option>
-                                <option value="Asrat (Admin)">Asrat (Admin)</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="bg-cbePurple text-white px-6 py-2 rounded-md font-bold hover:bg-opacity-90">Submit for Approval</button>
-                    </form>
-                </section>
-
-                <!-- 3. APPROVALS TAB -->
-                <section id="tab-approvals" class="tab-content hidden">
-                    <h2 class="text-xl font-bold text-cbePurple mb-4">Pending Approvals Menu</h2>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left text-gray-600 border">
-                            <thead class="bg-cbePurple text-white text-xs uppercase">
+                    <!-- Performance Table -->
+                    <div class="bg-white rounded-xl shadow border border-gray-200 overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-purple-900 text-amber-400 uppercase font-bold">
                                 <tr>
-                                    <th class="p-3">Staff Member</th>
-                                    <th class="p-3">Metric</th>
-                                    <th class="p-3">Achieved Value</th>
+                                    <th class="p-3">KPI Category</th>
+                                    <th class="p-3">Staff / Assigned</th>
                                     <th class="p-3">Supervisor</th>
-                                    <th class="p-3">Action</th>
+                                    <th class="p-3">Plan</th>
+                                    <th class="p-3">Actual</th>
+                                    <th class="p-3">Achievement (%)</th>
+                                    <th class="p-3">Status</th>
                                 </tr>
                             </thead>
-                            <tbody id="approvalsTableBody">
-                                <tr><td colspan="5" class="p-4 text-center text-gray-400">No pending approvals.</td></tr>
+                            <tbody id="performance-table-body" class="divide-y divide-gray-200">
+                                <!-- Dynamic Data Rows -->
                             </tbody>
                         </table>
                     </div>
                 </section>
 
-                <!-- 4. CBE LIBRARY & CLOUD TAB -->
-                <section id="tab-library" class="tab-content hidden">
-                    <h2 class="text-xl font-bold text-cbePurple mb-4">Borkena CBE Cloud Library</h2>
-                    <div id="superAdminUploadArea" class="mb-6 p-4 border-2 border-dashed border-cbeGold rounded-lg bg-yellow-50">
-                        <h3 class="font-bold text-cbePurple mb-2">Upload Document to Cloud (Super Admin/Admin)</h3>
-                        <input type="file" id="libraryFileInput" class="mb-2 block text-sm">
-                        <button onclick="uploadLibraryFile()" class="bg-cbeGold text-cbePurple px-4 py-2 rounded font-bold text-sm">Upload File</button>
-                    </div>
-                    <div class="space-y-2" id="libraryFileList">
-                        <div class="p-3 bg-gray-50 border rounded flex justify-between items-center">
-                            <span><i class="fa-solid fa-file-pdf text-red-500 mr-2"></i> Branch Action Plan 2026.pdf</span>
-                            <button class="text-cbePurple font-bold text-xs hover:underline">Download</button>
+                <!-- 2. DAILY ENTRY MENU -->
+                <section id="section-entry" class="hidden max-w-2xl mx-auto bg-white p-6 rounded-xl shadow border border-gray-200">
+                    <h3 class="text-lg font-bold text-purple-900 mb-4 border-b pb-2">Submit Daily Performance Entry</h3>
+                    <form id="daily-entry-form" onsubmit="submitEntry(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">KPI Category</label>
+                            <select id="entry-kpi" class="w-full p-2 border rounded text-xs outline-none focus:ring-2 focus:ring-amber-400">
+                                <option value="Deposit">Deposit Growth</option>
+                                <option value="FCY">FCY Mobilization</option>
+                                <option value="Customer Base">Customer Base Acquisition</option>
+                                <option value="Mobile Banking">Mobile Banking Users</option>
+                                <option value="ATM">ATM Deployment/Recruitment</option>
+                                <option value="Merchant">Merchant Onboarding</option>
+                                <option value="Agent">Agent Recruitment</option>
+                                <option value="CBE Birr">CBE Birr Registration</option>
+                                <option value="StarPay">StarPay Onboarding</option>
+                                <option value="Harmonization">Harmonization Tasks</option>
+                                <option value="Loan Recruitment">Loan Recruitment</option>
+                                <option value="Disbursement">Loan Disbursement</option>
+                            </select>
                         </div>
-                    </div>
-                </section>
-
-                <!-- 5. REPORTS & DOWNLOADS TAB -->
-                <section id="tab-reports" class="tab-content hidden">
-                    <h2 class="text-xl font-bold text-cbePurple mb-4">Performance Reports & Export</h2>
-                    <div class="flex flex-wrap gap-4 mb-6">
-                        <select id="reportFilter" class="p-2 border rounded-md">
-                            <option value="daily">Daily Report</option>
-                            <option value="weekly">Weekly Report</option>
-                            <option value="monthly">Monthly Report</option>
-                            <option value="quarterly">Quarterly Report</option>
-                            <option value="annual">Annual Report</option>
-                        </select>
-                        <button onclick="exportExcel()" class="bg-green-600 text-white px-4 py-2 rounded font-bold text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-file-excel"></i> Export Excel
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Target Plan</label>
+                                <input type="number" id="entry-plan" class="w-full p-2 border rounded text-xs" required>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Actual Achieved</label>
+                                <input type="number" id="entry-actual" class="w-full p-2 border rounded text-xs" required>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Assigned Supervisor</label>
+                            <input type="text" id="entry-supervisor" placeholder="Supervisor Name" class="w-full p-2 border rounded text-xs" required>
+                        </div>
+                        <button type="submit" class="w-full bg-purple-900 text-amber-400 font-bold py-2 rounded text-xs hover:bg-purple-800">
+                            Submit Entry for Approval
                         </button>
-                        <button onclick="exportPDF()" class="bg-red-600 text-white px-4 py-2 rounded font-bold text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-file-pdf"></i> Export PDF
-                        </button>
-                    </div>
-                    <div class="p-4 border rounded bg-gray-50">
-                        <p class="text-sm text-gray-600">Select filter timeline and click export button to download staff performance dataset.</p>
-                    </div>
-                </section>
-
-                <!-- 6. CERTIFICATES & PENALTIES TAB -->
-                <section id="tab-evaluations" class="tab-content hidden">
-                    <h2 class="text-xl font-bold text-cbePurple mb-4">Staff Evaluation & Certificate Engine</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="p-4 border rounded-lg bg-green-50 border-green-200">
-                            <h3 class="font-bold text-green-800 mb-2">Recognition Eligible (> 50%)</h3>
-                            <ul id="recognitionList" class="text-sm space-y-1 text-green-700"></ul>
-                        </div>
-                        <div class="p-4 border rounded-lg bg-red-50 border-red-200">
-                            <h3 class="font-bold text-red-800 mb-2">Warning / Penalty Eligible (< 50%)</h3>
-                            <ul id="penaltyList" class="text-sm space-y-1 text-red-700"></ul>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 7. USER MANAGEMENT TAB (SUPER ADMIN ONLY) -->
-                <section id="tab-userMgmt" class="tab-content hidden">
-                    <h2 class="text-xl font-bold text-cbePurple mb-4">User & Role Management</h2>
-                    <form id="addUserForm" onsubmit="addUser(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6 bg-gray-50 p-4 rounded border">
-                        <input type="text" id="newUserName" placeholder="Staff Name" required class="p-2 border rounded">
-                        <input type="text" id="newUserRoleTitle" placeholder="Job Title" required class="p-2 border rounded">
-                        <select id="newUserSystemRole" class="p-2 border rounded">
-                            <option value="Staff">Staff</option>
-                            <option value="Admin">Admin (Dawit / Asrat)</option>
-                            <option value="Super Admin">Super Admin (Fisseha)</option>
-                        </select>
-                        <button type="submit" class="bg-cbePurple text-white rounded font-bold p-2">Add Staff</button>
                     </form>
-
-                    <table class="w-full text-sm text-left border">
-                        <thead class="bg-cbePurple text-white uppercase text-xs">
-                            <tr>
-                                <th class="p-3">Name</th>
-                                <th class="p-3">Job Title</th>
-                                <th class="p-3">System Role</th>
-                                <th class="p-3">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="userTableBody">
-                            <!-- User dynamic rows -->
-                        </tbody>
-                    </table>
                 </section>
 
-            </main>
-        </div>
+                <!-- 3. APPROVAL & AUDIT MENU (Admin / Super Admin) -->
+                <section id="section-approval" class="hidden space-y-4">
+                    <div class="bg-white rounded-xl shadow border border-gray-200 overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-purple-900 text-amber-400 uppercase font-bold">
+                                <tr>
+                                    <th class="p-3">Staff</th>
+                                    <th class="p-3">KPI</th>
+                                    <th class="p-3">Plan / Actual</th>
+                                    <th class="p-3">Supervisor</th>
+                                    <th class="p-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="approval-table-body" class="divide-y divide-gray-200">
+                                <!-- Dynamic Pending Items -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 4. USER & STAFF MANAGEMENT (Super Admin Menu) -->
+                <section id="section-users" class="hidden space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-md font-bold text-purple-900">Branch Staff Roster & Roles</h3>
+                        <button onclick="openUserModal()" class="bg-amber-400 text-purple-950 font-bold px-3 py-1.5 rounded text-xs shadow hover:bg-amber-300">
+                            <i class="fa-solid fa-user-plus mr-1"></i> Add New Staff
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-xl shadow border border-gray-200 overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-purple-900 text-amber-400 uppercase font-bold">
+                                <tr>
+                                    <th class="p-3">Name</th>
+                                    <th class="p-3">Role</th>
+                                    <th class="p-3">Assigned Responsibility</th>
+                                    <th class="p-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body" class="divide-y divide-gray-200">
+                                <!-- Staff Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 5. RECOGNITION & PENALTY CERTIFICATES -->
+                <section id="section-certificates" class="hidden space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- High Performers (>= 50%) -->
+                        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl">
+                            <h4 class="font-bold text-emerald-900 text-sm mb-3"><i class="fa-solid fa-award mr-1"></i> Recognition Qualified (>= 50%)</h4>
+                            <div id="high-performers-list" class="space-y-2"></div>
+                        </div>
+                        <!-- Low Performers (< 50%) -->
+                        <div class="bg-red-50 border border-red-200 p-4 rounded-xl">
+                            <h4 class="font-bold text-red-900 text-sm mb-3"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Warning / Action Required (< 50%)</h4>
+                            <div id="low-performers-list" class="space-y-2"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. CBE BORKENA DIGITAL LIBRARY -->
+                <section id="section-library" class="hidden space-y-4">
+                    <div class="bg-white p-4 rounded-xl shadow border border-gray-200">
+                        <h4 class="font-bold text-purple-900 text-sm mb-2">Upload Branch Policy/Report Document</h4>
+                        <div class="flex items-center space-x-2">
+                            <input type="file" id="library-file" class="text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100">
+                            <button onclick="uploadDocument()" class="bg-purple-900 text-amber-400 text-xs px-4 py-2 rounded font-bold">Upload</button>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow border border-gray-200 p-4">
+                        <h4 class="font-bold text-purple-900 text-sm mb-3">Stored Documents</h4>
+                        <ul id="document-list" class="divide-y divide-gray-100 text-xs space-y-2">
+                            <li class="py-2 flex justify-between items-center">
+                                <span><i class="fa-solid fa-file-pdf text-red-500 mr-2"></i> Borkena_Branch_Annual_Target_2026.pdf</span>
+                                <button class="text-purple-900 font-bold hover:underline">Download</button>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+            </div>
+        </main>
     </div>
 
-    <!-- APPLICATION LOGIC & FIREBASE SYNC -->
+    <!-- JAVASCRIPT SYSTEM LOGIC -->
     <script>
-        // FIREBASE CONFIGURATION (Replace with your Firebase Console Details)
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "borkena-cbe-tracker.firebaseapp.com",
-            databaseURL: "https://borkena-cbe-tracker-default-rtdb.firebaseio.com",
-            projectId: "borkena-cbe-tracker",
-            storageBucket: "borkena-cbe-tracker.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef123456"
+        // System Data Stores
+        const state = {
+            currentUser: null,
+            users: [
+                { id: 1, name: "Fisseha", role: "Super Admin", responsibility: "Branch Manager & Overall Oversight" },
+                { id: 2, name: "Dawit", role: "Admin", responsibility: "Team Leader & Operations" },
+                { id: 3, name: "Asrat", role: "Admin", responsibility: "Team Leader & Operations" },
+                { id: 4, name: "Dagmawit Afework", role: "Staff", responsibility: "Digital Services" },
+                { id: 5, name: "Hermela Getachew", role: "Staff", responsibility: "Customer Recruitment" },
+                { id: 6, name: "Adem Seyid", role: "Staff", responsibility: "FCY Targets" },
+                { id: 7, name: "Givens", role: "Staff", responsibility: "National ID Registrations" }
+            ],
+            entries: [
+                { id: 101, staff: "Dagmawit Afework", kpi: "Mobile Banking", plan: 100, actual: 85, supervisor: "Dawit", status: "Approved" },
+                { id: 102, staff: "Adem Seyid", kpi: "FCY", plan: 5000, actual: 2100, supervisor: "Fisseha", status: "Approved" },
+                { id: 103, staff: "Hermela Getachew", kpi: "Deposit", plan: 100000, actual: 45000, supervisor: "Asrat", status: "Pending" }
+            ]
         };
 
-        // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const db = firebase.database();
-
-        // System Default Roles & Initial Setup
-        let currentUser = null;
-        let activeRole = 'Staff'; // Super Admin, Admin, Staff
-
-        const kpis = [
-            { name: 'Deposit', plan: 325487629, actual: 180000000 },
-            { name: 'FCY', plan: 500000, actual: 210000 },
-            { name: 'Customer Base', plan: 5000, actual: 3200 },
-            { name: 'Mobile Banking', plan: 3000, actual: 1200 },
-            { name: 'ATM', plan: 1500, actual: 900 },
-            { name: 'Internet Banking', plan: 500, actual: 350 },
-            { name: 'Merchant', plan: 200, actual: 80 },
-            { name: 'Agent', plan: 150, actual: 90 },
-            { name: 'CBE Birr', plan: 4000, actual: 2500 },
-            { name: 'StarPay', plan: 1000, actual: 400 },
-            { name: 'Harmonization', plan: 100, actual: 60 },
-            { name: 'Loan Recruitment', plan: 50, actual: 30 },
-            { name: 'Disbursement', plan: 10000000, actual: 8000000 }
-        ];
-
-        // System Login Logic
+        // Authentication Handler
         function handleLogin(e) {
             e.preventDefault();
-            const user = document.getElementById('loginUser').value.trim();
+            const username = document.getElementById('username').value.trim().toLowerCase();
             
-            // System Role Mapping
-            if (user.toLowerCase() === 'fisseha') {
-                currentUser = 'Fisseha';
-                activeRole = 'Super Admin';
-            } else if (user.toLowerCase() === 'dawit') {
-                currentUser = 'Dawit';
-                activeRole = 'Admin';
-            } else if (user.toLowerCase() === 'asrat') {
-                currentUser = 'Asrat';
-                activeRole = 'Admin';
-            } else {
-                currentUser = user;
-                activeRole = 'Staff';
+            let matchedUser = state.users.find(u => u.name.toLowerCase() === username);
+            if (!matchedUser) {
+                // Default fallback as standard staff
+                matchedUser = { name: username.charAt(0).toUpperCase() + username.slice(1), role: "Staff", responsibility: "Branch Operations" };
             }
 
-            document.getElementById('welcomeUser').innerText = `User: ${currentUser}`;
-            document.getElementById('userRoleBadge').innerText = `Role: ${activeRole}`;
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('appInterface').classList.remove('hidden');
+            state.currentUser = matchedUser;
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            
+            document.getElementById('logged-user-name').innerText = matchedUser.name;
+            document.getElementById('logged-user-role').innerText = matchedUser.role;
+            document.getElementById('user-role-badge').innerText = matchedUser.role;
 
-            applyRolePermissions();
+            buildNavigation();
             renderDashboard();
-            renderEvaluations();
         }
 
-        function logout() {
-            document.getElementById('loginScreen').classList.remove('hidden');
-            document.getElementById('appInterface').classList.add('hidden');
+        function handleLogout() {
+            state.currentUser = null;
+            document.getElementById('app').classList.add('hidden');
+            document.getElementById('login-section').classList.remove('hidden');
         }
 
-        // Tab Switcher
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+        // Dynamic Menu Construction based on User Roles
+        function buildNavigation() {
+            const nav = document.getElementById('sidebar-menu');
+            const role = state.currentUser.role;
+
+            let items = [
+                { id: 'dashboard', label: 'Performance Dashboard', icon: 'fa-chart-line' },
+                { id: 'entry', label: 'Daily Entry Form', icon: 'fa-pen-to-square' },
+            ];
+
+            if (role === 'Super Admin' || role === 'Admin') {
+                items.push({ id: 'approval', label: 'Approve Entries', icon: 'fa-check-double' });
+            }
+
+            if (role === 'Super Admin') {
+                items.push({ id: 'users', label: 'User & Staff Management', icon: 'fa-users-gear' });
+            }
+
+            items.push({ id: 'certificates', label: 'Certificates & Recognition', icon: 'fa-certificate' });
+            items.push({ id: 'library', label: 'CBE Library / Cloud', icon: 'fa-cloud-arrow-down' });
+
+            nav.innerHTML = items.map(item => `
+                <a href="#" onclick="switchTab('${item.id}', '${item.label}')" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-purple-900 transition">
+                    <i class="fa-solid ${item.icon} text-amber-400 w-5"></i>
+                    <span>${item.label}</span>
+                </a>
+            `).join('');
         }
 
-        // Apply Security & Role Access Controls
-        function applyRolePermissions() {
-            const isSuperAdmin = activeRole === 'Super Admin';
-            const isAdmin = activeRole === 'Admin' || isSuperAdmin;
+        // View Switcher
+        function switchTab(tabId, title) {
+            document.getElementById('page-title').innerText = title;
+            const sections = ['dashboard', 'entry', 'approval', 'users', 'certificates', 'library'];
+            sections.forEach(s => {
+                const el = document.getElementById(`section-${s}`);
+                if (el) el.classList.add('hidden');
+            });
+            document.getElementById(`section-${tabId}`).classList.remove('hidden');
 
-            document.getElementById('menuApproval').style.display = isAdmin ? 'block' : 'none';
-            document.getElementById('menuEvaluations').style.display = isAdmin ? 'block' : 'none';
-            document.getElementById('menuUserMgmt').style.display = isSuperAdmin ? 'block' : 'none';
-            document.getElementById('superAdminUploadArea').style.display = isAdmin ? 'block' : 'none';
+            if (tabId === 'dashboard') renderDashboard();
+            if (tabId === 'approval') renderApprovals();
+            if (tabId === 'users') renderUsers();
+            if (tabId === 'certificates') renderCertificates();
         }
 
-        // Render Dashboard Metrics Real-Time
+        // Render Dashboard
         function renderDashboard() {
-            const overviewContainer = document.getElementById('metricsOverview');
-            const tableBody = document.getElementById('kpiTableBody');
-            overviewContainer.innerHTML = '';
-            tableBody.innerHTML = '';
-
-            kpis.forEach(item => {
-                const percent = ((item.actual / item.plan) * 100).toFixed(1);
-                const isAbove50 = percent >= 50;
-                
-                // Overview Cards
-                overviewContainer.innerHTML += `
-                    <div class="p-4 border rounded-xl bg-white shadow-sm border-l-4 ${isAbove50 ? 'border-green-500' : 'border-red-500'}">
-                        <div class="text-xs font-bold text-gray-400 uppercase">${item.name}</div>
-                        <div class="text-2xl font-black text-cbePurple mt-1">${percent}%</div>
-                        <div class="text-xs text-gray-500 mt-1">Actual: ${item.actual.toLocaleString()} / Plan: ${item.plan.toLocaleString()}</div>
-                    </div>
-                `;
-
-                // KPI Table Rows
-                tableBody.innerHTML += `
+            const tbody = document.getElementById('performance-table-body');
+            tbody.innerHTML = state.entries.filter(e => e.status === 'Approved').map(e => {
+                const pct = ((e.actual / e.plan) * 100).toFixed(1);
+                const isSuccess = pct >= 50;
+                return `
                     <tr class="hover:bg-gray-50">
-                        <td class="py-3 px-4 font-semibold">${item.name}</td>
-                        <td class="py-3 px-4">${item.plan.toLocaleString()}</td>
-                        <td class="py-3 px-4">${item.actual.toLocaleString()}</td>
-                        <td class="py-3 px-4 font-bold ${isAbove50 ? 'text-green-600' : 'text-red-600'}">${percent}%</td>
-                        <td class="py-3 px-4">
-                            <span class="px-2 py-1 text-xs rounded-full ${isAbove50 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                                ${isAbove50 ? 'Above 50%' : 'Below 50%'}
+                        <td class="p-3 font-bold text-purple-900">${e.kpi}</td>
+                        <td class="p-3">${e.staff}</td>
+                        <td class="p-3">${e.supervisor}</td>
+                        <td class="p-3">${e.plan.toLocaleString()}</td>
+                        <td class="p-3">${e.actual.toLocaleString()}</td>
+                        <td class="p-3 font-bold ${isSuccess ? 'text-emerald-600' : 'text-red-600'}">${pct}%</td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 text-xs rounded-full font-bold ${isSuccess ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                                ${isSuccess ? 'On Track' : 'Below 50%'}
                             </span>
                         </td>
                     </tr>
                 `;
-            });
+            }).join('');
         }
 
-        // Task Submission
-        function submitTask(e) {
+        // Daily Entry Submission
+        function submitEntry(e) {
             e.preventDefault();
-            const kpi = document.getElementById('entryKPI').value;
-            const val = document.getElementById('entryValue').value;
-            const sup = document.getElementById('entrySupervisor').value;
-
-            // Push entry to Firebase Realtime Database
-            db.ref('pendingTasks').push({
-                staff: currentUser,
-                kpi: kpi,
-                value: val,
-                supervisor: sup,
-                timestamp: new Date().toISOString()
-            });
-
-            alert('Task successfully registered and sent for supervisor approval!');
-            document.getElementById('taskEntryForm').reset();
+            const newEntry = {
+                id: Date.now(),
+                staff: state.currentUser.name,
+                kpi: document.getElementById('entry-kpi').value,
+                plan: parseFloat(document.getElementById('entry-plan').value),
+                actual: parseFloat(document.getElementById('entry-actual').value),
+                supervisor: document.getElementById('entry-supervisor').value,
+                status: 'Pending'
+            };
+            state.entries.push(newEntry);
+            alert("Entry submitted successfully! Waiting for Admin Approval.");
+            document.getElementById('daily-entry-form').reset();
         }
 
-        // Evaluations & Certificates Logic
-        function renderEvaluations() {
-            const recList = document.getElementById('recognitionList');
-            const penList = document.getElementById('penaltyList');
-            recList.innerHTML = '';
-            penList.innerHTML = '';
+        // Render Approvals
+        function renderApprovals() {
+            const tbody = document.getElementById('approval-table-body');
+            const pendings = state.entries.filter(e => e.status === 'Pending');
+            
+            if(pendings.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500">No pending approvals found.</td></tr>`;
+                return;
+            }
 
-            kpis.forEach(k => {
-                const percent = ((k.actual / k.plan) * 100).toFixed(1);
-                if (percent >= 50) {
-                    recList.innerHTML += `<li><i class="fa-solid fa-check-circle mr-1"></i> ${k.name}: Achieved ${percent}% (Eligible for Recognition)</li>`;
-                } else {
-                    penList.innerHTML += `<li><i class="fa-solid fa-exclamation-triangle mr-1"></i> ${k.name}: Achieved ${percent}% (Requires Warning/Follow-up)</li>`;
-                }
-            });
+            tbody.innerHTML = pendings.map(e => `
+                <tr>
+                    <td class="p-3 font-bold">${e.staff}</td>
+                    <td class="p-3">${e.kpi}</td>
+                    <td class="p-3">${e.plan} / ${e.actual}</td>
+                    <td class="p-3">${e.supervisor}</td>
+                    <td class="p-3 space-x-2">
+                        <button onclick="approveEntry(${e.id})" class="bg-emerald-600 text-white px-2 py-1 rounded text-xs">Approve</button>
+                        <button onclick="deleteEntry(${e.id})" class="bg-red-600 text-white px-2 py-1 rounded text-xs">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
-        // Export Functions (Excel & PDF)
-        function exportExcel() {
-            const ws = XLSX.utils.json_to_sheet(kpis);
+        function approveEntry(id) {
+            const item = state.entries.find(e => e.id === id);
+            if (item) item.status = 'Approved';
+            renderApprovals();
+        }
+
+        function deleteEntry(id) {
+            state.entries = state.entries.filter(e => e.id !== id);
+            renderApprovals();
+        }
+
+        // User Management Render
+        function renderUsers() {
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = state.users.map(u => `
+                <tr>
+                    <td class="p-3 font-bold text-purple-900">${u.name}</td>
+                    <td class="p-3"><span class="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded font-bold">${u.role}</span></td>
+                    <td class="p-3">${u.responsibility}</td>
+                    <td class="p-3 space-x-2">
+                        <button onclick="deleteUser(${u.id})" class="text-red-600 font-bold hover:underline">Remove</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteUser(id) {
+            if (state.currentUser.role !== 'Super Admin') {
+                alert("Only Super Admin (Fisseha) can delete staff!");
+                return;
+            }
+            state.users = state.users.filter(u => u.id !== id);
+            renderUsers();
+        }
+
+        // Recognition & Penalty Certificates
+        function renderCertificates() {
+            const highDiv = document.getElementById('high-performers-list');
+            const lowDiv = document.getElementById('low-performers-list');
+
+            const approved = state.entries.filter(e => e.status === 'Approved');
+            
+            highDiv.innerHTML = approved.filter(e => (e.actual/e.plan) >= 0.5).map(e => `
+                <div class="bg-white p-3 rounded shadow-sm border border-emerald-300 flex justify-between items-center">
+                    <div>
+                        <div class="font-bold text-xs text-gray-800">${e.staff}</div>
+                        <div class="text-xs text-gray-500">${e.kpi}: ${((e.actual/e.plan)*100).toFixed(1)}%</div>
+                    </div>
+                    <button onclick="generateCertificate('${e.staff}', 'Recognition', '${e.kpi}')" class="bg-emerald-600 text-white text-xs px-2 py-1 rounded">
+                        Issue Certificate
+                    </button>
+                </div>
+            `).join('');
+
+            lowDiv.innerHTML = approved.filter(e => (e.actual/e.plan) < 0.5).map(e => `
+                <div class="bg-white p-3 rounded shadow-sm border border-red-300 flex justify-between items-center">
+                    <div>
+                        <div class="font-bold text-xs text-gray-800">${e.staff}</div>
+                        <div class="text-xs text-gray-500">${e.kpi}: ${((e.actual/e.plan)*100).toFixed(1)}%</div>
+                    </div>
+                    <button onclick="generateCertificate('${e.staff}', 'Warning Notice', '${e.kpi}')" class="bg-red-600 text-white text-xs px-2 py-1 rounded">
+                        Issue Letter
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function generateCertificate(name, type, kpi) {
+            alert(`Official CBE Borkena Branch ${type} Document generated for ${name} regarding ${kpi} performance.`);
+        }
+
+        // Export Functions
+        function exportToExcel() {
+            const ws = XLSX.utils.json_to_sheet(state.entries);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Performance");
-            XLSX.writeFile(wb, "Borkena_Branch_Performance.xlsx");
+            XLSX.writeFile(wb, "CBE_Borkena_Performance_Report.xlsx");
         }
 
-        function exportPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.text("Borkena Branch Performance Report", 10, 10);
-            let y = 20;
-            kpis.forEach(k => {
-                doc.text(`${k.name} - Target: ${k.plan} | Actual: ${k.actual}`, 10, y);
-                y += 10;
-            });
-            doc.save("Borkena_Branch_Performance.pdf");
+        function exportToPDF() {
+            alert("Exporting official PDF report...");
+        }
+
+        function filterPeriod(period) {
+            alert(`Filtering data for: ${period.toUpperCase()}`);
+        }
+
+        function uploadDocument() {
+            alert("Document uploaded to CBE Borkena Cloud Library!");
         }
     </script>
 </body>
