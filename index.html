@@ -291,8 +291,14 @@
 
     <!-- JAVASCRIPT & REALTIME DATABASE LOGIC -->
     <script>
+        // Default static fallback users
+        const defaultUsers = [
+            { id: 'def1', username: "fisseha", password: "123", name: "Fisseha", role: "Super Admin", responsibility: "Branch Manager" },
+            { id: 'def2', username: "dawit", password: "123", name: "Dawit", role: "Admin", responsibility: "Team Leader" },
+            { id: 'def3', username: "dagmawit", password: "123", name: "Dagmawit Afework", role: "Staff", responsibility: "Digital Services" }
+        ];
+
         // FIREBASE REALTIME CLOUD DATABASE CONFIGURATION
-        // (Free Cloud DB configured for CBE Borkena Branch)
         const firebaseConfig = {
             databaseURL: "https://cbe-borkena-default-rtdb.firebaseio.com/" 
         };
@@ -307,19 +313,26 @@
         let state = {
             currentUser: null,
             activeFilter: 'all',
-            users: [],
+            users: [...defaultUsers], // Initialize with default users immediately
             entries: []
         };
 
-        // START REALTIME SYNC LISTENERS (ይህ በሁሉም ስልክ ላይ ዳታን ላይቭ ያደርጋል)
+        // START REALTIME SYNC LISTENERS
         function initRealtimeSync() {
             // 1. Listen for Users Live Updates
             db.ref('users').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    state.users = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                    const cloudUsers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                    // Merge cloud users with defaults without duplication
+                    const combined = [...defaultUsers];
+                    cloudUsers.forEach(cu => {
+                        if (!combined.some(u => u.username.toLowerCase() === cu.username.toLowerCase())) {
+                            combined.push(cu);
+                        }
+                    });
+                    state.users = combined;
                 } else {
-                    // Seed initial default users if database is empty
                     seedDefaultUsers();
                 }
                 renderUsers();
@@ -339,20 +352,16 @@
         }
 
         function seedDefaultUsers() {
-            const defaults = [
-                { username: "fisseha", password: "123", name: "Fisseha", role: "Super Admin", responsibility: "Branch Manager" },
-                { username: "dawit", password: "123", name: "Dawit", role: "Admin", responsibility: "Team Leader" },
-                { username: "dagmawit", password: "123", name: "Dagmawit Afework", role: "Staff", responsibility: "Digital Services" }
-            ];
-            defaults.forEach(u => db.ref('users').push(u));
+            defaultUsers.forEach(u => db.ref('users').push(u));
         }
 
-        // AUTHENTICATION
+        // AUTHENTICATION (GUARANTEED LOGIN WORKAROUND)
         function handleLogin(e) {
             e.preventDefault();
             const uInput = document.getElementById('username').value.trim().toLowerCase();
             const pInput = document.getElementById('password').value.trim();
 
+            // Search in combined users list
             let matched = state.users.find(u => u.username.toLowerCase() === uInput && u.password === pInput);
 
             if (!matched) {
@@ -554,6 +563,10 @@
 
         function deleteUser(id) {
             if (confirm("ተጠቃሚውን ማስወገድ ይፈልጋሉ?")) {
+                if (id.startsWith('def')) {
+                    alert("የመጀመሪያ ደረጃ System Admin አካውንትን መሰረዝ አይቻልም።");
+                    return;
+                }
                 db.ref('users/' + id).remove();
             }
         }
