@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CBE Borkena Branch Performance Tracking System</title>
-    <!-- Tailwind CSS for Responsive UI -->
+    <title>CBE Borkena Branch Performance & Staff Management Portal</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- SheetJS & jsPDF for Excel/PDF Export -->
+    <!-- SheetJS for Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- jsPDF & AutoTable for PDF Generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root {
             --cbe-gold: #FFB800;
@@ -24,7 +26,6 @@
         .bg-cbe-gold { background-color: var(--cbe-gold); }
         .bg-cbe-purple { background-color: var(--cbe-purple); }
         .text-cbe-purple { color: var(--cbe-purple); }
-        .border-cbe-gold { border-color: var(--cbe-gold); }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
@@ -42,7 +43,7 @@
             
             <!-- Marquee Announcement -->
             <div class="bg-amber-400 text-purple-950 font-bold px-4 py-1 text-xs overflow-hidden">
-                <marquee behavior="scroll" direction="left">Welcome to CBE Borkena Branch Online Performance Tracking & Staff Management System!</marquee>
+                <marquee behavior="scroll" direction="left">Welcome to CBE Borkena Branch Real-Time Online Performance Tracking, Reporting & Staff Management System!</marquee>
             </div>
 
             <form id="login-form" class="p-6 space-y-4" onsubmit="handleLogin(event)">
@@ -86,7 +87,7 @@
             </div>
 
             <nav class="p-2 space-y-1 text-sm font-medium" id="sidebar-menu">
-                <!-- Dynamic Navigation Loaded Here -->
+                <!-- Dynamic Navigation -->
             </nav>
 
             <div class="p-4 border-t border-purple-900">
@@ -107,13 +108,13 @@
                 </div>
                 <div class="flex items-center space-x-2">
                     <span class="text-xs bg-green-100 text-green-800 font-bold px-3 py-1 rounded-full border border-green-300">
-                        <i class="fa-solid fa-signal mr-1"></i> Live Cloud Sync
+                        <i class="fa-solid fa-signal mr-1"></i> Live Sync
                     </span>
                     <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-2 rounded font-bold">
-                        <i class="fa-solid fa-file-excel mr-1"></i> Excel
+                        <i class="fa-solid fa-file-excel mr-1"></i> Export Excel
                     </button>
                     <button onclick="exportToPDF()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-2 rounded font-bold">
-                        <i class="fa-solid fa-file-pdf mr-1"></i> PDF
+                        <i class="fa-solid fa-file-pdf mr-1"></i> Export PDF
                     </button>
                 </div>
             </header>
@@ -123,23 +124,24 @@
                 
                 <!-- 1. DASHBOARD / PERFORMANCE REPORT -->
                 <section id="section-dashboard" class="space-y-6">
-                    <!-- Time Filters -->
+                    <!-- Period Filter Buttons -->
                     <div class="flex flex-wrap gap-2 bg-white p-3 rounded-lg shadow-sm border border-gray-200">
-                        <button onclick="filterPeriod('daily')" class="filter-btn bg-purple-900 text-amber-400 text-xs px-4 py-1.5 rounded font-bold">Daily</button>
-                        <button onclick="filterPeriod('weekly')" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Weekly</button>
-                        <button onclick="filterPeriod('monthly')" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Monthly</button>
-                        <button onclick="filterPeriod('quarterly')" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Quarterly</button>
-                        <button onclick="filterPeriod('annual')" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Annual</button>
+                        <button onclick="filterPeriod('daily', this)" class="filter-btn bg-purple-900 text-amber-400 text-xs px-4 py-1.5 rounded font-bold">Daily</button>
+                        <button onclick="filterPeriod('weekly', this)" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Weekly</button>
+                        <button onclick="filterPeriod('monthly', this)" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Monthly</button>
+                        <button onclick="filterPeriod('quarterly', this)" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Quarterly</button>
+                        <button onclick="filterPeriod('annual', this)" class="filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold">Annual</button>
                     </div>
 
                     <!-- Performance Table -->
                     <div class="bg-white rounded-xl shadow border border-gray-200 overflow-x-auto">
-                        <table class="w-full text-left text-xs">
+                        <table class="w-full text-left text-xs" id="main-performance-table">
                             <thead class="bg-purple-900 text-amber-400 uppercase font-bold">
                                 <tr>
                                     <th class="p-3">KPI Category</th>
                                     <th class="p-3">Staff / Assigned</th>
                                     <th class="p-3">Supervisor</th>
+                                    <th class="p-3">Period</th>
                                     <th class="p-3">Plan</th>
                                     <th class="p-3">Actual</th>
                                     <th class="p-3">Achievement (%)</th>
@@ -147,7 +149,7 @@
                                 </tr>
                             </thead>
                             <tbody id="performance-table-body" class="divide-y divide-gray-200">
-                                <!-- Dynamic Data Rows -->
+                                <!-- Dynamic Rows -->
                             </tbody>
                         </table>
                     </div>
@@ -155,7 +157,7 @@
 
                 <!-- 2. DAILY ENTRY MENU -->
                 <section id="section-entry" class="hidden max-w-2xl mx-auto bg-white p-6 rounded-xl shadow border border-gray-200">
-                    <h3 class="text-lg font-bold text-purple-900 mb-4 border-b pb-2">Submit Daily Performance Entry</h3>
+                    <h3 class="text-lg font-bold text-purple-900 mb-4 border-b pb-2">Submit Performance Entry</h3>
                     <form id="daily-entry-form" onsubmit="submitEntry(event)" class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 mb-1">KPI Category</label>
@@ -174,7 +176,17 @@
                                 <option value="Disbursement">Loan Disbursement</option>
                             </select>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Time Period</label>
+                                <select id="entry-period" class="w-full p-2 border rounded text-xs">
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                    <option value="quarterly">Quarterly</option>
+                                    <option value="annual">Annual</option>
+                                </select>
+                            </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 mb-1">Target Plan</label>
                                 <input type="number" id="entry-plan" class="w-full p-2 border rounded text-xs" required>
@@ -186,7 +198,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-700 mb-1">Assigned Supervisor</label>
-                            <input type="text" id="entry-supervisor" placeholder="Supervisor Name" class="w-full p-2 border rounded text-xs" required>
+                            <input type="text" id="entry-supervisor" placeholder="Supervisor Name (e.g. Dawit / Asrat)" class="w-full p-2 border rounded text-xs" required>
                         </div>
                         <button type="submit" class="w-full bg-purple-900 text-amber-400 font-bold py-2 rounded text-xs hover:bg-purple-800">
                             Submit Entry for Approval
@@ -194,14 +206,15 @@
                     </form>
                 </section>
 
-                <!-- 3. APPROVAL & AUDIT MENU (Admin / Super Admin) -->
+                <!-- 3. APPROVAL & AUDIT MENU -->
                 <section id="section-approval" class="hidden space-y-4">
                     <div class="bg-white rounded-xl shadow border border-gray-200 overflow-x-auto">
                         <table class="w-full text-left text-xs">
                             <thead class="bg-purple-900 text-amber-400 uppercase font-bold">
                                 <tr>
                                     <th class="p-3">Staff</th>
-                                    <th class="p-3">KPI</th>
+                                    <th class="p-3">KPI Category</th>
+                                    <th class="p-3">Period</th>
                                     <th class="p-3">Plan / Actual</th>
                                     <th class="p-3">Supervisor</th>
                                     <th class="p-3">Actions</th>
@@ -214,42 +227,51 @@
                     </div>
                 </section>
 
-                <!-- 4. USER & STAFF MANAGEMENT (Super Admin Menu) -->
+                <!-- 4. USER & STAFF MANAGEMENT (SUPER ADMIN MENU) -->
                 <section id="section-users" class="hidden space-y-6">
                     <div class="flex justify-between items-center">
-                        <h3 class="text-md font-bold text-purple-900">Branch Staff Roster & Roles</h3>
-                        <button onclick="openUserModal()" class="bg-amber-400 text-purple-950 font-bold px-3 py-1.5 rounded text-xs shadow hover:bg-amber-300">
-                            <i class="fa-solid fa-user-plus mr-1"></i> Add New Staff
+                        <div>
+                            <h3 class="text-md font-bold text-purple-900">Branch Staff Roster & Access Controls</h3>
+                            <p class="text-xs text-gray-500">Manage user accounts, delete, or modify system permissions (Roles)</p>
+                        </div>
+                        <button onclick="openAddUserModal()" class="bg-amber-400 text-purple-950 font-bold px-3 py-1.5 rounded text-xs shadow hover:bg-amber-300">
+                            <i class="fa-solid fa-user-plus mr-1"></i> Add New Staff Member
                         </button>
                     </div>
+
                     <div class="bg-white rounded-xl shadow border border-gray-200 overflow-x-auto">
                         <table class="w-full text-left text-xs">
                             <thead class="bg-purple-900 text-amber-400 uppercase font-bold">
                                 <tr>
-                                    <th class="p-3">Name</th>
-                                    <th class="p-3">Role</th>
+                                    <th class="p-3">Staff Name</th>
+                                    <th class="p-3">Current Role</th>
                                     <th class="p-3">Assigned Responsibility</th>
-                                    <th class="p-3">Actions</th>
+                                    <th class="p-3">Change System Role</th>
+                                    <th class="p-3">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="users-table-body" class="divide-y divide-gray-200">
-                                <!-- Staff Rows -->
+                                <!-- Staff Roster Rows -->
                             </tbody>
                         </table>
                     </div>
                 </section>
 
-                <!-- 5. RECOGNITION & PENALTY CERTIFICATES -->
+                <!-- 5. CERTIFICATES & RECOGNITION / PENALTY -->
                 <section id="section-certificates" class="hidden space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- High Performers (>= 50%) -->
                         <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl">
-                            <h4 class="font-bold text-emerald-900 text-sm mb-3"><i class="fa-solid fa-award mr-1"></i> Recognition Qualified (>= 50%)</h4>
+                            <h4 class="font-bold text-emerald-900 text-sm mb-3 flex items-center">
+                                <i class="fa-solid fa-award text-emerald-600 mr-2 text-lg"></i> Recognition Eligible (&ge; 50%)
+                            </h4>
                             <div id="high-performers-list" class="space-y-2"></div>
                         </div>
                         <!-- Low Performers (< 50%) -->
                         <div class="bg-red-50 border border-red-200 p-4 rounded-xl">
-                            <h4 class="font-bold text-red-900 text-sm mb-3"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Warning / Action Required (< 50%)</h4>
+                            <h4 class="font-bold text-red-900 text-sm mb-3 flex items-center">
+                                <i class="fa-solid fa-triangle-exclamation text-red-600 mr-2 text-lg"></i> Performance Notice Required (&lt; 50%)
+                            </h4>
                             <div id="low-performers-list" class="space-y-2"></div>
                         </div>
                     </div>
@@ -258,19 +280,19 @@
                 <!-- 6. CBE BORKENA DIGITAL LIBRARY -->
                 <section id="section-library" class="hidden space-y-4">
                     <div class="bg-white p-4 rounded-xl shadow border border-gray-200">
-                        <h4 class="font-bold text-purple-900 text-sm mb-2">Upload Branch Policy/Report Document</h4>
+                        <h4 class="font-bold text-purple-900 text-sm mb-2">Upload Branch File/Policy to Cloud Storage</h4>
                         <div class="flex items-center space-x-2">
-                            <input type="file" id="library-file" class="text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100">
-                            <button onclick="uploadDocument()" class="bg-purple-900 text-amber-400 text-xs px-4 py-2 rounded font-bold">Upload</button>
+                            <input type="file" id="library-file-input" class="text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100">
+                            <button onclick="handleFileUpload()" class="bg-purple-900 text-amber-400 text-xs px-4 py-2 rounded font-bold">
+                                <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Upload File
+                            </button>
                         </div>
                     </div>
+
                     <div class="bg-white rounded-xl shadow border border-gray-200 p-4">
-                        <h4 class="font-bold text-purple-900 text-sm mb-3">Stored Documents</h4>
+                        <h4 class="font-bold text-purple-900 text-sm mb-3">Stored Library Files</h4>
                         <ul id="document-list" class="divide-y divide-gray-100 text-xs space-y-2">
-                            <li class="py-2 flex justify-between items-center">
-                                <span><i class="fa-solid fa-file-pdf text-red-500 mr-2"></i> Borkena_Branch_Annual_Target_2026.pdf</span>
-                                <button class="text-purple-900 font-bold hover:underline">Download</button>
-                            </li>
+                            <!-- File Rows -->
                         </ul>
                     </div>
                 </section>
@@ -279,24 +301,66 @@
         </main>
     </div>
 
+    <!-- MODAL: ADD NEW USER -->
+    <div id="add-user-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h3 class="font-bold text-purple-900 text-base">Add New Staff Member</h3>
+                <button onclick="closeAddUserModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="saveNewUser(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Full Name</label>
+                    <input type="text" id="new-user-name" class="w-full p-2 border rounded text-xs" placeholder="e.g. Hermela Getachew" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">System Role</label>
+                    <select id="new-user-role" class="w-full p-2 border rounded text-xs">
+                        <option value="Staff">Staff</option>
+                        <option value="Supervisor">Supervisor</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Super Admin">Super Admin</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Assigned Responsibility</label>
+                    <input type="text" id="new-user-resp" class="w-full p-2 border rounded text-xs" placeholder="e.g. FCY Mobilization / ATM Services" required>
+                </div>
+                <div class="flex justify-end space-x-2 pt-3">
+                    <button type="button" onclick="closeAddUserModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded text-xs font-bold">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-purple-900 text-amber-400 rounded text-xs font-bold">Save Staff</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- JAVASCRIPT SYSTEM LOGIC -->
     <script>
-        // System Data Stores
+        const { jsPDF } = window.jspdf;
+
+        // Central State Store
         const state = {
             currentUser: null,
+            selectedPeriod: 'daily',
             users: [
-                { id: 1, name: "Fisseha", role: "Super Admin", responsibility: "Branch Manager & Overall Oversight" },
-                { id: 2, name: "Dawit", role: "Admin", responsibility: "Team Leader & Operations" },
-                { id: 3, name: "Asrat", role: "Admin", responsibility: "Team Leader & Operations" },
-                { id: 4, name: "Dagmawit Afework", role: "Staff", responsibility: "Digital Services" },
-                { id: 5, name: "Hermela Getachew", role: "Staff", responsibility: "Customer Recruitment" },
-                { id: 6, name: "Adem Seyid", role: "Staff", responsibility: "FCY Targets" },
-                { id: 7, name: "Givens", role: "Staff", responsibility: "National ID Registrations" }
+                { id: 1, name: "Fisseha", role: "Super Admin", responsibility: "Branch Oversight & Overall Management" },
+                { id: 2, name: "Dawit", role: "Admin", responsibility: "Operational Team Leader" },
+                { id: 3, name: "Asrat", role: "Admin", responsibility: "Operational Team Leader" },
+                { id: 4, name: "Dagmawit Afework", role: "Staff", responsibility: "Digital Services Acquisition" },
+                { id: 5, name: "Hermela Getachew", role: "Staff", responsibility: "Customer Base Expansion" },
+                { id: 6, name: "Adem Seyid", role: "Staff", responsibility: "FCY Mobilization" },
+                { id: 7, name: "Givens", role: "Staff", responsibility: "National ID & Registration" }
             ],
             entries: [
-                { id: 101, staff: "Dagmawit Afework", kpi: "Mobile Banking", plan: 100, actual: 85, supervisor: "Dawit", status: "Approved" },
-                { id: 102, staff: "Adem Seyid", kpi: "FCY", plan: 5000, actual: 2100, supervisor: "Fisseha", status: "Approved" },
-                { id: 103, staff: "Hermela Getachew", kpi: "Deposit", plan: 100000, actual: 45000, supervisor: "Asrat", status: "Pending" }
+                { id: 101, staff: "Dagmawit Afework", kpi: "Mobile Banking", period: "daily", plan: 100, actual: 85, supervisor: "Dawit", status: "Approved" },
+                { id: 102, staff: "Adem Seyid", kpi: "FCY", period: "weekly", plan: 5000, actual: 2100, supervisor: "Fisseha", status: "Approved" },
+                { id: 103, staff: "Hermela Getachew", kpi: "Deposit", period: "monthly", plan: 100000, actual: 120000, supervisor: "Asrat", status: "Approved" },
+                { id: 104, staff: "Givens", kpi: "Customer Base", period: "daily", plan: 50, actual: 15, supervisor: "Dawit", status: "Approved" },
+                { id: 105, staff: "Dagmawit Afework", kpi: "StarPay", period: "quarterly", plan: 500, actual: 480, supervisor: "Asrat", status: "Pending" }
+            ],
+            files: [
+                { id: 1, name: "CBE_Borkena_Annual_Plan_2026.pdf", size: "2.4 MB", date: "2026-08-01" },
+                { id: 2, name: "Digital_Banking_Guidelines.pdf", size: "1.1 MB", date: "2026-07-15" }
             ]
         };
 
@@ -307,7 +371,6 @@
             
             let matchedUser = state.users.find(u => u.name.toLowerCase() === username);
             if (!matchedUser) {
-                // Default fallback as standard staff
                 matchedUser = { name: username.charAt(0).toUpperCase() + username.slice(1), role: "Staff", responsibility: "Branch Operations" };
             }
 
@@ -321,6 +384,7 @@
 
             buildNavigation();
             renderDashboard();
+            renderLibrary();
         }
 
         function handleLogout() {
@@ -329,7 +393,7 @@
             document.getElementById('login-section').classList.remove('hidden');
         }
 
-        // Dynamic Menu Construction based on User Roles
+        // Dynamic Menu Bar
         function buildNavigation() {
             const nav = document.getElementById('sidebar-menu');
             const role = state.currentUser.role;
@@ -347,8 +411,8 @@
                 items.push({ id: 'users', label: 'User & Staff Management', icon: 'fa-users-gear' });
             }
 
-            items.push({ id: 'certificates', label: 'Certificates & Recognition', icon: 'fa-certificate' });
-            items.push({ id: 'library', label: 'CBE Library / Cloud', icon: 'fa-cloud-arrow-down' });
+            items.push({ id: 'certificates', label: 'Certificates & Notices', icon: 'fa-certificate' });
+            items.push({ id: 'library', label: 'CBE Borkena Library', icon: 'fa-cloud-arrow-down' });
 
             nav.innerHTML = items.map(item => `
                 <a href="#" onclick="switchTab('${item.id}', '${item.label}')" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-purple-900 transition">
@@ -358,7 +422,6 @@
             `).join('');
         }
 
-        // View Switcher
         function switchTab(tabId, title) {
             document.getElementById('page-title').innerText = title;
             const sections = ['dashboard', 'entry', 'approval', 'users', 'certificates', 'library'];
@@ -372,12 +435,30 @@
             if (tabId === 'approval') renderApprovals();
             if (tabId === 'users') renderUsers();
             if (tabId === 'certificates') renderCertificates();
+            if (tabId === 'library') renderLibrary();
         }
 
-        // Render Dashboard
+        // Filter Period Selection
+        function filterPeriod(period, btn) {
+            state.selectedPeriod = period;
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.className = "filter-btn bg-gray-200 text-gray-700 text-xs px-4 py-1.5 rounded font-bold";
+            });
+            btn.className = "filter-btn bg-purple-900 text-amber-400 text-xs px-4 py-1.5 rounded font-bold";
+            renderDashboard();
+        }
+
+        // Render Performance Dashboard Table
         function renderDashboard() {
             const tbody = document.getElementById('performance-table-body');
-            tbody.innerHTML = state.entries.filter(e => e.status === 'Approved').map(e => {
+            const filtered = state.entries.filter(e => e.status === 'Approved' && e.period === state.selectedPeriod);
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-500">No approved metrics recorded for ${state.selectedPeriod.toUpperCase()} period.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(e => {
                 const pct = ((e.actual / e.plan) * 100).toFixed(1);
                 const isSuccess = pct >= 50;
                 return `
@@ -385,6 +466,7 @@
                         <td class="p-3 font-bold text-purple-900">${e.kpi}</td>
                         <td class="p-3">${e.staff}</td>
                         <td class="p-3">${e.supervisor}</td>
+                        <td class="p-3 uppercase font-semibold text-gray-500">${e.period}</td>
                         <td class="p-3">${e.plan.toLocaleString()}</td>
                         <td class="p-3">${e.actual.toLocaleString()}</td>
                         <td class="p-3 font-bold ${isSuccess ? 'text-emerald-600' : 'text-red-600'}">${pct}%</td>
@@ -398,30 +480,31 @@
             }).join('');
         }
 
-        // Daily Entry Submission
+        // Daily Entry Submit
         function submitEntry(e) {
             e.preventDefault();
             const newEntry = {
                 id: Date.now(),
                 staff: state.currentUser.name,
                 kpi: document.getElementById('entry-kpi').value,
+                period: document.getElementById('entry-period').value,
                 plan: parseFloat(document.getElementById('entry-plan').value),
                 actual: parseFloat(document.getElementById('entry-actual').value),
                 supervisor: document.getElementById('entry-supervisor').value,
                 status: 'Pending'
             };
             state.entries.push(newEntry);
-            alert("Entry submitted successfully! Waiting for Admin Approval.");
+            alert("Entry submitted successfully! Waiting for Admin/Super Admin approval.");
             document.getElementById('daily-entry-form').reset();
         }
 
-        // Render Approvals
+        // Approvals Render & Logic
         function renderApprovals() {
             const tbody = document.getElementById('approval-table-body');
             const pendings = state.entries.filter(e => e.status === 'Pending');
             
             if(pendings.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500">No pending approvals found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500">No pending performance entries found for review.</td></tr>`;
                 return;
             }
 
@@ -429,11 +512,12 @@
                 <tr>
                     <td class="p-3 font-bold">${e.staff}</td>
                     <td class="p-3">${e.kpi}</td>
+                    <td class="p-3 uppercase">${e.period}</td>
                     <td class="p-3">${e.plan} / ${e.actual}</td>
                     <td class="p-3">${e.supervisor}</td>
                     <td class="p-3 space-x-2">
-                        <button onclick="approveEntry(${e.id})" class="bg-emerald-600 text-white px-2 py-1 rounded text-xs">Approve</button>
-                        <button onclick="deleteEntry(${e.id})" class="bg-red-600 text-white px-2 py-1 rounded text-xs">Delete</button>
+                        <button onclick="approveEntry(${e.id})" class="bg-emerald-600 text-white px-2.5 py-1 rounded text-xs font-bold">Approve</button>
+                        <button onclick="deleteEntry(${e.id})" class="bg-red-600 text-white px-2.5 py-1 rounded text-xs font-bold">Delete</button>
                     </td>
                 </tr>
             `).join('');
@@ -450,31 +534,80 @@
             renderApprovals();
         }
 
-        // User Management Render
+        // USER & STAFF MANAGEMENT (SUPER ADMIN)
         function renderUsers() {
             const tbody = document.getElementById('users-table-body');
             tbody.innerHTML = state.users.map(u => `
                 <tr>
                     <td class="p-3 font-bold text-purple-900">${u.name}</td>
-                    <td class="p-3"><span class="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded font-bold">${u.role}</span></td>
+                    <td class="p-3">
+                        <span class="bg-purple-100 text-purple-800 text-xs px-2.5 py-1 rounded font-bold">${u.role}</span>
+                    </td>
                     <td class="p-3">${u.responsibility}</td>
-                    <td class="p-3 space-x-2">
-                        <button onclick="deleteUser(${u.id})" class="text-red-600 font-bold hover:underline">Remove</button>
+                    <td class="p-3">
+                        <select onchange="updateUserRole(${u.id}, this.value)" class="p-1 border rounded text-xs bg-gray-50">
+                            <option value="Staff" ${u.role === 'Staff' ? 'selected' : ''}>Staff</option>
+                            <option value="Supervisor" ${u.role === 'Supervisor' ? 'selected' : ''}>Supervisor</option>
+                            <option value="Admin" ${u.role === 'Admin' ? 'selected' : ''}>Admin</option>
+                            <option value="Super Admin" ${u.role === 'Super Admin' ? 'selected' : ''}>Super Admin</option>
+                        </select>
+                    </td>
+                    <td class="p-3">
+                        <button onclick="deleteUser(${u.id})" class="bg-red-100 text-red-700 hover:bg-red-200 px-2.5 py-1 rounded font-bold text-xs">
+                            <i class="fa-solid fa-trash mr-1"></i> Delete
+                        </button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        function deleteUser(id) {
+        function updateUserRole(userId, newRole) {
             if (state.currentUser.role !== 'Super Admin') {
-                alert("Only Super Admin (Fisseha) can delete staff!");
+                alert("Only Super Admin (Fisseha) can change user roles!");
+                renderUsers();
                 return;
             }
-            state.users = state.users.filter(u => u.id !== id);
-            renderUsers();
+            const user = state.users.find(u => u.id === userId);
+            if (user) {
+                user.role = newRole;
+                alert(`Updated ${user.name}'s system role to ${newRole}.`);
+            }
         }
 
-        // Recognition & Penalty Certificates
+        function deleteUser(userId) {
+            if (state.currentUser.role !== 'Super Admin') {
+                alert("Only Super Admin (Fisseha) can delete staff members!");
+                return;
+            }
+            if(confirm("Are you sure you want to remove this staff member from Borkena Branch roster?")) {
+                state.users = state.users.filter(u => u.id !== userId);
+                renderUsers();
+            }
+        }
+
+        function openAddUserModal() {
+            document.getElementById('add-user-modal').classList.remove('hidden');
+        }
+
+        function closeAddUserModal() {
+            document.getElementById('add-user-modal').classList.add('hidden');
+        }
+
+        function saveNewUser(e) {
+            e.preventDefault();
+            const newUser = {
+                id: Date.now(),
+                name: document.getElementById('new-user-name').value.trim(),
+                role: document.getElementById('new-user-role').value,
+                responsibility: document.getElementById('new-user-resp').value.trim()
+            };
+            state.users.push(newUser);
+            closeAddUserModal();
+            renderUsers();
+            alert(`Staff member ${newUser.name} added successfully!`);
+        }
+
+        // CERTIFICATES & WARNING LETTERS GENERATOR
         function renderCertificates() {
             const highDiv = document.getElementById('high-performers-list');
             const lowDiv = document.getElementById('low-performers-list');
@@ -485,10 +618,10 @@
                 <div class="bg-white p-3 rounded shadow-sm border border-emerald-300 flex justify-between items-center">
                     <div>
                         <div class="font-bold text-xs text-gray-800">${e.staff}</div>
-                        <div class="text-xs text-gray-500">${e.kpi}: ${((e.actual/e.plan)*100).toFixed(1)}%</div>
+                        <div class="text-xs text-gray-500">${e.kpi} Target: ${((e.actual/e.plan)*100).toFixed(1)}% Achieved</div>
                     </div>
-                    <button onclick="generateCertificate('${e.staff}', 'Recognition', '${e.kpi}')" class="bg-emerald-600 text-white text-xs px-2 py-1 rounded">
-                        Issue Certificate
+                    <button onclick="downloadPDFDoc('${e.staff}', 'Recognition', '${e.kpi}', ${((e.actual/e.plan)*100).toFixed(1)})" class="bg-emerald-600 text-white text-xs px-2.5 py-1.5 rounded font-bold shadow hover:bg-emerald-700">
+                        <i class="fa-solid fa-download mr-1"></i> Download Certificate
                     </button>
                 </div>
             `).join('');
@@ -497,37 +630,134 @@
                 <div class="bg-white p-3 rounded shadow-sm border border-red-300 flex justify-between items-center">
                     <div>
                         <div class="font-bold text-xs text-gray-800">${e.staff}</div>
-                        <div class="text-xs text-gray-500">${e.kpi}: ${((e.actual/e.plan)*100).toFixed(1)}%</div>
+                        <div class="text-xs text-gray-500">${e.kpi} Target: ${((e.actual/e.plan)*100).toFixed(1)}% Achieved</div>
                     </div>
-                    <button onclick="generateCertificate('${e.staff}', 'Warning Notice', '${e.kpi}')" class="bg-red-600 text-white text-xs px-2 py-1 rounded">
-                        Issue Letter
+                    <button onclick="downloadPDFDoc('${e.staff}', 'Warning', '${e.kpi}', ${((e.actual/e.plan)*100).toFixed(1)})" class="bg-red-600 text-white text-xs px-2.5 py-1.5 rounded font-bold shadow hover:bg-red-700">
+                        <i class="fa-solid fa-download mr-1"></i> Download Notice
                     </button>
                 </div>
             `).join('');
         }
 
-        function generateCertificate(name, type, kpi) {
-            alert(`Official CBE Borkena Branch ${type} Document generated for ${name} regarding ${kpi} performance.`);
+        // Generate PDF Certificate / Warning Notice
+        function downloadPDFDoc(staffName, type, kpi, percent) {
+            const doc = new jsPDF();
+            
+            // Header
+            doc.setFillColor(74, 21, 75); // CBE Purple
+            doc.rect(0, 0, 210, 40, 'F');
+            doc.setTextColor(255, 184, 0); // CBE Gold
+            doc.setFontSize(18);
+            doc.text("COMMERCIAL BANK OF ETHIOPIA", 105, 20, { align: "center" });
+            doc.setFontSize(12);
+            doc.text("BORKENA BRANCH PERFORMANCE OFFICE", 105, 30, { align: "center" });
+
+            // Body Content
+            doc.setTextColor(0, 0, 0);
+            if (type === 'Recognition') {
+                doc.setFontSize(16);
+                doc.text("CERTIFICATE OF RECOGNITION", 105, 60, { align: "center" });
+                doc.setFontSize(11);
+                doc.text(`This official certificate is awarded to:`, 20, 80);
+                doc.setFontSize(14);
+                doc.text(`${staffName.toUpperCase()}`, 20, 92);
+                doc.setFontSize(11);
+                doc.text(`For outstanding performance in achieving ${percent}% in ${kpi} Target.`, 20, 105);
+                doc.text(`The management of CBE Borkena Branch commends your dedication.`, 20, 115);
+            } else {
+                doc.setFontSize(16);
+                doc.setTextColor(200, 0, 0);
+                doc.text("PERFORMANCE WARNING NOTICE", 105, 60, { align: "center" });
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(11);
+                doc.text(`OFFICIAL NOTICE TO: ${staffName.toUpperCase()}`, 20, 80);
+                doc.text(`Subject: Low Performance Achievement in ${kpi}`, 20, 92);
+                doc.text(`Your recent performance recorded an achievement level of ${percent}%, which is below`, 20, 105);
+                doc.text(`the required 50% minimum threshold for Borkena Branch metrics.`, 20, 115);
+                doc.text(`Please submit your action plan to your team supervisor within 3 working days.`, 20, 125);
+            }
+
+            // Signatures
+            doc.setFontSize(10);
+            doc.text("________________________", 20, 160);
+            doc.text("Fisseha (Branch Manager / Super Admin)", 20, 168);
+
+            doc.text("________________________", 130, 160);
+            doc.text("Dawit / Asrat (Branch Admins)", 130, 168);
+
+            doc.save(`${staffName}_${type}_Borkena_CBE.pdf`);
         }
 
-        // Export Functions
+        // CBE LIBRARY & UPLOAD
+        function renderLibrary() {
+            const list = document.getElementById('document-list');
+            list.innerHTML = state.files.map(f => `
+                <li class="py-2.5 flex justify-between items-center border-b">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-file-pdf text-red-600 text-base"></i>
+                        <div>
+                            <div class="font-bold text-gray-800">${f.name}</div>
+                            <div class="text-xs text-gray-400">Size: ${f.size} | Date: ${f.date}</div>
+                        </div>
+                    </div>
+                    <button onclick="alert('Downloading ${f.name} from CBE Borkena Cloud...')" class="bg-purple-900 text-amber-400 px-3 py-1 rounded font-bold text-xs">
+                        <i class="fa-solid fa-download mr-1"></i> Download
+                    </button>
+                </li>
+            `).join('');
+        }
+
+        function handleFileUpload() {
+            const input = document.getElementById('library-file-input');
+            if(input.files.length === 0) {
+                alert("Please select a file to upload!");
+                return;
+            }
+            const file = input.files[0];
+            state.files.push({
+                id: Date.now(),
+                name: file.name,
+                size: (file.size / (1024*1024)).toFixed(1) + " MB",
+                date: new Date().toISOString().split('T')[0]
+            });
+            renderLibrary();
+            alert(`File "${file.name}" uploaded successfully to CBE Borkena Library!`);
+            input.value = "";
+        }
+
+        // EXPORT EXCEL
         function exportToExcel() {
-            const ws = XLSX.utils.json_to_sheet(state.entries);
+            const filtered = state.entries.filter(e => e.status === 'Approved');
+            const ws = XLSX.utils.json_to_sheet(filtered);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Performance");
-            XLSX.writeFile(wb, "CBE_Borkena_Performance_Report.xlsx");
+            XLSX.writeFile(wb, `CBE_Borkena_Performance_${state.selectedPeriod.toUpperCase()}.xlsx`);
         }
 
+        // EXPORT MAIN DASHBOARD TO PDF
         function exportToPDF() {
-            alert("Exporting official PDF report...");
-        }
+            const doc = new jsPDF();
+            doc.setFillColor(74, 21, 75);
+            doc.rect(0, 0, 210, 30, 'F');
+            doc.setTextColor(255, 184, 0);
+            doc.setFontSize(14);
+            doc.text("COMMERCIAL BANK OF ETHIOPIA - BORKENA BRANCH", 105, 15, { align: "center" });
+            doc.setFontSize(10);
+            doc.text(`Official Performance Report (${state.selectedPeriod.toUpperCase()})`, 105, 23, { align: "center" });
 
-        function filterPeriod(period) {
-            alert(`Filtering data for: ${period.toUpperCase()}`);
-        }
+            const filtered = state.entries.filter(e => e.status === 'Approved' && e.period === state.selectedPeriod);
+            const tableRows = filtered.map(e => [
+                e.kpi, e.staff, e.supervisor, e.plan, e.actual, `${((e.actual/e.plan)*100).toFixed(1)}%`
+            ]);
 
-        function uploadDocument() {
-            alert("Document uploaded to CBE Borkena Cloud Library!");
+            doc.autoTable({
+                head: [['KPI Category', 'Staff', 'Supervisor', 'Plan', 'Actual', 'Achievement']],
+                body: tableRows,
+                startY: 35,
+                headStyles: { fillColor: [74, 21, 75], textColor: [255, 184, 0] }
+            });
+
+            doc.save(`CBE_Borkena_Performance_Report.pdf`);
         }
     </script>
 </body>
