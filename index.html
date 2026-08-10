@@ -136,6 +136,7 @@
                         <table class="w-full text-left text-xs">
                             <thead class="bg-purple-900 text-amber-400 uppercase font-bold">
                                 <tr>
+                                    <th class="p-3">Date</th>
                                     <th class="p-3">Period</th>
                                     <th class="p-3">KPI Category</th>
                                     <th class="p-3">Staff Member</th>
@@ -144,6 +145,7 @@
                                     <th class="p-3">Actual</th>
                                     <th class="p-3">Achievement (%)</th>
                                     <th class="p-3">Status</th>
+                                    <th class="p-3 text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="performance-table-body" class="divide-y divide-gray-200"></tbody>
@@ -151,11 +153,17 @@
                     </div>
                 </section>
 
-                <!-- 2. DAILY ENTRY MENU -->
+                <!-- 2. DAILY ENTRY MENU (UPDATED KPI OPTIONS) -->
                 <section id="section-entry" class="hidden max-w-2xl mx-auto bg-white p-6 rounded-xl shadow border border-gray-200">
-                    <h3 class="text-lg font-bold text-purple-900 mb-4 border-b pb-2">Submit Daily Performance Entry</h3>
+                    <h3 class="text-lg font-bold text-purple-900 mb-4 border-b pb-2" id="entry-form-title">Submit Performance Entry</h3>
                     <form id="daily-entry-form" onsubmit="submitEntry(event)" class="space-y-4">
+                        <input type="hidden" id="entry-editing-id" value="">
+                        
                         <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Date</label>
+                                <input type="date" id="entry-date" class="w-full p-2 border rounded text-xs outline-none focus:ring-2 focus:ring-amber-400" required>
+                            </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 mb-1">Time Period</label>
                                 <select id="entry-period" class="w-full p-2 border rounded text-xs outline-none focus:ring-2 focus:ring-amber-400">
@@ -165,36 +173,61 @@
                                     <option value="quarterly">Quarterly</option>
                                 </select>
                             </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Staff Name</label>
+                                <select id="entry-staff-select" class="w-full p-2 border rounded text-xs outline-none focus:ring-2 focus:ring-amber-400" required></select>
+                            </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 mb-1">KPI Category</label>
                                 <select id="entry-kpi" class="w-full p-2 border rounded text-xs outline-none focus:ring-2 focus:ring-amber-400">
-                                    <option value="Deposit Growth">Deposit Growth</option>
-                                    <option value="FCY Mobilization">FCY Mobilization</option>
-                                    <option value="Customer Base Acquisition">Customer Base Acquisition</option>
-                                    <option value="Mobile Banking Users">Mobile Banking Users</option>
-                                    <option value="CBE Birr Registration">CBE Birr Registration</option>
-                                    <option value="ATM / POS Growth">ATM / POS Merchant Growth</option>
+                                    <option value="Deposit Growth">Deposit Growth (ዲፓዚት)</option>
+                                    <option value="FCY Mobilization">FCY Mobilization (ኤፍሲዎይ)</option>
+                                    <option value="Customer Base Acquisition">Customer Base Acquisition (ከስተመር ቤዝ)</option>
+                                    <option value="Harmonization">Harmonization (ሀርምናይዜሽን)</option>
+                                    <option value="Mobile Banking Users">Mobile Banking Users (ምባይል)</option>
+                                    <option value="ATM / POS Growth">ATM / POS Card Growth (ኤትኤምካርድ)</option>
+                                    <option value="Agent Banking Growth">Agent Banking Growth (ኤጀንት)</option>
+                                    <option value="Merchant Onboarding">Merchant Onboarding (መርቻንት)</option>
+                                    <option value="Internet Banking Users">Internet Banking Users (ኢንተርኔት)</option>
+                                    <option value="CBE Birr Registration">CBE Birr Registration (ሲቢኢብር)</option>
+                                    <option value="StarPay Users">StarPay Users (እስታርፔይ)</option>
                                     <option value="Loan Recovery">Loan & NPL Recovery</option>
                                 </select>
                             </div>
                         </div>
+
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 mb-1">Target Plan</label>
-                                <input type="number" id="entry-plan" class="w-full p-2 border rounded text-xs" required>
+                                <input type="number" step="any" id="entry-plan" class="w-full p-2 border rounded text-xs" required>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 mb-1">Actual Achieved</label>
-                                <input type="number" id="entry-actual" class="w-full p-2 border rounded text-xs" required>
+                                <input type="number" step="any" id="entry-actual" class="w-full p-2 border rounded text-xs" required>
                             </div>
                         </div>
+
                         <div>
                             <label class="block text-xs font-bold text-gray-700 mb-1">Assigned Supervisor</label>
                             <input type="text" id="entry-supervisor" placeholder="Supervisor Name" class="w-full p-2 border rounded text-xs" required>
                         </div>
-                        <button type="submit" class="w-full bg-purple-900 text-amber-400 font-bold py-2 rounded text-xs hover:bg-purple-800">
-                            Submit Live Entry
-                        </button>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Remarks / Remarks & Notes</label>
+                            <textarea id="entry-remarks" rows="2" placeholder="ማብራሪያ ወይም ተጨማሪ ማስታወሻ..." class="w-full p-2 border rounded text-xs outline-none focus:ring-2 focus:ring-amber-400"></textarea>
+                        </div>
+
+                        <div class="flex space-x-2">
+                            <button type="submit" id="btn-submit-entry" class="flex-1 bg-purple-900 text-amber-400 font-bold py-2 rounded text-xs hover:bg-purple-800">
+                                Submit Live Entry
+                            </button>
+                            <button type="button" id="btn-cancel-edit-entry" onclick="resetEntryForm()" class="hidden bg-gray-400 text-white font-bold px-4 py-2 rounded text-xs hover:bg-gray-500">
+                                Cancel
+                            </button>
+                        </div>
                     </form>
                 </section>
 
@@ -212,11 +245,13 @@
                         <table class="w-full text-left text-xs">
                             <thead class="bg-purple-900 text-amber-400 uppercase font-bold">
                                 <tr>
+                                    <th class="p-3">Date</th>
                                     <th class="p-3">Staff</th>
                                     <th class="p-3">KPI</th>
                                     <th class="p-3">Period</th>
                                     <th class="p-3">Plan / Actual</th>
                                     <th class="p-3">Supervisor</th>
+                                    <th class="p-3">Remarks</th>
                                     <th class="p-3 text-center">Actions</th>
                                 </tr>
                             </thead>
@@ -244,7 +279,7 @@
                                     <th class="p-3">Full Name</th>
                                     <th class="p-3">Role</th>
                                     <th class="p-3">Responsibility</th>
-                                    <th class="p-3">Actions</th>
+                                    <th class="p-3 text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="users-table-body" class="divide-y divide-gray-200"></tbody>
@@ -304,18 +339,18 @@
         <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 border-2 border-amber-400">
             <h3 id="modal-title" class="text-lg font-bold text-purple-900 mb-4">Register User</h3>
             <form id="user-form" onsubmit="saveUser(event)" class="space-y-3">
-                <input type="hidden" id="modal-user-id">
+                <input type="hidden" id="modal-user-id" value="">
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Username</label>
-                    <input type="text" id="modal-username" class="w-full p-2 border rounded text-xs outline-none" required>
+                    <input type="text" id="modal-username" class="w-full p-2 border rounded text-xs outline-none focus:ring-2 focus:ring-amber-400" required>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Full Name</label>
-                    <input type="text" id="modal-fullname" class="w-full p-2 border rounded text-xs outline-none" required>
+                    <input type="text" id="modal-fullname" class="w-full p-2 border rounded text-xs outline-none focus:ring-2 focus:ring-amber-400" required>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Password</label>
-                    <input type="password" id="modal-password" class="w-full p-2 border rounded text-xs outline-none" required>
+                    <input type="password" id="modal-password" class="w-full p-2 border rounded text-xs outline-none focus:ring-2 focus:ring-amber-400" required>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">User Role</label>
@@ -330,8 +365,8 @@
                     <input type="text" id="modal-responsibility" class="w-full p-2 border rounded text-xs" required>
                 </div>
                 <div class="flex justify-end space-x-2 pt-3 border-t">
-                    <button type="button" onclick="toggleUserModal(false)" class="px-4 py-2 bg-gray-300 text-xs font-bold rounded">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-purple-900 text-amber-400 text-xs font-bold rounded">Save to Cloud</button>
+                    <button type="button" onclick="toggleUserModal(false)" class="px-4 py-2 bg-gray-300 text-xs font-bold rounded hover:bg-gray-400">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-purple-900 text-amber-400 text-xs font-bold rounded hover:bg-purple-800">Save to Cloud</button>
                 </div>
             </form>
         </div>
@@ -371,17 +406,30 @@
                 const data = snapshot.val();
                 if (data) {
                     const cloudUsers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-                    const combined = [...defaultUsers];
+                    const combined = [];
+                    
+                    // Merge default users with firebase users safely
+                    defaultUsers.forEach(du => {
+                        const match = cloudUsers.find(cu => cu.username.toLowerCase() === du.username.toLowerCase());
+                        if (match) {
+                            combined.push(match);
+                        } else {
+                            combined.push(du);
+                        }
+                    });
+
                     cloudUsers.forEach(cu => {
                         if (!combined.some(u => u.username.toLowerCase() === cu.username.toLowerCase())) {
                             combined.push(cu);
                         }
                     });
+
                     state.users = combined;
                 } else {
                     seedDefaultUsers();
                 }
                 renderUsers();
+                populateStaffSelect();
             });
 
             db.ref('entries').on('value', (snapshot) => {
@@ -397,7 +445,10 @@
         }
 
         function seedDefaultUsers() {
-            defaultUsers.forEach(u => db.ref('users').push(u));
+            defaultUsers.forEach(u => {
+                const { id, ...userWithoutId } = u;
+                db.ref('users').push(userWithoutId);
+            });
         }
 
         // AUTHENTICATION
@@ -423,6 +474,10 @@
 
             buildNavigation();
             renderDashboard();
+            populateStaffSelect();
+
+            // Set today's date in form by default
+            document.getElementById('entry-date').valueAsDate = new Date();
         }
 
         function handleLogout() {
@@ -431,7 +486,7 @@
             document.getElementById('login-section').classList.remove('hidden');
         }
 
-        // NAVIGATION BUILDER - RESTRUCTURED & FULLY RESTORED
+        // NAVIGATION BUILDER
         function buildNavigation() {
             const nav = document.getElementById('sidebar-menu');
             const role = state.currentUser.role;
@@ -449,7 +504,6 @@
                 items.push({ id: 'users', label: 'User Management', icon: 'fa-users-gear' });
             }
 
-            // Public / General Restored Menus
             items.push({ id: 'reports', label: 'Performance Reports', icon: 'fa-file-lines' });
             items.push({ id: 'settings', label: 'System Settings', icon: 'fa-gears' });
 
@@ -471,7 +525,19 @@
             if (selected) selected.classList.remove('hidden');
         }
 
-        // DASHBOARD RENDER
+        function populateStaffSelect() {
+            const select = document.getElementById('entry-staff-select');
+            if (!select) return;
+            select.innerHTML = state.users.map(u => `
+                <option value="${u.name}">${u.name} (${u.role})</option>
+            `).join('');
+
+            if (state.currentUser) {
+                select.value = state.currentUser.name;
+            }
+        }
+
+        // DASHBOARD RENDER & ENTRY EDIT/DELETE
         function filterPeriod(p) {
             state.activeFilter = p;
             document.getElementById('current-period-label').innerText = `Showing: ${p.toUpperCase()} Records`;
@@ -487,18 +553,23 @@
             }
 
             if (!filtered.length) {
-                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-500">ምንም የጸደቀ መረጃ የለም።</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="p-4 text-center text-gray-500">ምንም የጸደቀ መረጃ የለም።</td></tr>`;
                 return;
             }
+
+            const canManage = state.currentUser && (state.currentUser.role === 'Super Admin' || state.currentUser.role === 'Admin');
 
             tbody.innerHTML = filtered.map(e => {
                 const pct = ((e.actual / e.plan) * 100).toFixed(1);
                 const ok = pct >= 50;
+                const entryDate = e.date ? e.date : (e.timestamp ? new Date(e.timestamp).toISOString().split('T')[0] : '-');
+
                 return `
                     <tr class="hover:bg-gray-50">
+                        <td class="p-3 font-semibold text-gray-600">${entryDate}</td>
                         <td class="p-3 font-bold uppercase text-gray-600">${e.period}</td>
                         <td class="p-3 font-bold text-purple-900">${e.kpi}</td>
-                        <td class="p-3">${e.staff}</td>
+                        <td class="p-3 font-medium">${e.staff}</td>
                         <td class="p-3">${e.supervisor}</td>
                         <td class="p-3">${Number(e.plan).toLocaleString()}</td>
                         <td class="p-3">${Number(e.actual).toLocaleString()}</td>
@@ -508,33 +579,94 @@
                                 ${ok ? 'On Track' : 'Below Target'}
                             </span>
                         </td>
+                        <td class="p-3 text-center space-x-2">
+                            ${canManage || (state.currentUser && state.currentUser.name === e.staff) ? `
+                                <button onclick="editEntry('${e.id}')" class="text-blue-600 hover:text-blue-800 font-bold mr-1" title="Edit Entry">
+                                    <i class="fa-solid fa-pen-to-square"></i> Edit
+                                </button>
+                                <button onclick="deleteEntry('${e.id}')" class="text-red-600 hover:text-red-800 font-bold" title="Delete Entry">
+                                    <i class="fa-solid fa-trash"></i> Delete
+                                </button>
+                            ` : '<span class="text-gray-400">-</span>'}
+                        </td>
                     </tr>
                 `;
             }).join('');
         }
 
-        // SUBMIT LIVE ENTRY TO CLOUD
+        // SUBMIT OR UPDATE ENTRY TO CLOUD
         function submitEntry(e) {
             e.preventDefault();
+            
+            const editId = document.getElementById('entry-editing-id').value;
             const entryData = {
+                date: document.getElementById('entry-date').value,
                 period: document.getElementById('entry-period').value,
-                staff: state.currentUser.name,
+                staff: document.getElementById('entry-staff-select').value,
                 kpi: document.getElementById('entry-kpi').value,
                 plan: parseFloat(document.getElementById('entry-plan').value),
                 actual: parseFloat(document.getElementById('entry-actual').value),
                 supervisor: document.getElementById('entry-supervisor').value,
-                status: 'Pending',
+                remarks: document.getElementById('entry-remarks').value.trim(),
+                status: (state.currentUser.role === 'Super Admin' || state.currentUser.role === 'Admin') ? 'Approved' : 'Pending',
                 timestamp: Date.now()
             };
 
-            db.ref('entries').push(entryData, (error) => {
-                if(!error) {
-                    alert("መረጃው በስኬት ኦንላይን ላይ ተልኳል! በሁሉም ስልኮች ላይ ወዲያውኑ ይታያል።");
-                    document.getElementById('daily-entry-form').reset();
-                } else {
-                    alert("መረጃውን መላክ አልተቻለም። ኢንተርኔትዎን ያረጋግጡ።");
-                }
-            });
+            if (editId) {
+                // Update existing record
+                db.ref('entries/' + editId).update(entryData, (error) => {
+                    if (!error) {
+                        alert("መረጃው በስኬት ተሻሽሏል (Updated)!");
+                        resetEntryForm();
+                        switchTab('dashboard', 'Dashboard Overview');
+                    } else {
+                        alert("ማስተካከል አልተቻለም። ድጋሚ ይሞክሩ።");
+                    }
+                });
+            } else {
+                // Create new record
+                db.ref('entries').push(entryData, (error) => {
+                    if (!error) {
+                        alert("መረጃው በስኬት ኦንላይን ላይ ተልኳል!");
+                        resetEntryForm();
+                    } else {
+                        alert("መረጃውን መላክ አልተቻለም። ኢንተርኔትዎን ያረጋግጡ።");
+                    }
+                });
+            }
+        }
+
+        function editEntry(id) {
+            const entry = state.entries.find(e => e.id === id);
+            if (!entry) return;
+
+            document.getElementById('entry-editing-id').value = entry.id;
+            document.getElementById('entry-date').value = entry.date || new Date().toISOString().split('T')[0];
+            document.getElementById('entry-period').value = entry.period;
+            document.getElementById('entry-staff-select').value = entry.staff;
+            document.getElementById('entry-kpi').value = entry.kpi;
+            document.getElementById('entry-plan').value = entry.plan;
+            document.getElementById('entry-actual').value = entry.actual;
+            document.getElementById('entry-supervisor').value = entry.supervisor;
+            document.getElementById('entry-remarks').value = entry.remarks || '';
+
+            document.getElementById('entry-form-title').innerText = "Edit Performance Entry";
+            document.getElementById('btn-submit-entry').innerText = "Update Performance Entry";
+            document.getElementById('btn-cancel-edit-entry').classList.remove('hidden');
+
+            switchTab('entry', 'Edit Performance Entry');
+        }
+
+        function resetEntryForm() {
+            document.getElementById('daily-entry-form').reset();
+            document.getElementById('entry-editing-id').value = "";
+            document.getElementById('entry-form-title').innerText = "Submit Performance Entry";
+            document.getElementById('btn-submit-entry').innerText = "Submit Live Entry";
+            document.getElementById('btn-cancel-edit-entry').classList.add('hidden');
+            document.getElementById('entry-date').valueAsDate = new Date();
+            if (state.currentUser) {
+                document.getElementById('entry-staff-select').value = state.currentUser.name;
+            }
         }
 
         // APPROVALS LOGIC
@@ -544,20 +676,22 @@
             document.getElementById('pending-count-badge').innerText = `${pendings.length} Pending`;
 
             if (!pendings.length) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500">የሚጸድቅ አዲስ መረጃ የለም።</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-500">የሚጸድቅ አዲስ መረጃ የለም።</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = pendings.map(e => `
                 <tr class="hover:bg-gray-50">
+                    <td class="p-3 text-gray-600">${e.date || '-'}</td>
                     <td class="p-3 font-bold text-purple-900">${e.staff}</td>
                     <td class="p-3">${e.kpi}</td>
                     <td class="p-3 font-bold uppercase">${e.period}</td>
                     <td class="p-3">${e.plan} / ${e.actual}</td>
                     <td class="p-3">${e.supervisor}</td>
+                    <td class="p-3 text-gray-500">${e.remarks || '-'}</td>
                     <td class="p-3 text-center space-x-2">
-                        <button onclick="approveEntry('${e.id}')" class="bg-emerald-600 text-white px-3 py-1 rounded text-xs font-bold">Approve</button>
-                        <button onclick="deleteEntry('${e.id}')" class="bg-red-600 text-white px-3 py-1 rounded text-xs font-bold">Reject</button>
+                        <button onclick="approveEntry('${e.id}')" class="bg-emerald-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-emerald-700">Approve</button>
+                        <button onclick="deleteEntry('${e.id}')" class="bg-red-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-700">Reject</button>
                     </td>
                 </tr>
             `).join('');
@@ -568,7 +702,7 @@
         }
 
         function deleteEntry(id) {
-            if(confirm("ይህንን መረጃ መሰረዝ ይፈልጋሉ?")) {
+            if (confirm("ይህንን መረጃ መሰረዝ ይፈልጋሉ?")) {
                 db.ref('entries/' + id).remove();
             }
         }
@@ -582,7 +716,8 @@
                     <td class="p-3 font-bold text-purple-900">${u.name}</td>
                     <td class="p-3"><span class="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded font-bold">${u.role}</span></td>
                     <td class="p-3">${u.responsibility}</td>
-                    <td class="p-3">
+                    <td class="p-3 text-center space-x-3">
+                        <button onclick="editUser('${u.id}')" class="text-blue-600 font-bold hover:underline">Edit</button>
                         <button onclick="deleteUser('${u.id}')" class="text-red-600 font-bold hover:underline">Delete</button>
                     </td>
                 </tr>
@@ -595,20 +730,57 @@
 
         function openAddUser() {
             document.getElementById('user-form').reset();
+            document.getElementById('modal-user-id').value = "";
+            document.getElementById('modal-title').innerText = "Register New User";
+            toggleUserModal(true);
+        }
+
+        function editUser(id) {
+            const u = state.users.find(item => item.id === id);
+            if (!u) return;
+
+            document.getElementById('modal-user-id').value = u.id;
+            document.getElementById('modal-username').value = u.username;
+            document.getElementById('modal-fullname').value = u.name;
+            document.getElementById('modal-password').value = u.password;
+            document.getElementById('modal-role').value = u.role;
+            document.getElementById('modal-responsibility').value = u.responsibility;
+
+            document.getElementById('modal-title').innerText = "Edit User Details";
             toggleUserModal(true);
         }
 
         function saveUser(e) {
             e.preventDefault();
-            const newUser = {
+            const editId = document.getElementById('modal-user-id').value;
+
+            const userData = {
                 username: document.getElementById('modal-username').value.trim(),
                 name: document.getElementById('modal-fullname').value.trim(),
                 password: document.getElementById('modal-password').value.trim(),
                 role: document.getElementById('modal-role').value,
                 responsibility: document.getElementById('modal-responsibility').value.trim()
             };
-            db.ref('users').push(newUser);
-            toggleUserModal(false);
+
+            if (editId && !editId.startsWith('def')) {
+                db.ref('users/' + editId).update(userData, (error) => {
+                    if (!error) {
+                        alert("የተጠቃሚው መረጃ በስኬት ተስተካክሏል!");
+                        toggleUserModal(false);
+                    } else {
+                        alert("ተጠቃሚውን ማስተካከል አልተቻለም።");
+                    }
+                });
+            } else {
+                db.ref('users').push(userData, (error) => {
+                    if (!error) {
+                        alert("አዲስ ተጠቃሚ በስኬት ተመዝግቧል!");
+                        toggleUserModal(false);
+                    } else {
+                        alert("ተጠቃሚውን ማስመዝገብ አልተቻለም።");
+                    }
+                });
+            }
         }
 
         function deleteUser(id) {
@@ -621,7 +793,7 @@
             }
         }
 
-        // FIXED REPORT EXPORT FUNCTIONS
+        // REPORT EXPORT FUNCTIONS
         function exportToPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -633,6 +805,7 @@
             
             const approvedEntries = state.entries.filter(e => e.status === 'Approved');
             const tableData = approvedEntries.map(e => [
+                e.date || '-',
                 e.period.toUpperCase(),
                 e.kpi,
                 e.staff,
@@ -644,7 +817,7 @@
 
             doc.autoTable({
                 startY: 28,
-                head: [['Period', 'KPI Category', 'Staff', 'Supervisor', 'Plan', 'Actual', 'Achievement']],
+                head: [['Date', 'Period', 'KPI Category', 'Staff', 'Supervisor', 'Plan', 'Actual', 'Achievement']],
                 body: tableData,
                 headStyles: { fillColor: [74, 21, 75] }
             });
@@ -654,6 +827,7 @@
 
         function exportToExcel() {
             const dataToExport = state.entries.map(e => ({
+                Date: e.date || '-',
                 Period: e.period,
                 KPI: e.kpi,
                 Staff: e.staff,
@@ -661,6 +835,7 @@
                 Plan: e.plan,
                 Actual: e.actual,
                 Achievement_Percent: ((e.actual / e.plan) * 100).toFixed(1) + '%',
+                Remarks: e.remarks || '',
                 Status: e.status
             }));
 
