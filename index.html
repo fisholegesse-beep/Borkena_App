@@ -149,7 +149,7 @@
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <span id="cloud-sync-status" class="text-[11px] bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full border border-emerald-300 flex items-center">
-                        <i class="fa-solid fa-cloud-arrow-up mr-1.5 text-emerald-600"></i> Cloud Realtime Sync
+                        <i class="fa-solid fa-cloud-arrow-up mr-1.5 text-emerald-600"></i> Cloud Realtime Sync Active
                     </span>
                     <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow transition flex items-center">
                         <i class="fa-solid fa-file-excel mr-1.5"></i> Export Excel
@@ -164,7 +164,6 @@
                 
                 <!-- 1. DASHBOARD -->
                 <section id="section-dashboard" class="space-y-6">
-                    <!-- Quick Analytics Cards -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
                             <div class="flex items-center justify-between">
@@ -584,7 +583,6 @@
                 </button>
             </div>
             <div id="reader-content-area" class="flex-1 bg-slate-100 p-4 overflow-y-auto custom-scrollbar flex items-center justify-center">
-                <!-- Embedded Viewer or Reader Frame -->
             </div>
         </div>
     </div>
@@ -626,12 +624,15 @@
             ebooks: JSON.parse(localStorage.getItem('cbe_ebooks')) || [...defaultEbooks]
         };
 
-        // Firebase Setup
+        // Firebase Setup & Realtime Persistence
         let db = null;
         try {
             const firebaseConfig = { databaseURL: "https://cbe-borkena-default-rtdb.firebaseio.com/" };
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
             db = firebase.database();
+            
+            // Enable offline persistence to prevent network connection dropping on mobile
+            db.ref().keepSynced(true);
         } catch (err) {
             console.warn("Firebase fallback mode active.", err);
         }
@@ -655,35 +656,54 @@
 
         function initRealtimeSync() {
             if (!db) return;
+
+            // Live Users Presence Detection
+            const connectedRef = db.ref('.info/connected');
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    const statusStatusRef = db.ref('status/' + (state.currentUser ? state.currentUser.username : 'guest_' + Date.now()));
+                    statusStatusRef.onDisconnect().remove();
+                    statusStatusRef.set({ online: true, last_seen: Date.now() });
+                }
+            });
+
+            db.ref('status').on('value', (snapshot) => {
+                const data = snapshot.val();
+                const activeCount = data ? Object.keys(data).length : 1;
+                const el = document.getElementById('active-users-count');
+                if (el) el.innerText = `${activeCount} Online`;
+            });
             
             db.ref('entries').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     state.entries = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-                    syncLocalStorage();
-                    renderDashboard();
-                    renderApprovals();
-                    renderReports();
+                } else {
+                    state.entries = [];
                 }
+                syncLocalStorage();
+                renderDashboard();
+                renderApprovals();
+                renderReports();
             });
 
             db.ref('users').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     state.users = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-                    syncLocalStorage();
-                    renderUsers();
-                    populateStaffSelect();
                 }
+                syncLocalStorage();
+                renderUsers();
+                populateStaffSelect();
             });
 
             db.ref('ebooks').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     state.ebooks = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-                    syncLocalStorage();
-                    renderEbooks();
                 }
+                syncLocalStorage();
+                renderEbooks();
             });
         }
 
@@ -714,10 +734,14 @@
             renderReports();
             document.getElementById('entry-date').valueAsDate = new Date();
 
+            initRealtimeSync();
             showToast(`Welcome back, ${matched.name}!`);
         }
 
         function handleLogout() {
+            if (db && state.currentUser) {
+                db.ref('status/' + state.currentUser.username).remove();
+            }
             state.currentUser = null;
             document.getElementById('app').classList.add('hidden');
             document.getElementById('login-section').classList.remove('hidden');
@@ -792,7 +816,6 @@
                 filtered = filtered.filter(e => e.period === state.activeFilter);
             }
 
-            // Summary Stats Calculation
             let totalPlan = 0;
             let totalActual = 0;
             filtered.forEach(e => {
@@ -872,7 +895,7 @@
                 const index = state.entries.findIndex(item => item.id === editId);
                 if (index !== -1) state.entries[index] = entryData;
             } else {
-                state.entries.push(entryData);
+                state.entries.unshift(entryData);
             }
 
             syncLocalStorage();
@@ -975,7 +998,6 @@
             }
         }
 
-        // BORKENA EBOOK LIBRARY LOGIC
         function toggleUploadModal(show) {
             document.getElementById('ebook-modal').classList.toggle('hidden', !show);
         }
@@ -1066,12 +1088,10 @@
             document.getElementById('reader-modal').classList.toggle('hidden', !show);
         }
 
-        // USER MANAGEMENT
+        // USER MANAGEMENT - FIXED ADD USER AND REALTIME SYNC
         function renderUsers() {
             const tbody = document.getElementById('users-table-body');
             if (!tbody) return;
-
-            document.getElementById('active-users-count').innerText = `${state.users.length} Registered`;
 
             tbody.innerHTML = state.users.map(u => `
                 <tr class="hover:bg-slate-50 transition">
@@ -1105,7 +1125,7 @@
 
             const userData = {
                 id: editId || 'user_' + Date.now(),
-                username: document.getElementById('modal-username').value.trim(),
+                username: document.getElementById('modal-username').value.trim().toLowerCase(),
                 name: document.getElementById('modal-fullname').value.trim(),
                 password: document.getElementById('modal-password').value.trim(),
                 role: document.getElementById('modal-role').value,
@@ -1120,7 +1140,9 @@
             }
 
             syncLocalStorage();
-            if (db) db.ref('users/' + userData.id).set(userData);
+            if (db) {
+                db.ref('users/' + userData.id).set(userData);
+            }
 
             showToast("User details saved successfully!");
             toggleUserModal(false);
@@ -1158,7 +1180,6 @@
             }
         }
 
-        // PERFORMANCE REPORTS DETAILED ANALYSIS
         function renderReports() {
             const kpiList = document.getElementById('kpi-summary-list');
             const staffList = document.getElementById('staff-summary-list');
@@ -1167,23 +1188,19 @@
 
             const approved = state.entries.filter(e => e.status === 'Approved');
 
-            // KPI Grouping
             const kpiMap = {};
             const staffMap = {};
 
             approved.forEach(e => {
-                // KPI
                 if (!kpiMap[e.kpi]) kpiMap[e.kpi] = { plan: 0, actual: 0 };
                 kpiMap[e.kpi].plan += parseFloat(e.plan || 0);
                 kpiMap[e.kpi].actual += parseFloat(e.actual || 0);
 
-                // Staff
                 if (!staffMap[e.staff]) staffMap[e.staff] = { plan: 0, actual: 0 };
                 staffMap[e.staff].plan += parseFloat(e.plan || 0);
                 staffMap[e.staff].actual += parseFloat(e.actual || 0);
             });
 
-            // Render KPI List
             const kpiKeys = Object.keys(kpiMap);
             if (!kpiKeys.length) {
                 kpiList.innerHTML = `<p class="text-slate-500 py-2">No data recorded.</p>`;
@@ -1204,7 +1221,6 @@
                 }).join('');
             }
 
-            // Render Staff List
             const staffKeys = Object.keys(staffMap);
             if (!staffKeys.length) {
                 staffList.innerHTML = `<p class="text-slate-500 py-2">No data recorded.</p>`;
@@ -1226,59 +1242,70 @@
             }
         }
 
+        // FIXED PDF DOWNLOAD LOGIC
         function exportToPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            doc.setFontSize(16);
-            doc.text("Commercial Bank of Ethiopia - Borkena Branch", 14, 15);
-            doc.setFontSize(11);
-            doc.text("Live Performance & Analytics Summary Report", 14, 22);
-            
-            const approvedEntries = state.entries.filter(e => e.status === 'Approved');
-            const tableData = approvedEntries.map(e => [
-                e.date || '-',
-                e.period.toUpperCase(),
-                e.kpi,
-                e.staff,
-                e.supervisor,
-                e.plan,
-                e.actual,
-                (e.plan > 0 ? ((e.actual / e.plan) * 100).toFixed(1) : '0.0') + '%'
-            ]);
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.setFontSize(16);
+                doc.text("Commercial Bank of Ethiopia - Borkena Branch", 14, 15);
+                doc.setFontSize(11);
+                doc.text("Live Performance & Analytics Summary Report", 14, 22);
+                
+                const approvedEntries = state.entries.filter(e => e.status === 'Approved');
+                const tableData = approvedEntries.map(e => [
+                    e.date || '-',
+                    (e.period || '').toUpperCase(),
+                    e.kpi || '-',
+                    e.staff || '-',
+                    e.supervisor || '-',
+                    e.plan || 0,
+                    e.actual || 0,
+                    (e.plan > 0 ? ((e.actual / e.plan) * 100).toFixed(1) : '0.0') + '%'
+                ]);
 
-            doc.autoTable({
-                startY: 28,
-                head: [['Date', 'Period', 'KPI Category', 'Staff Member', 'Supervisor', 'Plan', 'Actual', 'Achievement']],
-                body: tableData,
-                headStyles: { fillColor: [74, 21, 75] }
-            });
+                doc.autoTable({
+                    startY: 28,
+                    head: [['Date', 'Period', 'KPI Category', 'Staff Member', 'Supervisor', 'Plan', 'Actual', 'Achievement']],
+                    body: tableData,
+                    headStyles: { fillColor: [74, 21, 75] }
+                });
 
-            doc.save("CBE_Borkena_Performance_Report.pdf");
-            showToast("PDF report downloaded!");
+                doc.save("CBE_Borkena_Performance_Report.pdf");
+                showToast("PDF report downloaded successfully!");
+            } catch (err) {
+                console.error("PDF Export Error: ", err);
+                showToast("Error generating PDF file. Please try again.", false);
+            }
         }
 
         function exportToExcel() {
-            const dataToExport = state.entries.map(e => ({
-                Date: e.date || '-',
-                Period: e.period,
-                KPI: e.kpi,
-                Staff: e.staff,
-                Supervisor: e.supervisor,
-                Plan: e.plan,
-                Actual: e.actual,
-                Achievement_Percent: (e.plan > 0 ? ((e.actual / e.plan) * 100).toFixed(1) : '0.0') + '%',
-                Remarks: e.remarks || '',
-                Status: e.status
-            }));
+            try {
+                const dataToExport = state.entries.map(e => ({
+                    Date: e.date || '-',
+                    Period: e.period,
+                    KPI: e.kpi,
+                    Staff: e.staff,
+                    Supervisor: e.supervisor,
+                    Plan: e.plan,
+                    Actual: e.actual,
+                    Achievement_Percent: (e.plan > 0 ? ((e.actual / e.plan) * 100).toFixed(1) : '0.0') + '%',
+                    Remarks: e.remarks || '',
+                    Status: e.status
+                }));
 
-            const ws = XLSX.utils.json_to_sheet(dataToExport);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Performance Data");
-            XLSX.writeFile(wb, "CBE_Borkena_Performance_Report.xlsx");
-            showToast("Excel report downloaded!");
+                const ws = XLSX.utils.json_to_sheet(dataToExport);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Performance Data");
+                XLSX.writeFile(wb, "CBE_Borkena_Performance_Report.xlsx");
+                showToast("Excel report downloaded!");
+            } catch (err) {
+                showToast("Error exporting Excel.", false);
+            }
         }
 
+        // Initialize Realtime Listener
         initRealtimeSync();
     </script>
 </body>
