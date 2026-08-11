@@ -587,7 +587,7 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- JAVASCRIPT LOGIC WITH REALTIME CLOUD SYNC FIX -->
     <script>
         const defaultUsers = [
             { id: 'def1', username: "fisseha", password: "123", name: "Fisseha", role: "Super Admin", responsibility: "Branch Manager" },
@@ -624,15 +624,12 @@
             ebooks: JSON.parse(localStorage.getItem('cbe_ebooks')) || [...defaultEbooks]
         };
 
-        // Firebase Setup & Realtime Persistence
+        // Firebase Setup
         let db = null;
         try {
             const firebaseConfig = { databaseURL: "https://cbe-borkena-default-rtdb.firebaseio.com/" };
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
             db = firebase.database();
-            
-            // Enable offline persistence to prevent network connection dropping on mobile
-            db.ref().keepSynced(true);
         } catch (err) {
             console.warn("Firebase fallback mode active.", err);
         }
@@ -654,16 +651,17 @@
             localStorage.setItem('cbe_ebooks', JSON.stringify(state.ebooks));
         }
 
+        // MAJRO FIX: REALTIME SYNC WITH CLOUD DATABASE FOR ALL DEVICES
         function initRealtimeSync() {
             if (!db) return;
 
-            // Live Users Presence Detection
+            // Online Users Count Listener
             const connectedRef = db.ref('.info/connected');
             connectedRef.on('value', (snap) => {
-                if (snap.val() === true) {
-                    const statusStatusRef = db.ref('status/' + (state.currentUser ? state.currentUser.username : 'guest_' + Date.now()));
-                    statusStatusRef.onDisconnect().remove();
-                    statusStatusRef.set({ online: true, last_seen: Date.now() });
+                if (snap.val() === true && state.currentUser) {
+                    const statusRef = db.ref('status/' + state.currentUser.username);
+                    statusRef.onDisconnect().remove();
+                    statusRef.set({ online: true, last_seen: Date.now() });
                 }
             });
 
@@ -674,6 +672,7 @@
                 if (el) el.innerText = `${activeCount} Online`;
             });
             
+            // Live Realtime Listener for Performance Entries across all phones
             db.ref('entries').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -687,6 +686,7 @@
                 renderReports();
             });
 
+            // Live Realtime Listener for Users
             db.ref('users').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -697,6 +697,7 @@
                 populateStaffSelect();
             });
 
+            // Live Realtime Listener for eBooks
             db.ref('ebooks').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -871,6 +872,7 @@
             }).join('');
         }
 
+        // ENTRY SUBMISSION WITH REALTIME CLOUD PUSH
         function submitEntry(e) {
             e.preventDefault();
             
@@ -891,24 +893,21 @@
                 timestamp: Date.now()
             };
 
-            if (editId) {
-                const index = state.entries.findIndex(item => item.id === editId);
-                if (index !== -1) state.entries[index] = entryData;
-            } else {
-                state.entries.unshift(entryData);
-            }
-
-            syncLocalStorage();
-
+            // Directly Push to Cloud Firebase Realtime Database
             if (db) {
                 db.ref('entries/' + entryData.id).set(entryData);
+            } else {
+                if (editId) {
+                    const index = state.entries.findIndex(item => item.id === editId);
+                    if (index !== -1) state.entries[index] = entryData;
+                } else {
+                    state.entries.unshift(entryData);
+                }
+                syncLocalStorage();
             }
 
-            showToast(editId ? "Entry updated successfully!" : "Performance entry submitted!");
+            showToast(editId ? "Entry updated across all devices!" : "Performance entry published!");
             resetEntryForm();
-            renderDashboard();
-            renderApprovals();
-            renderReports();
             switchTab('dashboard', 'Dashboard Overview');
         }
 
@@ -974,27 +973,25 @@
         }
 
         function approveEntry(id) {
-            const entry = state.entries.find(e => e.id === id);
-            if (entry) {
-                entry.status = 'Approved';
+            if (db) {
+                db.ref('entries/' + id).update({ status: 'Approved' });
+            } else {
+                const entry = state.entries.find(e => e.id === id);
+                if (entry) entry.status = 'Approved';
                 syncLocalStorage();
-                if (db) db.ref('entries/' + id).update({ status: 'Approved' });
-                showToast("Performance submission approved!");
-                renderDashboard();
-                renderApprovals();
-                renderReports();
             }
+            showToast("Performance submission approved!");
         }
 
         function deleteEntry(id) {
             if (confirm("Are you sure you want to delete this performance record?")) {
-                state.entries = state.entries.filter(e => e.id !== id);
-                syncLocalStorage();
-                if (db) db.ref('entries/' + id).remove();
+                if (db) {
+                    db.ref('entries/' + id).remove();
+                } else {
+                    state.entries = state.entries.filter(e => e.id !== id);
+                    syncLocalStorage();
+                }
                 showToast("Record deleted successfully.");
-                renderDashboard();
-                renderApprovals();
-                renderReports();
             }
         }
 
@@ -1004,9 +1001,7 @@
 
         function saveEbook(e) {
             e.preventDefault();
-            const fileInput = document.getElementById('ebook-file-input');
             const urlInput = document.getElementById('ebook-url-input').value.trim();
-
             let fileUrl = urlInput || 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
 
             const newEbook = {
@@ -1019,14 +1014,16 @@
                 uploadDate: new Date().toISOString().split('T')[0]
             };
 
-            state.ebooks.unshift(newEbook);
-            syncLocalStorage();
-            if (db) db.ref('ebooks/' + newEbook.id).set(newEbook);
+            if (db) {
+                db.ref('ebooks/' + newEbook.id).set(newEbook);
+            } else {
+                state.ebooks.unshift(newEbook);
+                syncLocalStorage();
+            }
 
             showToast("eBook uploaded to Borkena Library!");
             toggleUploadModal(false);
             document.getElementById('ebook-form').reset();
-            renderEbooks();
         }
 
         function renderEbooks() {
@@ -1088,7 +1085,6 @@
             document.getElementById('reader-modal').classList.toggle('hidden', !show);
         }
 
-        // USER MANAGEMENT - FIXED ADD USER AND REALTIME SYNC
         function renderUsers() {
             const tbody = document.getElementById('users-table-body');
             if (!tbody) return;
@@ -1132,22 +1128,20 @@
                 responsibility: document.getElementById('modal-responsibility').value.trim()
             };
 
-            if (editId) {
-                const idx = state.users.findIndex(u => u.id === editId);
-                if (idx !== -1) state.users[idx] = userData;
-            } else {
-                state.users.push(userData);
-            }
-
-            syncLocalStorage();
             if (db) {
                 db.ref('users/' + userData.id).set(userData);
+            } else {
+                if (editId) {
+                    const idx = state.users.findIndex(u => u.id === editId);
+                    if (idx !== -1) state.users[idx] = userData;
+                } else {
+                    state.users.push(userData);
+                }
+                syncLocalStorage();
             }
 
             showToast("User details saved successfully!");
             toggleUserModal(false);
-            renderUsers();
-            populateStaffSelect();
         }
 
         function editUser(id) {
@@ -1171,12 +1165,13 @@
                     showToast("Primary Admin cannot be deleted!", false);
                     return;
                 }
-                state.users = state.users.filter(u => u.id !== id);
-                syncLocalStorage();
-                if (db) db.ref('users/' + id).remove();
+                if (db) {
+                    db.ref('users/' + id).remove();
+                } else {
+                    state.users = state.users.filter(u => u.id !== id);
+                    syncLocalStorage();
+                }
                 showToast("User deleted.");
-                renderUsers();
-                populateStaffSelect();
             }
         }
 
@@ -1242,7 +1237,6 @@
             }
         }
 
-        // FIXED PDF DOWNLOAD LOGIC
         function exportToPDF() {
             try {
                 const { jsPDF } = window.jspdf;
@@ -1304,9 +1298,6 @@
                 showToast("Error exporting Excel.", false);
             }
         }
-
-        // Initialize Realtime Listener
-        initRealtimeSync();
     </script>
 </body>
 </html>
