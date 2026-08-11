@@ -13,7 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     
-    <!-- Firebase SDKs for Live Realtime Cloud Database -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
@@ -26,9 +26,19 @@
             background-color: #F8F9FA;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+        .toast-active {
+            transform: translateY(0);
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
+
+    <!-- Toast Notification Overlay -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform -translate-y-10 opacity-0 transition-all duration-300 bg-purple-900 text-amber-400 px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 border border-amber-400">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-xl text-amber-400"></i>
+        <span id="toast-message" class="text-xs font-bold text-white">Message goes here</span>
+    </div>
 
     <!-- LOGIN PAGE -->
     <div id="login-section" class="fixed inset-0 z-50 flex items-center justify-center bg-purple-950 bg-opacity-95 p-4">
@@ -102,16 +112,16 @@
             <header class="flex flex-col md:flex-row justify-between items-start md:items-center pb-4 mb-6 border-b border-gray-300 gap-2">
                 <div>
                     <h2 id="page-title" class="text-2xl font-bold text-purple-950">Dashboard Overview</h2>
-                    <p class="text-xs text-gray-500">Borkena Branch Live Cloud Synchronized System</p>
+                    <p class="text-xs text-gray-500">Borkena Branch Live Synchronized System</p>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <span class="text-xs bg-green-100 text-green-800 font-bold px-3 py-1 rounded-full border border-green-300 animate-pulse">
-                        <i class="fa-solid fa-bolt mr-1"></i> Live Multi-Device Sync
+                    <span id="cloud-sync-status" class="text-xs bg-green-100 text-green-800 font-bold px-3 py-1 rounded-full border border-green-300">
+                        <i class="fa-solid fa-cloud-check mr-1"></i> Cloud Active
                     </span>
-                    <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-2 rounded font-bold">
+                    <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-2 rounded font-bold shadow">
                         <i class="fa-solid fa-file-excel mr-1"></i> Excel Report
                     </button>
-                    <button onclick="exportToPDF()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-2 rounded font-bold">
+                    <button onclick="exportToPDF()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-2 rounded font-bold shadow">
                         <i class="fa-solid fa-file-pdf mr-1"></i> PDF Report
                     </button>
                 </div>
@@ -202,11 +212,11 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 mb-1">Target Plan</label>
-                                <input type="number" step="any" id="entry-plan" class="w-full p-2 border rounded text-xs" required>
+                                <input type="number" step="any" id="entry-plan" class="w-full p-2 border rounded text-xs" required placeholder="0.00">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 mb-1">Actual Achieved</label>
-                                <input type="number" step="any" id="entry-actual" class="w-full p-2 border rounded text-xs" required>
+                                <input type="number" step="any" id="entry-actual" class="w-full p-2 border rounded text-xs" required placeholder="0.00">
                             </div>
                         </div>
 
@@ -216,13 +226,13 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">Remarks / Remarks & Notes</label>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Remarks / Notes</label>
                             <textarea id="entry-remarks" rows="2" placeholder="ማብራሪያ ወይም ተጨማሪ ማስታወሻ..." class="w-full p-2 border rounded text-xs outline-none focus:ring-2 focus:ring-amber-400"></textarea>
                         </div>
 
                         <div class="flex space-x-2">
-                            <button type="submit" id="btn-submit-entry" class="flex-1 bg-purple-900 text-amber-400 font-bold py-2 rounded text-xs hover:bg-purple-800">
-                                Submit Live Entry
+                            <button type="submit" id="btn-submit-entry" class="flex-1 bg-purple-900 text-amber-400 font-bold py-2.5 rounded text-xs hover:bg-purple-800 shadow transition">
+                                <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Submit Live Entry
                             </button>
                             <button type="button" id="btn-cancel-edit-entry" onclick="resetEntryForm()" class="hidden bg-gray-400 text-white font-bold px-4 py-2 rounded text-xs hover:bg-gray-500">
                                 Cancel
@@ -287,7 +297,7 @@
                     </div>
                 </section>
 
-                <!-- 5. PERFORMANCE REPORTS MENU -->
+                <!-- 5. REPORTS -->
                 <section id="section-reports" class="hidden space-y-6">
                     <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
                         <h3 class="text-md font-bold text-purple-900 mb-2">Performance Reports & Analytics</h3>
@@ -311,7 +321,7 @@
                     </div>
                 </section>
 
-                <!-- 6. SYSTEM SETTINGS MENU -->
+                <!-- 6. SETTINGS -->
                 <section id="section-settings" class="hidden space-y-6">
                     <div class="bg-white p-6 rounded-xl shadow border border-gray-200 max-w-xl">
                         <h3 class="text-md font-bold text-purple-900 mb-4 border-b pb-2">System Configuration</h3>
@@ -321,9 +331,9 @@
                                 <input type="text" value="CBE Borkena Branch" disabled class="w-full p-2 border bg-gray-100 rounded text-gray-600">
                             </div>
                             <div>
-                                <label class="block font-bold text-gray-700 mb-1">Database Connection Status</label>
+                                <label class="block font-bold text-gray-700 mb-1">Database Mode</label>
                                 <span class="inline-block bg-green-100 text-green-800 px-3 py-1 rounded font-bold">
-                                    <i class="fa-solid fa-check-circle mr-1"></i> Firebase Live Connected
+                                    <i class="fa-solid fa-shield-halved mr-1"></i> Hybrid Cloud + Local Data Storage
                                 </span>
                             </div>
                         </div>
@@ -366,84 +376,80 @@
                 </div>
                 <div class="flex justify-end space-x-2 pt-3 border-t">
                     <button type="button" onclick="toggleUserModal(false)" class="px-4 py-2 bg-gray-300 text-xs font-bold rounded hover:bg-gray-400">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-purple-900 text-amber-400 text-xs font-bold rounded hover:bg-purple-800">Save to Cloud</button>
+                    <button type="submit" class="px-4 py-2 bg-purple-900 text-amber-400 text-xs font-bold rounded hover:bg-purple-800">Save User</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- JAVASCRIPT & REALTIME DATABASE LOGIC -->
+    <!-- JAVASCRIPT LOGIC WITH HYBRID STORAGE -->
     <script>
-        // Default static fallback users
         const defaultUsers = [
             { id: 'def1', username: "fisseha", password: "123", name: "Fisseha", role: "Super Admin", responsibility: "Branch Manager" },
             { id: 'def2', username: "dawit", password: "123", name: "Dawit", role: "Admin", responsibility: "Team Leader" },
             { id: 'def3', username: "dagmawit", password: "123", name: "Dagmawit Afework", role: "Staff", responsibility: "Digital Services" }
         ];
 
-        // FIREBASE REALTIME CLOUD DATABASE CONFIGURATION
-        const firebaseConfig = {
-            databaseURL: "https://cbe-borkena-default-rtdb.firebaseio.com/" 
-        };
-        
-        // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const db = firebase.database();
-
-        // Local State Management
         let state = {
             currentUser: null,
             activeFilter: 'all',
-            users: [...defaultUsers],
-            entries: []
+            users: JSON.parse(localStorage.getItem('cbe_users')) || [...defaultUsers],
+            entries: JSON.parse(localStorage.getItem('cbe_entries')) || []
         };
 
-        // START REALTIME SYNC LISTENERS
+        // Firebase Setup
+        let db = null;
+        try {
+            const firebaseConfig = { databaseURL: "https://cbe-borkena-default-rtdb.firebaseio.com/" };
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+        } catch (err) {
+            console.warn("Firebase fallback mode enabled.", err);
+        }
+
+        function showToast(msg, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.innerText = msg;
+            toastIcon.className = isSuccess ? "fa-solid fa-circle-check text-amber-400" : "fa-solid fa-circle-exclamation text-red-400";
+            toast.classList.add('toast-active');
+            setTimeout(() => toast.classList.remove('toast-active'), 3500);
+        }
+
+        function syncLocalStorage() {
+            localStorage.setItem('cbe_users', JSON.stringify(state.users));
+            localStorage.setItem('cbe_entries', JSON.stringify(state.entries));
+        }
+
         function initRealtimeSync() {
-            db.ref('users').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    const cloudUsers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-                    const combined = [];
-                    
-                    defaultUsers.forEach(du => {
-                        const match = cloudUsers.find(cu => cu.username.toLowerCase() === du.username.toLowerCase());
-                        if (match) {
-                            combined.push(match);
-                        } else {
-                            combined.push(du);
-                        }
-                    });
-
-                    cloudUsers.forEach(cu => {
-                        if (!combined.some(u => u.username.toLowerCase() === cu.username.toLowerCase())) {
-                            combined.push(cu);
-                        }
-                    });
-
-                    state.users = combined;
-                } else {
-                    state.users = [...defaultUsers];
-                }
-                renderUsers();
-                populateStaffSelect();
-            });
-
+            if (!db) return;
+            
             db.ref('entries').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     state.entries = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-                } else {
-                    state.entries = [];
+                    syncLocalStorage();
+                    renderDashboard();
+                    renderApprovals();
                 }
-                renderDashboard();
-                renderApprovals();
+            }, (err) => {
+                console.log("Firebase sync fallback using local state");
+            });
+
+            db.ref('users').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    const cloudUsers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                    state.users = cloudUsers;
+                    syncLocalStorage();
+                    renderUsers();
+                    populateStaffSelect();
+                }
             });
         }
 
-        // AUTHENTICATION
         function handleLogin(e) {
             e.preventDefault();
             const uInput = document.getElementById('username').value.trim().toLowerCase();
@@ -452,7 +458,7 @@
             let matched = state.users.find(u => u.username.toLowerCase() === uInput && u.password === pInput);
 
             if (!matched) {
-                alert("ተሳስተዋል! Username ወይም Password ትክክል አይደለም።");
+                showToast("ተሳስተዋል! Username ወይም Password ትክክል አይደለም።", false);
                 return;
             }
 
@@ -467,8 +473,9 @@
             buildNavigation();
             renderDashboard();
             populateStaffSelect();
-
             document.getElementById('entry-date').valueAsDate = new Date();
+
+            showToast(`እንኳን ደህና መጡ ${matched.name}!`);
         }
 
         function handleLogout() {
@@ -477,7 +484,6 @@
             document.getElementById('login-section').classList.remove('hidden');
         }
 
-        // NAVIGATION BUILDER
         function buildNavigation() {
             const nav = document.getElementById('sidebar-menu');
             const role = state.currentUser ? state.currentUser.role : 'Staff';
@@ -519,16 +525,10 @@
         function populateStaffSelect() {
             const select = document.getElementById('entry-staff-select');
             if (!select) return;
-            select.innerHTML = state.users.map(u => `
-                <option value="${u.name}">${u.name} (${u.role})</option>
-            `).join('');
-
-            if (state.currentUser) {
-                select.value = state.currentUser.name;
-            }
+            select.innerHTML = state.users.map(u => `<option value="${u.name}">${u.name} (${u.role})</option>`).join('');
+            if (state.currentUser) select.value = state.currentUser.name;
         }
 
-        // DASHBOARD RENDER & ENTRY EDIT/DELETE
         function filterPeriod(p) {
             state.activeFilter = p;
             document.getElementById('current-period-label').innerText = `Showing: ${p.toUpperCase()} Records`;
@@ -555,7 +555,7 @@
             tbody.innerHTML = filtered.map(e => {
                 const pct = e.plan > 0 ? ((e.actual / e.plan) * 100).toFixed(1) : '0.0';
                 const ok = parseFloat(pct) >= 50;
-                const entryDate = e.date ? e.date : (e.timestamp ? new Date(e.timestamp).toISOString().split('T')[0] : '-');
+                const entryDate = e.date || '-';
 
                 return `
                     <tr class="hover:bg-gray-50">
@@ -574,10 +574,10 @@
                         </td>
                         <td class="p-3 text-center space-x-2">
                             ${canManage || (state.currentUser && state.currentUser.name === e.staff) ? `
-                                <button onclick="editEntry('${e.id}')" class="text-blue-600 hover:text-blue-800 font-bold mr-1" title="Edit Entry">
+                                <button onclick="editEntry('${e.id}')" class="text-blue-600 hover:text-blue-800 font-bold mr-1">
                                     <i class="fa-solid fa-pen-to-square"></i> Edit
                                 </button>
-                                <button onclick="deleteEntry('${e.id}')" class="text-red-600 hover:text-red-800 font-bold" title="Delete Entry">
+                                <button onclick="deleteEntry('${e.id}')" class="text-red-600 hover:text-red-800 font-bold">
                                     <i class="fa-solid fa-trash"></i> Delete
                                 </button>
                             ` : '<span class="text-gray-400">-</span>'}
@@ -587,7 +587,7 @@
             }).join('');
         }
 
-        // SUBMIT OR UPDATE ENTRY TO CLOUD
+        // SUBMIT LIVE ENTRY WITH HYBRID SAVING
         function submitEntry(e) {
             e.preventDefault();
             
@@ -595,6 +595,7 @@
             const isAutoApproved = state.currentUser && (state.currentUser.role === 'Super Admin' || state.currentUser.role === 'Admin');
 
             const entryData = {
+                id: editId || 'entry_' + Date.now(),
                 date: document.getElementById('entry-date').value,
                 period: document.getElementById('entry-period').value,
                 staff: document.getElementById('entry-staff-select').value,
@@ -607,28 +608,26 @@
                 timestamp: Date.now()
             };
 
+            // Hybrid Storage Execution
             if (editId) {
-                // Update existing record
-                db.ref('entries/' + editId).update(entryData, (error) => {
-                    if (!error) {
-                        alert("መረጃው በስኬት ተሻሽሏል (Updated)!");
-                        resetEntryForm();
-                        switchTab('dashboard', 'Dashboard Overview');
-                    } else {
-                        alert("ማስተካከል አልተቻለም። ድጋሚ ይሞክሩ። " + error.message);
-                    }
-                });
+                const index = state.entries.findIndex(item => item.id === editId);
+                if (index !== -1) state.entries[index] = entryData;
             } else {
-                // Create new record
-                db.ref('entries').push(entryData, (error) => {
-                    if (!error) {
-                        alert("መረጃው በስኬት ኦንላይን ላይ ተልኳል!");
-                        resetEntryForm();
-                    } else {
-                        alert("መረጃውን መላክ አልተቻለም። ኢንተርኔትዎን ያረጋግጡ። " + error.message);
-                    }
-                });
+                state.entries.push(entryData);
             }
+
+            syncLocalStorage();
+
+            // Firebase Cloud Push (If online)
+            if (db) {
+                db.ref('entries/' + entryData.id).set(entryData).catch(err => console.log("Firebase sync skipped, stored locally."));
+            }
+
+            showToast(editId ? "መረጃው በስኬት ተሻሽሏል!" : "መረጃው በስኬት ተመዝግቧል!");
+            resetEntryForm();
+            renderDashboard();
+            renderApprovals();
+            switchTab('dashboard', 'Dashboard Overview');
         }
 
         function editEntry(id) {
@@ -659,12 +658,9 @@
             document.getElementById('btn-submit-entry').innerText = "Submit Live Entry";
             document.getElementById('btn-cancel-edit-entry').classList.add('hidden');
             document.getElementById('entry-date').valueAsDate = new Date();
-            if (state.currentUser) {
-                document.getElementById('entry-staff-select').value = state.currentUser.name;
-            }
+            if (state.currentUser) document.getElementById('entry-staff-select').value = state.currentUser.name;
         }
 
-        // APPROVALS LOGIC
         function renderApprovals() {
             const tbody = document.getElementById('approval-table-body');
             if (!tbody) return;
@@ -696,16 +692,28 @@
         }
 
         function approveEntry(id) {
-            db.ref('entries/' + id).update({ status: 'Approved' });
+            const entry = state.entries.find(e => e.id === id);
+            if (entry) {
+                entry.status = 'Approved';
+                syncLocalStorage();
+                if (db) db.ref('entries/' + id).update({ status: 'Approved' });
+                showToast("መረጃው ጸድቋል!");
+                renderDashboard();
+                renderApprovals();
+            }
         }
 
         function deleteEntry(id) {
             if (confirm("ይህንን መረጃ መሰረዝ ይፈልጋሉ?")) {
-                db.ref('entries/' + id).remove();
+                state.entries = state.entries.filter(e => e.id !== id);
+                syncLocalStorage();
+                if (db) db.ref('entries/' + id).remove();
+                showToast("መረጃው ተሰርዟል!");
+                renderDashboard();
+                renderApprovals();
             }
         }
 
-        // USER MANAGEMENT
         function renderUsers() {
             const tbody = document.getElementById('users-table-body');
             if (!tbody) return;
@@ -735,26 +743,12 @@
             toggleUserModal(true);
         }
 
-        function editUser(id) {
-            const u = state.users.find(item => item.id === id);
-            if (!u) return;
-
-            document.getElementById('modal-user-id').value = u.id;
-            document.getElementById('modal-username').value = u.username;
-            document.getElementById('modal-fullname').value = u.name;
-            document.getElementById('modal-password').value = u.password;
-            document.getElementById('modal-role').value = u.role;
-            document.getElementById('modal-responsibility').value = u.responsibility;
-
-            document.getElementById('modal-title').innerText = "Edit User Details";
-            toggleUserModal(true);
-        }
-
         function saveUser(e) {
             e.preventDefault();
             const editId = document.getElementById('modal-user-id').value;
 
             const userData = {
+                id: editId || 'user_' + Date.now(),
                 username: document.getElementById('modal-username').value.trim(),
                 name: document.getElementById('modal-fullname').value.trim(),
                 password: document.getElementById('modal-password').value.trim(),
@@ -762,40 +756,37 @@
                 responsibility: document.getElementById('modal-responsibility').value.trim()
             };
 
-            if (editId && !editId.startsWith('def')) {
-                // Cloud user update
-                db.ref('users/' + editId).update(userData, (error) => {
-                    if (!error) {
-                        alert("የተጠቃሚው መረጃ በስኬት ተስተካክሏል!");
-                        toggleUserModal(false);
-                    } else {
-                        alert("ተጠቃሚውን ማስተካከል አልተቻለም። " + error.message);
-                    }
-                });
+            if (editId) {
+                const idx = state.users.findIndex(u => u.id === editId);
+                if (idx !== -1) state.users[idx] = userData;
             } else {
-                // New user push
-                db.ref('users').push(userData, (error) => {
-                    if (!error) {
-                        alert("አዲስ ተጠቃሚ በስኬት ተመዝግቧል!");
-                        toggleUserModal(false);
-                    } else {
-                        alert("ተጠቃሚውን ማስመዝገብ አልተቻለም። " + error.message);
-                    }
-                });
+                state.users.push(userData);
             }
+
+            syncLocalStorage();
+            if (db) db.ref('users/' + userData.id).set(userData);
+
+            showToast("የተጠቃሚው መረጃ ተመዝግቧል!");
+            toggleUserModal(false);
+            renderUsers();
+            populateStaffSelect();
         }
 
         function deleteUser(id) {
             if (confirm("ተጠቃሚውን ማስወገድ ይፈልጋሉ?")) {
                 if (id && id.startsWith('def')) {
-                    alert("የመጀመሪያ ደረጃ System Admin አካውንትን መሰረዝ አይቻልም።");
+                    showToast("የመጀመሪያ ደረጃ Admin መሰረዝ አይቻልም!", false);
                     return;
                 }
-                db.ref('users/' + id).remove();
+                state.users = state.users.filter(u => u.id !== id);
+                syncLocalStorage();
+                if (db) db.ref('users/' + id).remove();
+                showToast("ተጠቃሚው ተሰርዟል!");
+                renderUsers();
+                populateStaffSelect();
             }
         }
 
-        // REPORT EXPORT FUNCTIONS
         function exportToPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -847,7 +838,6 @@
             XLSX.writeFile(wb, "CBE_Borkena_Performance_Report.xlsx");
         }
 
-        // Initialize Live Sync on Startup
         initRealtimeSync();
     </script>
 </body>
