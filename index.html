@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CBE Borkena Branch - Operational Dashboard</title>
-    <!-- External Libraries: html2pdf & FontAwesome Icons -->
+    <title>CBE Borkena Branch - Operational Performance Portal</title>
+    <!-- jsPDF and html2pdf Bundle -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
         :root {
             --cbe-purple: #4a0072;
@@ -22,6 +20,7 @@
             --text-sub: #555555;
             --danger: #d32f2f;
             --success: #2e7d32;
+            --warning: #ef6c00;
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
@@ -39,6 +38,7 @@
 
         .container { width: 100%; max-width: 1250px; }
 
+        /* Top Bar */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -73,10 +73,11 @@
 
         @keyframes pulse {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(46, 125, 50, 0); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(46, 125, 50, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 125, 50, 0); }
         }
 
+        /* Header Card */
         .header-card {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
@@ -95,6 +96,7 @@
 
         .cbe-logo { width: 55px; height: 55px; fill: var(--cbe-purple); }
 
+        /* Navigation Tabs */
         .nav-tabs {
             display: flex;
             gap: 8px;
@@ -121,6 +123,7 @@
             box-shadow: 0 4px 10px rgba(74, 0, 114, 0.2);
         }
 
+        /* Cards & Form Elements */
         .card {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
@@ -131,15 +134,15 @@
         }
 
         .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
 
         .form-group { margin-bottom: 10px; }
-        label { display: block; font-size: 11px; font-weight: 700; margin-bottom: 4px; color: var(--cbe-purple); text-transform: uppercase; }
+        label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: var(--cbe-purple); }
         
         input, select, textarea {
             width: 100%;
-            padding: 9px;
+            padding: 10px;
             border: 1px solid #ccc;
             border-radius: 8px;
             background: #fafafa;
@@ -154,6 +157,7 @@
             box-shadow: 0 0 5px rgba(74, 0, 114, 0.2);
         }
 
+        /* Buttons */
         .btn {
             padding: 9px 16px;
             border-radius: 8px;
@@ -173,17 +177,22 @@
         .btn-purple:hover { background: var(--cbe-purple-light); }
         .btn-danger { background: var(--danger); color: #fff; }
         .btn-success { background: var(--success); color: #fff; }
+        .btn-excel { background: #2e7d32; color: #fff; }
+        .btn-pdf { background: #c62828; color: #fff; }
 
+        /* Tables */
         .table-wrap { overflow-x: auto; margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; }
-        th, td { border: 1px solid #e0e0e0; padding: 8px 10px; text-anchor: middle; text-align: center; }
-        th { background: var(--cbe-purple); color: #fff; font-weight: 600; }
+        th, td { border: 1px solid #e0e0e0; padding: 10px; text-align: center; }
+        th { background: var(--cbe-purple); color: #fff; white-space: nowrap; }
         tr:nth-child(even) { background: #f9f9f9; }
 
-        .badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; display: inline-block; }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; display: inline-block; }
         .badge-approved { background: #e8f5e9; color: var(--success); border: 1px solid var(--success); }
-        .badge-pending { background: #fff3e0; color: #e65100; border: 1px solid #ffb74d; }
+        .badge-pending { background: #fff3e0; color: var(--warning); border: 1px solid var(--warning); }
+        .badge-rejected { background: #ffebee; color: var(--danger); border: 1px solid var(--danger); }
 
+        /* Modal Overlay */
         .modal {
             position: fixed; top:0; left:0; width:100%; height:100%;
             background: rgba(0,0,0,0.5); z-index: 1000;
@@ -196,18 +205,47 @@
         }
         .hidden { display: none !important; }
 
-        /* Certificate Dynamic Styling */
+        /* Certificate Styling Template */
         .cert-container {
-            width: 100%;
             padding: 30px;
             border: 8px double var(--cbe-purple);
-            background: #fffdf7;
+            background: #fff;
             text-align: center;
             position: relative;
-            box-shadow: inset 0 0 20px rgba(212, 151, 0, 0.2);
+            font-family: 'Georgia', serif;
         }
-        .cert-success { border-color: var(--cbe-purple); }
-        .cert-warning { border-color: var(--danger); background: #fff5f5; }
+        .cert-header {
+            color: var(--cbe-purple);
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .cert-sub {
+            color: var(--cbe-gold);
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+        .cert-body {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .cert-score {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--cbe-purple);
+            margin: 15px 0;
+        }
+        .cert-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ccc;
+        }
     </style>
 </head>
 <body class="notranslate">
@@ -218,10 +256,10 @@
     <div class="top-bar">
         <div class="status-pill">
             <span class="pulse-dot"></span>
-            <span>CBE Borkena Branch Operational Portal</span>
+            <span>CBE Borkena Branch Live Operations Portal (Online)</span>
         </div>
-        <div style="display:flex; gap:8px;">
-            <span id="liveClock" style="font-size: 12px; font-weight: bold; color: var(--cbe-purple); align-self: center;"></span>
+        <div id="topBarActions">
+            <!-- Dynamic Actions -->
         </div>
     </div>
 
@@ -235,90 +273,119 @@
         </svg>
         <div>
             <h2 style="margin: 0; color: var(--cbe-purple);">Commercial Bank of Ethiopia</h2>
-            <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-sub);">Borkena Branch - Smart Performance & Staff Management System</p>
+            <p style="margin: 4px 0 0 0; font-size: 14px; color: var(--text-sub); font-weight: 600;">Borkena Branch - Smart Performance Management & Approval System</p>
         </div>
     </div>
 
-    <!-- Login Section -->
-    <div id="loginSection" class="card" style="max-width: 400px; margin: 30px auto;">
-        <h3 style="color: var(--cbe-purple); text-align: center; margin-top: 0;"><i class="fa-solid fa-lock"></i> Portal Sign-In</h3>
+    <!-- Login Card -->
+    <div id="loginSection" class="card" style="max-width: 400px; margin: 40px auto;">
+        <h3 style="color: var(--cbe-purple); text-align: center; margin-top: 0;">🔐 Staff Portal Login</h3>
         <form id="loginForm">
             <div class="form-group">
                 <label>Username</label>
-                <input type="text" id="username" placeholder="Enter username" required>
+                <input type="text" id="username" placeholder="Enter your username" required>
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" id="password" required>
+                <input type="password" id="password" placeholder="Enter your password" required>
             </div>
             <button type="submit" class="btn btn-purple" style="width: 100%; margin-top: 10px;">Login</button>
         </form>
     </div>
 
-    <!-- Main Dashboard Section -->
+    <!-- Main Application Section -->
     <div id="appSection" class="hidden">
 
         <div class="top-bar" style="background: #ffffff;">
-            <span><i class="fa-solid fa-user-circle"></i> Active: <strong id="activeUserName" style="color:var(--cbe-purple);"></strong> (<span id="activeUserRole"></span>)</span>
+            <span>👤 Active User: <strong id="activeUserName" style="color:var(--cbe-purple);"></strong> (<span id="activeUserRole" style="font-weight:bold;"></span>)</span>
             <div>
-                <button class="btn btn-gold hidden" id="adminStaffBtn" onclick="openModal('staffMgmtModal')"><i class="fa-solid fa-users-gear"></i> Staff Mgmt</button>
-                <button class="btn btn-danger" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+                <button class="btn btn-gold hidden" id="adminStaffBtn" onclick="openModal('staffMgmtModal')">👥 Staff & Supervisors Mgmt</button>
+                <button class="btn btn-danger" onclick="logout()">Logout</button>
             </div>
         </div>
 
         <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchTab('entryTab', this)"><i class="fa-solid fa-pen-to-square"></i> Data Entry</button>
-            <button class="tab-btn" onclick="switchTab('reportsTab', this)"><i class="fa-solid fa-chart-line"></i> Performance Reports</button>
-            <button class="tab-btn hidden" id="approvalTabBtn" onclick="switchTab('approvalTab', this)"><i class="fa-solid fa-circle-check"></i> Approvals</button>
+            <button class="tab-btn active" onclick="switchTab('entryTab', this)">📝 Daily Data Entry</button>
+            <button class="tab-btn" onclick="switchTab('reportsTab', this)">📊 Performance Reports</button>
+            <button class="tab-btn hidden" id="approvalTabBtn" onclick="switchTab('approvalTab', this)">✅ Approvals (<span id="pendingCount">0</span>)</button>
         </div>
 
-        <!-- Tab 1: Data Entry -->
+        <!-- Tab 1: Entry Form -->
         <div id="entryTab" class="tab-content">
             <div class="card">
-                <h3 style="color: var(--cbe-purple); margin-top: 0;"><i class="fa-solid fa-bullseye"></i> Record Actual Performance Data</h3>
+                <h3 style="color: var(--cbe-purple); margin-top: 0;">🎯 Record Target Performance Data</h3>
                 <form id="reportForm">
                     <div class="grid-3">
                         <div class="form-group">
-                            <label>Staff Name</label>
-                            <input type="text" id="formStaffName" readonly style="background:#eee;">
+                            <label>Staff Member</label>
+                            <input type="text" id="entryStaffName" readonly style="font-weight: bold; background: #eef;">
+                        </div>
+                        <div class="form-group">
+                            <label>Assigned Supervisor</label>
+                            <select id="supervisorSelect" required></select>
                         </div>
                         <div class="form-group">
                             <label>Target Period</label>
-                            <select id="entryPeriodScale" onchange="adjustFormTargetsByPeriod()">
-                                <option value="daily">Daily Target</option>
-                                <option value="weekly" selected>Weekly Target</option>
+                            <select id="entryPeriodScale">
+                                <option value="daily" selected>Daily Target</option>
                                 <option value="monthly">Monthly Target</option>
+                                <option value="quarterly">Quarterly Target</option>
                             </select>
                         </div>
+                    </div>
+
+                    <h4 style="color: var(--cbe-gold); border-bottom: 2px solid var(--cbe-gold-bright); padding-bottom: 4px; margin-top: 15px;">Digital & Branch Channel Metrics</h4>
+                    
+                    <div class="grid-4">
                         <div class="form-group">
-                            <label>Harmonization Task</label>
-                            <input type="text" id="harmTask" placeholder="Specify Harmonization Area">
+                            <label>Mobile Banking (Plan / Actual)</label>
+                            <div style="display:flex; gap:4px;"><input type="number" id="mbPlan" placeholder="Plan" required><input type="number" id="mbActual" placeholder="Actual" required></div>
+                        </div>
+                        <div class="form-group">
+                            <label>ATM Services (Plan / Actual)</label>
+                            <div style="display:flex; gap:4px;"><input type="number" id="atmPlan" placeholder="Plan" required><input type="number" id="atmActual" placeholder="Actual" required></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Internet Banking (Plan / Actual)</label>
+                            <div style="display:flex; gap:4px;"><input type="number" id="ibPlan" placeholder="Plan" required><input type="number" id="ibActual" placeholder="Actual" required></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Merchant Services (Plan / Actual)</label>
+                            <div style="display:flex; gap:4px;"><input type="number" id="merchantPlan" placeholder="Plan" required><input type="number" id="merchantActual" placeholder="Actual" required></div>
                         </div>
                     </div>
 
                     <div class="grid-4" style="margin-top: 10px;">
-                        <div class="form-group"><label>Mobile Banking (P / A)</label><div style="display:flex; gap:3px;"><input type="number" id="mbPlan" placeholder="Plan"><input type="number" id="mbActual" placeholder="Actual"></div></div>
-                        <div class="form-group"><label>ATM (P / A)</label><div style="display:flex; gap:3px;"><input type="number" id="atmPlan" placeholder="Plan"><input type="number" id="atmActual" placeholder="Actual"></div></div>
-                        <div class="form-group"><label>Internet Banking (P / A)</label><div style="display:flex; gap:3px;"><input type="number" id="netPlan" placeholder="Plan"><input type="number" id="netActual" placeholder="Actual"></div></div>
-                        <div class="form-group"><label>Merchant (P / A)</label><div style="display:flex; gap:3px;"><input type="number" id="merchPlan" placeholder="Plan"><input type="number" id="merchActual" placeholder="Actual"></div></div>
-                        <div class="form-group"><label>Agent Banking (P / A)</label><div style="display:flex; gap:3px;"><input type="number" id="agentPlan" placeholder="Plan"><input type="number" id="agentActual" placeholder="Actual"></div></div>
-                        <div class="form-group"><label>CBE Birr (P / A)</label><div style="display:flex; gap:3px;"><input type="number" id="cbeBirrPlan" placeholder="Plan"><input type="number" id="cbeBirrActual" placeholder="Actual"></div></div>
-                        <div class="form-group"><label>NID Registrations (P / A)</label><div style="display:flex; gap:3px;"><input type="number" id="nidPlan" placeholder="Plan"><input type="number" id="nidActual" placeholder="Actual"></div></div>
+                        <div class="form-group">
+                            <label>Agent Banking (Plan / Actual)</label>
+                            <div style="display:flex; gap:4px;"><input type="number" id="agentPlan" placeholder="Plan" required><input type="number" id="agentActual" placeholder="Actual" required></div>
+                        </div>
+                        <div class="form-group">
+                            <label>CBE Birr (Plan / Actual)</label>
+                            <div style="display:flex; gap:4px;"><input type="number" id="cbeBirrPlan" placeholder="Plan" required><input type="number" id="cbeBirrActual" placeholder="Actual" required></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Harmonization Plan / Actual</label>
+                            <div style="display:flex; gap:4px;"><input type="number" id="harmPlan" placeholder="Plan" required><input type="number" id="harmActual" placeholder="Actual" required></div>
+                        </div>
+                        <div class="form-group">
+                            <label>National ID - NID (Plan / Actual)</label>
+                            <div style="display:flex; gap:4px;"><input type="number" id="nidPlan" placeholder="Plan" required><input type="number" id="nidActual" placeholder="Actual" required></div>
+                        </div>
                     </div>
 
-                    <button type="submit" class="btn btn-purple" style="width: 100%; margin-top: 15px; font-size: 14px;"><i class="fa-solid fa-paper-plane"></i> Submit Performance Entry</button>
+                    <button type="submit" class="btn btn-purple" style="width: 100%; margin-top: 20px; font-size: 14px; padding: 12px;">📤 Submit Performance for Approval</button>
                 </form>
             </div>
         </div>
 
-        <!-- Tab 2: Performance Reports -->
+        <!-- Tab 2: Reports -->
         <div id="reportsTab" class="tab-content hidden">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                    <h3 style="color: var(--cbe-purple); margin: 0;"><i class="fa-solid fa-table-list"></i> Branch Overall Reports</h3>
+                    <h3 style="color: var(--cbe-purple); margin: 0;">📋 Executed Work Reports</h3>
                     <div style="display:flex; gap: 6px;">
-                        <button onclick="exportToExcel()" class="btn btn-success"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
-                        <button onclick="exportToPDF()" class="btn btn-danger"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+                        <button onclick="exportToExcel()" class="btn btn-excel">📊 Export CSV</button>
                     </div>
                 </div>
 
@@ -328,15 +395,17 @@
                             <tr>
                                 <th>Date</th>
                                 <th>Staff Name</th>
-                                <th>MB %</th>
+                                <th>Supervisor</th>
+                                <th>Mobile %</th>
                                 <th>ATM %</th>
-                                <th>Net %</th>
-                                <th>Merch %</th>
+                                <th>Internet %</th>
+                                <th>Merchant %</th>
                                 <th>Agent %</th>
                                 <th>CBE Birr %</th>
+                                <th>Harmonization %</th>
                                 <th>NID %</th>
-                                <th>Average %</th>
-                                <th>Status</th>
+                                <th>Overall Score</th>
+                                <th>Approval Status</th>
                                 <th>Certificate</th>
                             </tr>
                         </thead>
@@ -346,17 +415,18 @@
             </div>
         </div>
 
-        <!-- Tab 3: Approvals (SuperAdmin/Supervisor Only) -->
+        <!-- Tab 3: Approval Menu (Admins & SuperAdmins) -->
         <div id="approvalTab" class="tab-content hidden">
             <div class="card">
-                <h3 style="color: var(--cbe-purple); margin-top: 0;"><i class="fa-solid fa-check-double"></i> Pending Performance Approvals</h3>
+                <h3 style="color: var(--cbe-purple); margin-top: 0;">✅ Pending Performance Approvals</h3>
                 <div class="table-wrap">
                     <table>
                         <thead>
                             <tr>
                                 <th>Date</th>
                                 <th>Staff Name</th>
-                                <th>Overall Avg %</th>
+                                <th>Supervisor</th>
+                                <th>Overall Score</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -369,104 +439,103 @@
     </div>
 </div>
 
-<!-- Staff Management Modal -->
+<!-- Staff & Supervisor Management Modal -->
 <div id="staffMgmtModal" class="modal hidden">
     <div class="modal-content">
         <button onclick="closeModal('staffMgmtModal')" class="btn btn-danger" style="float:right; padding:2px 6px;">X</button>
-        <h3 style="color:var(--cbe-purple); margin-top:0;"><i class="fa-solid fa-users-gear"></i> Staff Management Menu</h3>
-        <input type="hidden" id="editStaffIndex" value="-1">
-        <div class="form-group"><label>Full Name</label><input type="text" id="newStaffName" placeholder="Full Name"></div>
-        <div class="form-group"><label>Password</label><input type="text" id="newStaffPass" placeholder="Password"></div>
-        <div class="form-group">
-            <label>Role</label>
-            <select id="newStaffRole">
-                <option value="Staff">Staff</option>
-                <option value="Supervisor">Supervisor</option>
-                <option value="SuperAdmin">SuperAdmin</option>
-            </select>
-        </div>
-        <button onclick="saveStaffUser()" class="btn btn-purple" style="width:100%;"><i class="fa-solid fa-floppy-disk"></i> Save Staff Member</button>
+        <h3 style="color:var(--cbe-purple); margin-top:0;">👥 Manage Staff & Supervisors</h3>
         
-        <h4 style="color:var(--cbe-purple); margin-bottom: 5px; margin-top: 15px;">Active Staff List</h4>
-        <div id="staffListDisplay" style="max-height:180px; overflow-y:auto; border: 1px solid #ddd; padding: 5px; border-radius: 8px;"></div>
+        <form id="staffForm" style="border-bottom: 2px solid #ccc; padding-bottom: 15px; margin-bottom: 15px;">
+            <input type="hidden" id="editStaffIndex" value="-1">
+            <div class="form-group"><label>Full Name</label><input type="text" id="newStaffName" placeholder="Full Name" required></div>
+            <div class="form-group"><label>Password</label><input type="text" id="newStaffPass" placeholder="Password" required></div>
+            <div class="form-group">
+                <label>System Role</label>
+                <select id="newStaffRole">
+                    <option value="Staff">Staff</option>
+                    <option value="Supervisor">Supervisor</option>
+                    <option value="Admin">Admin</option>
+                    <option value="SuperAdmin">SuperAdmin</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-purple" style="width:100%;" id="saveStaffBtn">Add New Staff</button>
+        </form>
+
+        <h4 style="color: var(--cbe-purple);">Existing System Users</h4>
+        <div id="staffListDisplay" style="max-height: 200px; overflow-y: auto;"></div>
     </div>
 </div>
 
-<!-- Certificate Generation Modal -->
-<div id="certModal" class="modal hidden">
-    <div class="modal-content" style="max-width:700px;">
-        <button onclick="closeModal('certModal')" class="btn btn-danger" style="float:right; padding:2px 6px;">X</button>
-        <div id="certPDFPrintArea">
-            <div id="certContainer" class="cert-container">
-                <svg class="cbe-logo" viewBox="0 0 100 100" style="width:70px; height:70px; margin-bottom: 10px;">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="#ffb81c" stroke-width="4"/>
-                    <circle cx="50" cy="50" r="38" fill="#4a0072" stroke="#ffb81c" stroke-width="2"/>
-                    <text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" fill="#ffb81c" font-size="20" font-weight="bold">CBE</text>
-                    <text x="50%" y="68%" dominant-baseline="middle" text-anchor="middle" fill="#ffb81c" font-size="9" font-weight="bold">Borkena</text>
-                </svg>
-                <h2 style="color:var(--cbe-purple); margin: 0;">COMMERCIAL BANK OF ETHIOPIA</h2>
-                <h4 style="color:var(--cbe-gold); margin: 2px 0 15px 0;">BORKENA BRANCH</h4>
-                <hr style="border:0; border-top: 2px solid var(--cbe-gold); margin: 10px 0;">
-                <h2 id="certTypeTitle" style="text-transform: uppercase; margin: 15px 0;">OFFICIAL CERTIFICATE</h2>
-                <p style="font-size: 14px; margin: 5px 0;">This official document is issued to:</p>
-                <h2 id="certStaffName" style="color:var(--cbe-purple); text-decoration: underline; margin: 10px 0;"></h2>
-                <p id="certDescription" style="font-size: 13px; max-width: 500px; margin: 15px auto; line-height: 1.5;"></p>
-                <div style="display:flex; justify-content:space-between; margin-top: 40px; padding: 0 30px;">
-                    <div>
-                        <p style="margin:0;">_______________________</p>
-                        <p style="font-size: 11px; font-weight: bold;">Branch Manager</p>
-                    </div>
-                    <div>
-                        <p style="margin:0;">_______________________</p>
-                        <p style="font-size: 11px; font-weight: bold;">Date of Issuance</p>
-                    </div>
+<!-- Certificate Generation Hidden/Render Modal -->
+<div id="certRenderModal" class="modal hidden">
+    <div class="modal-content" style="max-width: 700px;">
+        <button onclick="closeModal('certRenderModal')" class="btn btn-danger" style="float:right; padding:2px 6px;">X</button>
+        <div id="certificatePrintArea" class="cert-container">
+            <svg class="cbe-logo" viewBox="0 0 100 100" style="width:70px; height:70px;">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#ffb81c" stroke-width="4"/>
+                <circle cx="50" cy="50" r="38" fill="#4a0072" stroke="#ffb81c" stroke-width="2"/>
+                <text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" fill="#ffb81c" font-size="20" font-weight="bold">CBE</text>
+                <text x="50%" y="68%" dominant-baseline="middle" text-anchor="middle" fill="#ffb81c" font-size="9" font-weight="bold">Borkena</text>
+            </svg>
+            <div class="cert-header" id="certTitleText">Certificate of Recognition</div>
+            <div class="cert-sub">COMMERCIAL BANK OF ETHIOPIA - BORKENA BRANCH</div>
+            
+            <div class="cert-body">
+                This is to officially certify that <br>
+                <strong id="certStaffName" style="font-size: 20px; color: var(--cbe-purple);">---</strong><br>
+                has achieved an overall target performance execution score of:
+                <div class="cert-score" id="certScoreDisplay">0%</div>
+                <span id="certMessageText">For outstanding operational excellence and target fulfillment.</span>
+            </div>
+
+            <div class="cert-footer">
+                <div>
+                    <strong>Branch Operations Supervisor</strong><br>
+                    <span>Signature & Stamp</span>
+                </div>
+                <div>
+                    <strong>Borkena Branch Manager</strong><br>
+                    <span>Commercial Bank of Ethiopia</span>
                 </div>
             </div>
         </div>
-        <button onclick="downloadCertPDF()" class="btn btn-purple" style="width:100%; margin-top:15px;"><i class="fa-solid fa-file-arrow-down"></i> Download Certificate PDF</button>
+        <button onclick="downloadCertPDF()" class="btn btn-pdf" style="width:100%; margin-top:15px; padding:10px;">📥 Download Certificate (PDF)</button>
     </div>
 </div>
 
 <script>
-    // System Target Configuration
-    const baseDailyTargets = { mbPlan: 5, atmPlan: 2, netPlan: 3, merchPlan: 2, agentPlan: 2, cbeBirrPlan: 5, nidPlan: 20 };
-
-    // Default System Accounts
-    let staffData = JSON.parse(localStorage.getItem('cbe_borkena_staff_db')) || [
+    /* Global Persistent Databases */
+    let staffData = JSON.parse(localStorage.getItem('cbe_borkena_staff_db_v2')) || [
         { name: "Fiseha", pass: "1234", role: "SuperAdmin" },
-        { name: "Sintayehu", pass: "1234", role: "Supervisor" },
-        { name: "Dawit", pass: "1234", role: "Staff" }
+        { name: "Abebe", pass: "1234", role: "Supervisor" },
+        { name: "Kebede", pass: "1234", role: "Staff" }
     ];
 
+    let reportsData = JSON.parse(localStorage.getItem('cbe_borkena_reports_v2')) || [];
     let currentUserSession = null;
-    let syncChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('cbe_borkena_app_channel') : null;
+    let syncChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('cbe_borkena_channel_v2') : null;
 
     document.addEventListener('DOMContentLoaded', () => {
         saveStaffData(false);
-        adjustFormTargetsByPeriod();
         setupLiveSync();
-        setInterval(updateClock, 1000);
     });
-
-    function updateClock() {
-        const d = new Date();
-        document.getElementById('liveClock').innerText = d.toLocaleString();
-    }
 
     function setupLiveSync() {
         if (syncChannel) {
             syncChannel.onmessage = (e) => {
-                if (e.data && e.data.type === 'SYNC_DATA') {
+                if (e.data && e.data.type === 'SYNC') {
+                    staffData = JSON.parse(localStorage.getItem('cbe_borkena_staff_db_v2')) || [];
+                    reportsData = JSON.parse(localStorage.getItem('cbe_borkena_reports_v2')) || [];
                     loadReports();
                     loadApprovals();
-                    saveStaffData(false);
+                    populateDropdowns();
                 }
             };
         }
     }
 
     function triggerGlobalSync() {
-        if (syncChannel) syncChannel.postMessage({ type: 'SYNC_DATA', time: Date.now() });
+        if (syncChannel) syncChannel.postMessage({ type: 'SYNC', time: Date.now() });
     }
 
     function switchTab(tabId, btn) {
@@ -477,211 +546,20 @@
     }
 
     function saveStaffData(sync = true) {
-        localStorage.setItem('cbe_borkena_staff_db', JSON.stringify(staffData));
+        localStorage.setItem('cbe_borkena_staff_db_v2', JSON.stringify(staffData));
+        populateDropdowns();
         renderStaffList();
-        if(sync) triggerGlobalSync();
+        if (sync) triggerGlobalSync();
     }
 
-    function adjustFormTargetsByPeriod() {
-        const scale = document.getElementById('entryPeriodScale').value;
-        let mult = scale === 'weekly' ? 6 : (scale === 'monthly' ? 26 : 1);
+    function populateDropdowns() {
+        const superSel = document.getElementById('supervisorSelect');
+        if (!superSel) return;
+        superSel.innerHTML = '';
         
-        document.getElementById('mbPlan').value = baseDailyTargets.mbPlan * mult;
-        document.getElementById('atmPlan').value = baseDailyTargets.atmPlan * mult;
-        document.getElementById('netPlan').value = baseDailyTargets.netPlan * mult;
-        document.getElementById('merchPlan').value = baseDailyTargets.merchPlan * mult;
-        document.getElementById('agentPlan').value = baseDailyTargets.agentPlan * mult;
-        document.getElementById('cbeBirrPlan').value = baseDailyTargets.cbeBirrPlan * mult;
-        document.getElementById('nidPlan').value = baseDailyTargets.nidPlan * mult;
-    }
-
-    document.getElementById('reportForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        let reports = JSON.parse(localStorage.getItem('cbe_borkena_reports') || '[]');
-
-        const parseVal = (id) => parseFloat(document.getElementById(id).value) || 0;
-        const calcPct = (pId, aId) => {
-            let p = parseVal(pId), a = parseVal(aId);
-            return p > 0 ? ((a / p) * 100) : 0;
-        };
-
-        const mbPct = calcPct('mbPlan', 'mbActual');
-        const atmPct = calcPct('atmPlan', 'atmActual');
-        const netPct = calcPct('netPlan', 'netActual');
-        const merchPct = calcPct('merchPlan', 'merchActual');
-        const agentPct = calcPct('agentPlan', 'agentActual');
-        const cbeBirrPct = calcPct('cbeBirrPlan', 'cbeBirrActual');
-        const nidPct = calcPct('nidPlan', 'nidActual');
-
-        const overallAvg = ((mbPct + atmPct + netPct + merchPct + agentPct + cbeBirrPct + nidPct) / 7).toFixed(1);
-
-        reports.unshift({
-            id: Date.now(),
-            date: new Date().toISOString().split('T')[0],
-            staffName: currentUserSession.name,
-            mbPct: mbPct.toFixed(1), atmPct: atmPct.toFixed(1),
-            netPct: netPct.toFixed(1), merchPct: merchPct.toFixed(1),
-            agentPct: agentPct.toFixed(1), cbeBirrPct: cbeBirrPct.toFixed(1),
-            nidPct: nidPct.toFixed(1), overallAvg,
-            status: 'Pending'
+        staffData.filter(s => s.role === 'Supervisor' || s.role === 'SuperAdmin' || s.role === 'Admin').forEach(s => {
+            superSel.innerHTML += `<option value="${s.name}">${s.name} (${s.role})</option>`;
         });
-
-        localStorage.setItem('cbe_borkena_reports', JSON.stringify(reports));
-        alert('Performance entry submitted for approval!');
-        loadReports();
-        loadApprovals();
-        triggerGlobalSync();
-    });
-
-    function loadReports() {
-        let reports = JSON.parse(localStorage.getItem('cbe_borkena_reports') || '[]');
-        const tbody = document.getElementById('reportsTableBody');
-        if(!tbody) return;
-        tbody.innerHTML = '';
-
-        reports.forEach(r => {
-            let certBtn = '';
-            if(r.status === 'Approved') {
-                if(parseFloat(r.overallAvg) >= 50) {
-                    certBtn = `<button onclick="viewCertificate('${r.staffName}', ${r.overallAvg}, 'recognition')" class="btn btn-gold" style="padding:2px 6px;"><i class="fa-solid fa-award"></i> Recognition</button>`;
-                } else {
-                    certBtn = `<button onclick="viewCertificate('${r.staffName}', ${r.overallAvg}, 'warning')" class="btn btn-danger" style="padding:2px 6px;"><i class="fa-solid fa-triangle-exclamation"></i> Warning</button>`;
-                }
-            } else {
-                certBtn = `<span style="font-size:10px; color:#aaa;">Pending</span>`;
-            }
-
-            tbody.innerHTML += `
-                <tr>
-                    <td>${r.date}</td>
-                    <td><strong>${r.staffName}</strong></td>
-                    <td>${r.mbPct}%</td>
-                    <td>${r.atmPct}%</td>
-                    <td>${r.netPct}%</td>
-                    <td>${r.merchPct}%</td>
-                    <td>${r.agentPct}%</td>
-                    <td>${r.cbeBirrPct}%</td>
-                    <td>${r.nidPct}%</td>
-                    <td><strong style="color:var(--cbe-purple);">${r.overallAvg}%</strong></td>
-                    <td><span class="badge ${r.status === 'Approved' ? 'badge-approved' : 'badge-pending'}">${r.status}</span></td>
-                    <td>${certBtn}</td>
-                </tr>
-            `;
-        });
-    }
-
-    function loadApprovals() {
-        if(!currentUserSession || (currentUserSession.role !== 'SuperAdmin' && currentUserSession.role !== 'Supervisor')) return;
-        let reports = JSON.parse(localStorage.getItem('cbe_borkena_reports') || '[]');
-        const tbody = document.getElementById('approvalTableBody');
-        if(!tbody) return;
-        tbody.innerHTML = '';
-
-        reports.forEach((r, idx) => {
-            if(r.status === 'Pending') {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${r.date}</td>
-                        <td><strong>${r.staffName}</strong></td>
-                        <td><strong style="color:var(--cbe-purple);">${r.overallAvg}%</strong></td>
-                        <td>
-                            <button onclick="approveReport(${r.id})" class="btn btn-success" style="padding:2px 6px;"><i class="fa-solid fa-check"></i> Approve</button>
-                        </td>
-                    </tr>
-                `;
-            }
-        });
-    }
-
-    function approveReport(id) {
-        let reports = JSON.parse(localStorage.getItem('cbe_borkena_reports') || '[]');
-        let rep = reports.find(r => r.id === id);
-        if(rep) {
-            rep.status = 'Approved';
-            localStorage.setItem('cbe_borkena_reports', JSON.stringify(reports));
-            loadReports();
-            loadApprovals();
-            triggerGlobalSync();
-        }
-    }
-
-    function saveStaffUser() {
-        const name = document.getElementById('newStaffName').value.trim();
-        const pass = document.getElementById('newStaffPass').value.trim();
-        const role = document.getElementById('newStaffRole').value;
-        const editIndex = parseInt(document.getElementById('editStaffIndex').value);
-
-        if(!name || !pass) return alert('Name and Password required!');
-
-        if(editIndex >= 0) {
-            staffData[editIndex] = { name, pass, role };
-            document.getElementById('editStaffIndex').value = -1;
-        } else {
-            staffData.push({ name, pass, role });
-        }
-
-        saveStaffData(true);
-        document.getElementById('newStaffName').value = '';
-        document.getElementById('newStaffPass').value = '';
-        alert('Staff record saved!');
-    }
-
-    function renderStaffList() {
-        const container = document.getElementById('staffListDisplay');
-        if(!container) return;
-        container.innerHTML = '';
-        staffData.forEach((s, i) => {
-            container.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px solid #eee;">
-                <span><strong>${s.name}</strong> (${s.role})</span>
-                <div>
-                    <button onclick="editStaff(${i})" class="btn btn-gold" style="padding:2px 5px;"><i class="fa-solid fa-pen"></i></button>
-                    <button onclick="deleteStaff(${i})" class="btn btn-danger" style="padding:2px 5px;"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            </div>`;
-        });
-    }
-
-    function editStaff(index) {
-        const s = staffData[index];
-        document.getElementById('newStaffName').value = s.name;
-        document.getElementById('newStaffPass').value = s.pass;
-        document.getElementById('newStaffRole').value = s.role;
-        document.getElementById('editStaffIndex').value = index;
-    }
-
-    function deleteStaff(index) {
-        if(confirm('Are you sure you want to delete this staff member?')) {
-            staffData.splice(index, 1);
-            saveStaffData(true);
-        }
-    }
-
-    function viewCertificate(staffName, score, type) {
-        const container = document.getElementById('certContainer');
-        const certTitle = document.getElementById('certTypeTitle');
-        const nameDisplay = document.getElementById('certStaffName');
-        const desc = document.getElementById('certDescription');
-
-        nameDisplay.innerText = staffName;
-
-        if(type === 'recognition') {
-            container.className = "cert-container cert-success";
-            certTitle.innerText = "Certificate of Recognition";
-            certTitle.style.color = "var(--cbe-purple)";
-            desc.innerText = `In recognition of outstanding operational performance achieving an average target execution score of ${score}%. Commercial Bank of Ethiopia, Borkena Branch commends your exceptional service delivery.`;
-        } else {
-            container.className = "cert-container cert-warning";
-            certTitle.innerText = "Performance Warning Notice";
-            certTitle.style.color = "var(--danger)";
-            desc.innerText = `This official notice is issued regarding unsatisfactory operational execution with an average score of ${score}%, falling below the required 50% branch benchmark. Immediate performance improvement is required.`;
-        }
-
-        openModal('certModal');
-    }
-
-    function downloadCertPDF() {
-        const element = document.getElementById('certPDFPrintArea');
-        html2pdf().from(element).save('CBE_Borkena_Certificate.pdf');
     }
 
     document.getElementById('loginForm').addEventListener('submit', function(e) {
@@ -690,15 +568,15 @@
         const p = document.getElementById('password').value.trim();
         let found = staffData.find(s => s.name.toLowerCase() === u.toLowerCase() && s.pass === p);
 
-        if(found) {
+        if (found) {
             currentUserSession = found;
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('appSection').classList.remove('hidden');
             document.getElementById('activeUserName').innerText = currentUserSession.name;
             document.getElementById('activeUserRole').innerText = currentUserSession.role;
-            document.getElementById('formStaffName').value = currentUserSession.name;
+            document.getElementById('entryStaffName').value = currentUserSession.name;
 
-            if(currentUserSession.role === 'SuperAdmin' || currentUserSession.role === 'Supervisor') {
+            if (currentUserSession.role === 'SuperAdmin' || currentUserSession.role === 'Admin') {
                 document.getElementById('adminStaffBtn').classList.remove('hidden');
                 document.getElementById('approvalTabBtn').classList.remove('hidden');
             }
@@ -706,26 +584,224 @@
             loadReports();
             loadApprovals();
         } else {
-            alert('Invalid Username or Password!');
+            alert('Invalid Credentials! Please try again.');
         }
     });
+
+    document.getElementById('reportForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const calcRatio = (pId, aId) => {
+            const p = parseFloat(document.getElementById(pId).value) || 1;
+            const a = parseFloat(document.getElementById(aId).value) || 0;
+            return ((a / p) * 100);
+        };
+
+        const mbPct = calcRatio('mbPlan', 'mbActual');
+        const atmPct = calcRatio('atmPlan', 'atmActual');
+        const ibPct = calcRatio('ibPlan', 'ibActual');
+        const merchantPct = calcRatio('merchantPlan', 'merchantActual');
+        const agentPct = calcRatio('agentPlan', 'agentActual');
+        const cbeBirrPct = calcRatio('cbeBirrPlan', 'cbeBirrActual');
+        const harmPct = calcRatio('harmPlan', 'harmActual');
+        const nidPct = calcRatio('nidPlan', 'nidActual');
+
+        const overallAvg = ((mbPct + atmPct + ibPct + merchantPct + agentPct + cbeBirrPct + harmPct + nidPct) / 8).toFixed(1);
+
+        const newRecord = {
+            id: Date.now(),
+            date: new Date().toISOString().split('T')[0],
+            staffName: currentUserSession.name,
+            supervisor: document.getElementById('supervisorSelect').value,
+            period: document.getElementById('entryPeriodScale').value,
+            mbPct: mbPct.toFixed(1),
+            atmPct: atmPct.toFixed(1),
+            ibPct: ibPct.toFixed(1),
+            merchantPct: merchantPct.toFixed(1),
+            agentPct: agentPct.toFixed(1),
+            cbeBirrPct: cbeBirrPct.toFixed(1),
+            harmPct: harmPct.toFixed(1),
+            nidPct: nidPct.toFixed(1),
+            overallAvg,
+            status: 'Pending'
+        };
+
+        reportsData.unshift(newRecord);
+        localStorage.setItem('cbe_borkena_reports_v2', JSON.stringify(reportsData));
+        alert('Performance entry submitted! Sent for Supervisor/Admin approval.');
+        
+        document.getElementById('reportForm').reset();
+        document.getElementById('entryStaffName').value = currentUserSession.name;
+        loadReports();
+        loadApprovals();
+        triggerGlobalSync();
+    });
+
+    function loadReports() {
+        const tbody = document.getElementById('reportsTableBody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        reportsData.forEach(r => {
+            let badgeClass = r.status === 'Approved' ? 'badge-approved' : (r.status === 'Pending' ? 'badge-pending' : 'badge-rejected');
+            let certButton = r.status === 'Approved' 
+                ? `<button class="btn btn-pdf" style="padding:2px 6px;" onclick="openCertificateModal(${r.id})">📜 Download</button>`
+                : `<span style="color:#aaa;">Pending</span>`;
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${r.date}</td>
+                    <td><strong>${r.staffName}</strong></td>
+                    <td>${r.supervisor}</td>
+                    <td>${r.mbPct}%</td>
+                    <td>${r.atmPct}%</td>
+                    <td>${r.ibPct}%</td>
+                    <td>${r.merchantPct}%</td>
+                    <td>${r.agentPct}%</td>
+                    <td>${r.cbeBirrPct}%</td>
+                    <td>${r.harmPct}%</td>
+                    <td>${r.nidPct}%</td>
+                    <td><strong style="color:var(--cbe-purple); font-size:13px;">${r.overallAvg}%</strong></td>
+                    <td><span class="badge ${badgeClass}">${r.status}</span></td>
+                    <td>${certButton}</td>
+                </tr>
+            `;
+        });
+    }
+
+    function loadApprovals() {
+        const tbody = document.getElementById('approvalTableBody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        const pending = reportsData.filter(r => r.status === 'Pending');
+        document.getElementById('pendingCount').innerText = pending.length;
+
+        pending.forEach(r => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${r.date}</td>
+                    <td><strong>${r.staffName}</strong></td>
+                    <td>${r.supervisor}</td>
+                    <td><strong>${r.overallAvg}%</strong></td>
+                    <td>
+                        <button onclick="approveRecord(${r.id}, 'Approved')" class="btn btn-success" style="padding:3px 8px;">Approve</button>
+                        <button onclick="approveRecord(${r.id}, 'Rejected')" class="btn btn-danger" style="padding:3px 8px;">Reject</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function approveRecord(id, newStatus) {
+        let record = reportsData.find(r => r.id === id);
+        if (record) {
+            record.status = newStatus;
+            localStorage.setItem('cbe_borkena_reports_v2', JSON.stringify(reportsData));
+            loadReports();
+            loadApprovals();
+            triggerGlobalSync();
+        }
+    }
+
+    /* Staff & Supervisor Administration */
+    document.getElementById('staffForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const index = parseInt(document.getElementById('editStaffIndex').value);
+        const name = document.getElementById('newStaffName').value.trim();
+        const pass = document.getElementById('newStaffPass').value.trim();
+        const role = document.getElementById('newStaffRole').value;
+
+        if (index === -1) {
+            staffData.push({ name, pass, role });
+        } else {
+            staffData[index] = { name, pass, role };
+            document.getElementById('editStaffIndex').value = -1;
+            document.getElementById('saveStaffBtn').innerText = "Add New Staff";
+        }
+
+        saveStaffData(true);
+        document.getElementById('staffForm').reset();
+    });
+
+    function renderStaffList() {
+        const container = document.getElementById('staffListDisplay');
+        if (!container) return;
+        container.innerHTML = '';
+        staffData.forEach((s, i) => {
+            container.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #eee;">
+                    <span><strong>${s.name}</strong> (${s.role})</span>
+                    <div>
+                        <button onclick="editStaff(${i})" class="btn btn-gold" style="padding:2px 6px;">Edit</button>
+                        <button onclick="deleteStaff(${i})" class="btn btn-danger" style="padding:2px 6px;">Delete</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function editStaff(i) {
+        const s = staffData[i];
+        document.getElementById('editStaffIndex').value = i;
+        document.getElementById('newStaffName').value = s.name;
+        document.getElementById('newStaffPass').value = s.pass;
+        document.getElementById('newStaffRole').value = s.role;
+        document.getElementById('saveStaffBtn').innerText = "Update User";
+    }
+
+    function deleteStaff(i) {
+        if (confirm('Delete user?')) {
+            staffData.splice(i, 1);
+            saveStaffData(true);
+        }
+    }
+
+    /* Certificate Logic (>50% Recognition vs <50% Warning) */
+    function openCertificateModal(recordId) {
+        const record = reportsData.find(r => r.id === recordId);
+        if (!record) return;
+
+        const score = parseFloat(record.overallAvg);
+        document.getElementById('certStaffName').innerText = record.staffName;
+        document.getElementById('certScoreDisplay').innerText = score + "%";
+
+        const certContainer = document.getElementById('certificatePrintArea');
+
+        if (score >= 50) {
+            document.getElementById('certTitleText').innerText = "Certificate of Recognition";
+            document.getElementById('certTitleText').style.color = "var(--cbe-purple)";
+            document.getElementById('certMessageText').innerText = "In recognition of outstanding operational performance, dedication, and target achievement excellence.";
+            certContainer.style.borderColor = "var(--cbe-purple)";
+        } else {
+            document.getElementById('certTitleText').innerText = "Performance Improvement Warning Notice";
+            document.getElementById('certTitleText').style.color = "var(--danger)";
+            document.getElementById('certMessageText').innerText = "This warning certificate is issued due to target achievement falling below the mandatory 50% operational benchmark. Immediate performance correction is required.";
+            certContainer.style.borderColor = "var(--danger)";
+        }
+
+        openModal('certRenderModal');
+    }
+
+    function downloadCertPDF() {
+        const element = document.getElementById('certificatePrintArea');
+        const name = document.getElementById('certStaffName').innerText;
+        html2pdf().from(element).save(`CBE_Borkena_Certificate_${name}.pdf`);
+    }
 
     function logout() { location.reload(); }
     function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
     function exportToExcel() {
-        let reports = JSON.parse(localStorage.getItem('cbe_borkena_reports') || '[]');
-        let csv = "Date,Staff,MB %,ATM %,Net %,Merch %,Agent %,CBE Birr %,NID %,Overall Avg %,Status\n";
-        reports.forEach(r => { csv += `${r.date},${r.staffName},${r.mbPct},${r.atmPct},${r.netPct},${r.merchPct},${r.agentPct},${r.cbeBirrPct},${r.nidPct},${r.overallAvg},${r.status}\n`; });
+        let csv = "Date,Staff Name,Supervisor,Mobile %,ATM %,Internet %,Merchant %,Agent %,CBE Birr %,Harmonization %,NID %,Overall Score,Status\n";
+        reportsData.forEach(r => {
+            csv += `${r.date},${r.staffName},${r.supervisor},${r.mbPct},${r.atmPct},${r.ibPct},${r.merchantPct},${r.agentPct},${r.cbeBirrPct},${r.harmPct},${r.nidPct},${r.overallAvg},${r.status}\n`;
+        });
         const a = document.createElement("a");
         a.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
         a.download = "CBE_Borkena_Performance_Report.csv";
         a.click();
-    }
-
-    function exportToPDF() {
-        html2pdf().from(document.getElementById('pdfReportArea')).save('CBE_Borkena_Performance_Report.pdf');
     }
 </script>
 </body>
