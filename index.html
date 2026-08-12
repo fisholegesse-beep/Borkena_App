@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CBE Borkena Branch - Enterprise Performance & Digital Library Portal</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,7 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     
-    <!-- Firebase SDKs (Compat Mode for Browser) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
@@ -26,7 +26,6 @@
         body {
             background-color: #f1f5f9;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            -webkit-tap-highlight-color: transparent;
         }
         .toast-active {
             transform: translateY(0);
@@ -42,6 +41,9 @@
         .custom-scrollbar::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
         .kpi-btn-selected {
             background-color: #320d33 !important;
@@ -168,8 +170,6 @@
                 
                 <!-- 1. DASHBOARD -->
                 <section id="section-dashboard" class="space-y-6">
-                    
-                    <!-- TOP OVERVIEW SUMMARY -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
                             <div class="flex items-center justify-between">
@@ -225,18 +225,6 @@
                         <span id="current-period-label" class="text-xs font-bold text-purple-900 uppercase bg-purple-50 px-3 py-1 rounded-md border border-purple-200">Filter: All Records</span>
                     </div>
 
-                    <!-- 12 KPI LIVE METRIC CARDS SECTION -->
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-                        <div class="flex items-center justify-between border-b pb-3">
-                            <div class="flex items-center space-x-2">
-                                <i class="fa-solid fa-grip text-amber-500 text-lg"></i>
-                                <h3 class="text-base font-bold text-purple-950">የ 12 ኬፒአይ መረጃዎች ማጠቃለያ (12 KPI Live Metric Cards)</h3>
-                            </div>
-                            <span class="text-xs bg-amber-100 text-amber-900 px-3 py-1 rounded-full font-bold border border-amber-300">12 Categories</span>
-                        </div>
-                        <div id="kpi-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
-                    </div>
-
                     <!-- Table -->
                     <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                         <div class="p-3 bg-purple-950 text-amber-400 font-bold text-xs flex justify-between items-center">
@@ -265,7 +253,7 @@
                     </div>
                 </section>
 
-                <!-- 2. PERFORMANCE ENTRY FORM -->
+                <!-- 2. PERFORMANCE ENTRY FORM (UPDATED WITH FRONT VISIBLE KPI GRID & PERFORMER/SUPERVISOR MENUS) -->
                 <section id="section-entry" class="hidden max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                     <div class="border-b pb-3 mb-5 flex justify-between items-center">
                         <div>
@@ -279,13 +267,15 @@
                         <input type="hidden" id="entry-editing-id" value="">
                         <input type="hidden" id="entry-kpi" value="Deposit Growth" required>
                         
-                        <!-- KPI CATEGORY VISIBLE GRID -->
+                        <!-- KPI CATEGORY VISIBLE GRID (FRONT WINDOW) -->
                         <div>
                             <label class="block text-xs font-bold text-purple-950 uppercase mb-2 flex items-center">
                                 <i class="fa-solid fa-list-check text-amber-500 mr-2 text-sm"></i> 
                                 KPI Performance Category (የ KPI ምድብ በስክሪኑ ላይ በቀጥታ ይምረጡ)
                             </label>
-                            <div id="kpi-grid-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2"></div>
+                            <div id="kpi-grid-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                                <!-- Generated by JS dynamically -->
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
@@ -450,6 +440,7 @@
                         <p class="text-xs text-slate-500 mb-6">In-depth summary breakdown by KPI categories and individual achievements.</p>
                         
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- KPI Summary Card -->
                             <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
                                 <h4 class="font-bold text-purple-950 text-sm mb-3 border-b pb-2 flex items-center">
                                     <i class="fa-solid fa-list-check text-amber-500 mr-2"></i> Performance Breakdown by KPI Category
@@ -457,6 +448,7 @@
                                 <div id="kpi-summary-list" class="space-y-2 text-xs"></div>
                             </div>
 
+                            <!-- Staff Summary Card -->
                             <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
                                 <h4 class="font-bold text-purple-950 text-sm mb-3 border-b pb-2 flex items-center">
                                     <i class="fa-solid fa-user-group text-purple-600 mr-2"></i> Staff Member Achievement Rankings
@@ -465,6 +457,7 @@
                             </div>
                         </div>
 
+                        <!-- Export Actions -->
                         <div class="mt-6 pt-5 border-t flex flex-wrap gap-3">
                             <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2.5 rounded-lg font-bold shadow transition flex items-center">
                                 <i class="fa-solid fa-file-excel mr-2"></i> Export Full Excel Detailed Report
@@ -603,7 +596,7 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- JAVASCRIPT LOGIC WITH ALL FIXES INCLUDED -->
     <script>
         const kpiCategories = [
             "Deposit Growth",
@@ -655,7 +648,7 @@
             ebooks: JSON.parse(localStorage.getItem('cbe_ebooks')) || [...defaultEbooks]
         };
 
-        // Firebase Realtime Database Connection Handling
+        // Firebase Setup
         let db = null;
         try {
             const firebaseConfig = { databaseURL: "https://cbe-borkena-default-rtdb.firebaseio.com/" };
@@ -669,8 +662,6 @@
             const toast = document.getElementById('toast');
             const toastMsg = document.getElementById('toast-message');
             const toastIcon = document.getElementById('toast-icon');
-
-            if (!toast || !toastMsg) return;
 
             toastMsg.innerText = msg;
             toastIcon.className = isSuccess ? "fa-solid fa-circle-check text-xl text-amber-400" : "fa-solid fa-circle-exclamation text-xl text-red-400";
@@ -707,21 +698,17 @@
             renderKpiGrid();
         }
 
-        // STABLE REALTIME SYNC ENGINE WITH DISCONNECT RECOVERY
+        // REALTIME SYNC WITH CLOUD DATABASE FOR ALL DEVICES
         function initRealtimeSync() {
             if (!db) return;
 
-            // Connection Status and Online Heartbeat
+            // Online Users Count Listener
             const connectedRef = db.ref('.info/connected');
             connectedRef.on('value', (snap) => {
                 if (snap.val() === true && state.currentUser) {
                     const statusRef = db.ref('status/' + state.currentUser.username);
                     statusRef.onDisconnect().remove();
-                    statusRef.set({ 
-                        online: true, 
-                        name: state.currentUser.name,
-                        last_seen: Date.now() 
-                    });
+                    statusRef.set({ online: true, last_seen: Date.now() });
                 }
             });
 
@@ -732,7 +719,7 @@
                 if (el) el.innerText = `${activeCount} Online`;
             });
             
-            // Realtime Sync for Performance Entries across all mobile devices
+            // Live Realtime Listener for Performance Entries across all phones
             db.ref('entries').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -746,19 +733,18 @@
                 renderReports();
             });
 
-            // Realtime Sync for System Users
+            // Live Realtime Listener for Users
             db.ref('users').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    const fetchedUsers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-                    state.users = fetchedUsers;
+                    state.users = Object.keys(data).map(key => ({ id: key, ...data[key] }));
                 }
                 syncLocalStorage();
                 renderUsers();
                 populateStaffSelect();
             });
 
-            // Realtime Sync for eBooks Library
+            // Live Realtime Listener for eBooks
             db.ref('ebooks').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -857,6 +843,7 @@
 
             staffSelect.innerHTML = state.users.map(u => `<option value="${u.name}">${u.name} (${u.role})</option>`).join('');
             
+            // Populate Supervisors List (Admins, Super Admins, and Team Leaders)
             const supervisors = state.users.filter(u => u.role === 'Admin' || u.role === 'Super Admin');
             supervisorSelect.innerHTML = (supervisors.length ? supervisors : state.users).map(u => `<option value="${u.name}">${u.name} (${u.responsibility || u.role})</option>`).join('');
 
@@ -878,88 +865,16 @@
             renderDashboard();
         }
 
-        // RENDER 12 KPI CARDS
-        function renderKpiCards(filteredEntries) {
-            const grid = document.getElementById('kpi-cards-grid');
-            if (!grid) return;
-
-            grid.innerHTML = kpiCategories.map(cat => {
-                const catEntries = filteredEntries.filter(e => e.kpi === cat);
-                let totalPlan = 0;
-                let totalActual = 0;
-
-                catEntries.forEach(e => {
-                    totalPlan += parseFloat(e.plan || 0);
-                    totalActual += parseFloat(e.actual || 0);
-                });
-
-                const pct = totalPlan > 0 ? ((totalActual / totalPlan) * 100).toFixed(1) : (totalActual > 0 ? "100.0" : "0.0");
-                const numPct = parseFloat(pct);
-                const progressWidth = Math.min(numPct, 100);
-
-                let badgeColor = "bg-slate-100 text-slate-600 border-slate-300";
-                let barColor = "bg-slate-400";
-                if (totalPlan > 0 || totalActual > 0) {
-                    if (numPct >= 100) {
-                        badgeColor = "bg-emerald-100 text-emerald-800 border-emerald-300";
-                        barColor = "bg-emerald-500";
-                    } else if (numPct >= 50) {
-                        badgeColor = "bg-amber-100 text-amber-800 border-amber-300";
-                        barColor = "bg-amber-500";
-                    } else {
-                        badgeColor = "bg-red-100 text-red-800 border-red-300";
-                        barColor = "bg-red-500";
-                    }
-                }
-
-                return `
-                    <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 hover:border-amber-400 hover:shadow-md transition flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="font-bold text-xs text-purple-950 truncate max-w-[140px]" title="${cat}">${cat}</span>
-                                <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${badgeColor}">${pct}%</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2 text-[11px] my-2 bg-white p-2 rounded-lg border border-slate-100">
-                                <div>
-                                    <span class="text-slate-400 block text-[9px] uppercase font-bold">Plan</span>
-                                    <span class="font-bold text-slate-700">${totalPlan.toLocaleString()}</span>
-                                </div>
-                                <div>
-                                    <span class="text-slate-400 block text-[9px] uppercase font-bold">Achieved</span>
-                                    <span class="font-bold text-emerald-700">${totalActual.toLocaleString()}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden mb-1">
-                                <div class="${barColor} h-1.5 rounded-full" style="width: ${progressWidth}%"></div>
-                            </div>
-                            <div class="flex justify-between items-center text-[10px] text-slate-400 font-semibold">
-                                <span>${catEntries.length} Record(s)</span>
-                                <button onclick="quickEntryForKpi('${cat}')" class="text-purple-900 font-bold hover:underline">+ Add</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function quickEntryForKpi(catName) {
-            selectKpiCategory(catName);
-            switchTab('entry', 'Performance Entry');
-        }
-
         function renderDashboard() {
             const tbody = document.getElementById('performance-table-body');
             if (!tbody) return;
 
+            // FIX: Show ALL registered records so everyone can see all submissions
             let filtered = state.entries;
 
             if (state.activeFilter !== 'all') {
                 filtered = filtered.filter(e => e.period === state.activeFilter);
             }
-
-            renderKpiCards(filtered);
 
             let totalPlan = 0;
             let totalActual = 0;
@@ -1015,6 +930,7 @@
             }).join('');
         }
 
+        // ENTRY SUBMISSION WITH REALTIME CLOUD PUSH
         function submitEntry(e) {
             e.preventDefault();
             
@@ -1035,6 +951,7 @@
                 timestamp: Date.now()
             };
 
+            // Push to Local Array Immediately
             if (editId) {
                 const index = state.entries.findIndex(item => item.id === editId);
                 if (index !== -1) state.entries[index] = entryData;
@@ -1043,6 +960,7 @@
             }
             syncLocalStorage();
 
+            // Push to Firebase Realtime Database
             if (db) {
                 db.ref('entries/' + entryData.id).set(entryData);
             }
@@ -1267,36 +1185,6 @@
             toggleUserModal(true);
         }
 
-        function editUser(id) {
-            const u = state.users.find(user => user.id === id);
-            if (!u) return;
-
-            document.getElementById('modal-user-id').value = u.id;
-            document.getElementById('modal-username').value = u.username;
-            document.getElementById('modal-fullname').value = u.name;
-            document.getElementById('modal-password').value = u.password;
-            document.getElementById('modal-role').value = u.role;
-            document.getElementById('modal-responsibility').value = u.responsibility || '';
-            document.getElementById('modal-title').innerText = "Edit User Account";
-
-            toggleUserModal(true);
-        }
-
-        function deleteUser(id) {
-            if (confirm("Are you sure you want to remove this user from system?")) {
-                state.users = state.users.filter(u => u.id !== id);
-                syncLocalStorage();
-
-                if (db) {
-                    db.ref('users/' + id).remove();
-                }
-                showToast("User removed successfully.");
-                renderUsers();
-                populateStaffSelect();
-            }
-        }
-
-        // FIXED AND ENHANCED ADD USER FUNCTION (COMPLETED PROPERLY)
         function saveUser(e) {
             e.preventDefault();
             const editId = document.getElementById('modal-user-id').value;
@@ -1316,141 +1204,172 @@
             } else {
                 state.users.push(userData);
             }
-            
             syncLocalStorage();
 
             if (db) {
                 db.ref('users/' + userData.id).set(userData);
             }
 
-            showToast(editId ? "User account updated!" : "New user registered successfully!");
+            showToast("User details saved successfully!");
             toggleUserModal(false);
             renderUsers();
             populateStaffSelect();
         }
 
-        // REPORTS GENERATION
+        function editUser(id) {
+            const user = state.users.find(u => u.id === id);
+            if (!user) return;
+
+            document.getElementById('modal-user-id').value = user.id;
+            document.getElementById('modal-username').value = user.username;
+            document.getElementById('modal-fullname').value = user.name;
+            document.getElementById('modal-password').value = user.password;
+            document.getElementById('modal-role').value = user.role;
+            document.getElementById('modal-responsibility').value = user.responsibility;
+
+            document.getElementById('modal-title').innerText = "Edit User Details";
+            toggleUserModal(true);
+        }
+
+        function deleteUser(id) {
+            if (confirm("Are you sure you want to remove this user?")) {
+                if (id && id.startsWith('def')) {
+                    showToast("Primary Admin cannot be deleted!", false);
+                    return;
+                }
+                state.users = state.users.filter(u => u.id !== id);
+                syncLocalStorage();
+
+                if (db) {
+                    db.ref('users/' + id).remove();
+                }
+                showToast("User deleted.");
+                renderUsers();
+                populateStaffSelect();
+            }
+        }
+
         function renderReports() {
             const kpiList = document.getElementById('kpi-summary-list');
             const staffList = document.getElementById('staff-summary-list');
 
             if (!kpiList || !staffList) return;
 
-            // KPI Summary
-            kpiList.innerHTML = kpiCategories.map(cat => {
-                const catEntries = state.entries.filter(e => e.kpi === cat);
-                let p = 0, a = 0;
-                catEntries.forEach(e => { p += parseFloat(e.plan||0); a += parseFloat(e.actual||0); });
-                const pct = p > 0 ? ((a / p) * 100).toFixed(1) : (a > 0 ? "100.0" : "0.0");
+            const entries = state.entries;
 
-                return `
-                    <div class="flex items-center justify-between p-2.5 bg-white rounded-lg border border-slate-200">
-                        <span class="font-bold text-slate-800">${cat}</span>
-                        <div class="text-right">
-                            <span class="font-bold text-purple-950">${a.toLocaleString()} / ${p.toLocaleString()}</span>
-                            <span class="ml-2 text-[10px] font-extrabold px-2 py-0.5 rounded bg-purple-100 text-purple-900">${pct}%</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            // Staff Ranking
+            const kpiMap = {};
             const staffMap = {};
-            state.entries.forEach(e => {
+
+            entries.forEach(e => {
+                if (!kpiMap[e.kpi]) kpiMap[e.kpi] = { plan: 0, actual: 0 };
+                kpiMap[e.kpi].plan += parseFloat(e.plan || 0);
+                kpiMap[e.kpi].actual += parseFloat(e.actual || 0);
+
                 if (!staffMap[e.staff]) staffMap[e.staff] = { plan: 0, actual: 0 };
                 staffMap[e.staff].plan += parseFloat(e.plan || 0);
                 staffMap[e.staff].actual += parseFloat(e.actual || 0);
             });
 
+            const kpiKeys = Object.keys(kpiMap);
+            if (!kpiKeys.length) {
+                kpiList.innerHTML = `<p class="text-slate-500 py-2">No data recorded.</p>`;
+            } else {
+                kpiList.innerHTML = kpiKeys.map(k => {
+                    const p = kpiMap[k].plan;
+                    const a = kpiMap[k].actual;
+                    const pct = p > 0 ? ((a / p) * 100).toFixed(1) : '0.0';
+                    return `
+                        <div class="flex justify-between items-center bg-white p-2.5 rounded-lg border border-slate-200">
+                            <div>
+                                <p class="font-bold text-slate-800">${k}</p>
+                                <p class="text-[11px] text-slate-500">Target: ${p.toLocaleString()} | Achieved: ${a.toLocaleString()}</p>
+                            </div>
+                            <span class="font-bold px-2.5 py-1 rounded text-xs ${parseFloat(pct) >= 100 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${pct}%</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+
             const staffKeys = Object.keys(staffMap);
             if (!staffKeys.length) {
-                staffList.innerHTML = `<p class="text-slate-400 font-medium">No performance entries recorded yet.</p>`;
-                return;
-            }
-
-            staffList.innerHTML = staffKeys.map(st => {
-                const p = staffMap[st].plan;
-                const a = staffMap[st].actual;
-                const pct = p > 0 ? ((a / p) * 100).toFixed(1) : "0.0";
-
-                return `
-                    <div class="flex items-center justify-between p-2.5 bg-white rounded-lg border border-slate-200">
-                        <span class="font-bold text-slate-800"><i class="fa-solid fa-user-check text-emerald-600 mr-2"></i> ${st}</span>
-                        <div class="text-right">
-                            <span class="font-bold text-emerald-700">${a.toLocaleString()}</span>
-                            <span class="ml-2 text-[10px] font-extrabold px-2 py-0.5 rounded bg-emerald-100 text-emerald-900">${pct}%</span>
+                staffList.innerHTML = `<p class="text-slate-500 py-2">No data recorded.</p>`;
+            } else {
+                staffList.innerHTML = staffKeys.map(s => {
+                    const p = staffMap[s].plan;
+                    const a = staffMap[s].actual;
+                    const pct = p > 0 ? ((a / p) * 100).toFixed(1) : '0.0';
+                    return `
+                        <div class="flex justify-between items-center bg-white p-2.5 rounded-lg border border-slate-200">
+                            <div>
+                                <p class="font-bold text-slate-800">${s}</p>
+                                <p class="text-[11px] text-slate-500">Plan: ${p.toLocaleString()} | Actual: ${a.toLocaleString()}</p>
+                            </div>
+                            <span class="font-bold px-2.5 py-1 rounded text-xs ${parseFloat(pct) >= 100 ? 'bg-emerald-100 text-emerald-800' : 'bg-purple-100 text-purple-900'}">${pct}%</span>
                         </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // EXPORT TO EXCEL
-        function exportToExcel() {
-            if (!state.entries.length) {
-                showToast("No data available to export!", false);
-                return;
+                    `;
+                }).join('');
             }
-
-            const exportData = state.entries.map(e => ({
-                "Date": e.date || "-",
-                "Period": e.period,
-                "KPI Category": e.kpi,
-                "Staff Member": e.staff,
-                "Supervisor": e.supervisor,
-                "Target Plan": e.plan,
-                "Actual Achieved": e.actual,
-                "Achievement (%)": e.plan > 0 ? ((e.actual / e.plan) * 100).toFixed(1) + "%" : "0%",
-                "Status": e.status,
-                "Remarks": e.remarks || ""
-            }));
-
-            const worksheet = XLSX.utils.json_to_sheet(exportData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Performance Records");
-            XLSX.writeFile(workbook, `CBE_Borkena_Performance_${new Date().toISOString().split('T')[0]}.xlsx`);
-            showToast("Excel sheet downloaded successfully!");
         }
 
-        // EXPORT TO PDF
         function exportToPDF() {
-            if (!state.entries.length) {
-                showToast("No data available to export!", false);
-                return;
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.setFontSize(16);
+                doc.text("Commercial Bank of Ethiopia - Borkena Branch", 14, 15);
+                doc.setFontSize(11);
+                doc.text("Live Performance & Analytics Summary Report", 14, 22);
+                
+                const tableData = state.entries.map(e => [
+                    e.date || '-',
+                    (e.period || '').toUpperCase(),
+                    e.kpi || '-',
+                    e.staff || '-',
+                    e.supervisor || '-',
+                    e.plan || 0,
+                    e.actual || 0,
+                    (e.plan > 0 ? ((e.actual / e.plan) * 100).toFixed(1) : '0.0') + '%'
+                ]);
+
+                doc.autoTable({
+                    startY: 28,
+                    head: [['Date', 'Period', 'KPI Category', 'Staff Member', 'Supervisor', 'Plan', 'Actual', 'Achievement']],
+                    body: tableData,
+                    headStyles: { fillColor: [74, 21, 75] }
+                });
+
+                doc.save("CBE_Borkena_Performance_Report.pdf");
+                showToast("PDF report downloaded successfully!");
+            } catch (err) {
+                console.error("PDF Export Error: ", err);
+                showToast("Error generating PDF file. Please try again.", false);
             }
+        }
 
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ orientation: "landscape" });
+        function exportToExcel() {
+            try {
+                const dataToExport = state.entries.map(e => ({
+                    Date: e.date || '-',
+                    Period: e.period,
+                    KPI: e.kpi,
+                    Staff: e.staff,
+                    Supervisor: e.supervisor,
+                    Plan: e.plan,
+                    Actual: e.actual,
+                    Achievement_Percent: (e.plan > 0 ? ((e.actual / e.plan) * 100).toFixed(1) : '0.0') + '%',
+                    Remarks: e.remarks || '',
+                    Status: e.status
+                }));
 
-            doc.setFontSize(14);
-            doc.setTextColor(74, 21, 75);
-            doc.text("Commercial Bank of Ethiopia - Borkena Branch", 14, 15);
-            doc.setFontSize(10);
-            doc.setTextColor(100);
-            doc.text(`Performance Tracking Report - Date: ${new Date().toLocaleDateString()}`, 14, 22);
-
-            const tableRows = state.entries.map(e => [
-                e.date || "-",
-                e.period,
-                e.kpi,
-                e.staff,
-                e.supervisor,
-                e.plan,
-                e.actual,
-                e.plan > 0 ? ((e.actual / e.plan) * 100).toFixed(1) + "%" : "0%",
-                e.status
-            ]);
-
-            doc.autoTable({
-                startY: 28,
-                head: [["Date", "Period", "KPI Category", "Staff", "Supervisor", "Plan", "Actual", "Ach. %", "Status"]],
-                body: tableRows,
-                headStyles: { fillColor: [74, 21, 75], textColor: [255, 184, 0] },
-                styles: { fontSize: 8 }
-            });
-
-            doc.save(`CBE_Borkena_Performance_${new Date().toISOString().split('T')[0]}.pdf`);
-            showToast("PDF document downloaded successfully!");
+                const ws = XLSX.utils.json_to_sheet(dataToExport);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Performance Data");
+                XLSX.writeFile(wb, "CBE_Borkena_Performance_Report.xlsx");
+                showToast("Excel report downloaded!");
+            } catch (err) {
+                showToast("Error exporting Excel.", false);
+            }
         }
     </script>
 </body>
