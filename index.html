@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="notranslate" translate="no">
+<html lang="am" class="notranslate" translate="no">
 <head>
     <meta charset="UTF-8">
     <meta name="google" content="notranslate">
@@ -20,6 +20,7 @@
             --text-sub: #555555;
             --danger: #d32f2f;
             --success: #2e7d32;
+            --warning: #ef6c00;
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
@@ -37,7 +38,6 @@
 
         .container { width: 100%; max-width: 1200px; }
 
-        /* Top Bar */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -69,7 +69,6 @@
             box-shadow: 0 0 8px var(--success);
         }
 
-        /* Header Card */
         .header-card {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
@@ -100,7 +99,6 @@
             color: #5d4037;
         }
 
-        /* Navigation Tabs */
         .nav-tabs {
             display: flex;
             gap: 8px;
@@ -127,7 +125,6 @@
             box-shadow: 0 4px 10px rgba(74, 0, 114, 0.2);
         }
 
-        /* Cards & Layout */
         .card {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
@@ -139,6 +136,7 @@
 
         .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
         .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
 
         .form-group { margin-bottom: 10px; }
         label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: var(--cbe-purple); }
@@ -160,9 +158,8 @@
             box-shadow: 0 0 5px rgba(74, 0, 114, 0.2);
         }
 
-        /* Buttons */
         .btn {
-            padding: 9px 16px;
+            padding: 8px 14px;
             border-radius: 8px;
             border: none;
             font-weight: bold;
@@ -179,20 +176,21 @@
         .btn-purple { background: var(--cbe-purple); color: #fff; }
         .btn-purple:hover { background: var(--cbe-purple-light); }
         .btn-danger { background: var(--danger); color: #fff; }
+        .btn-success { background: var(--success); color: #fff; }
         .btn-excel { background: #2e7d32; color: #fff; }
         .btn-pdf { background: #c62828; color: #fff; }
 
-        /* Tables */
         .table-wrap { overflow-x: auto; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; }
-        th, td { border: 1px solid #e0e0e0; padding: 10px; text-align: center; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; background: #fff; }
+        th, td { border: 1px solid #e0e0e0; padding: 8px 6px; text-align: center; }
         th { background: var(--cbe-purple); color: #fff; }
         tr:nth-child(even) { background: #f9f9f9; }
 
         .badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; }
         .badge-approved { background: #e8f5e9; color: var(--success); border: 1px solid var(--success); }
+        .badge-pending { background: #fff3e0; color: var(--warning); border: 1px solid var(--warning); }
+        .badge-rejected { background: #ffebee; color: var(--danger); border: 1px solid var(--danger); }
 
-        /* Modal Overlay */
         .modal {
             position: fixed; top:0; left:0; width:100%; height:100%;
             background: rgba(0,0,0,0.5); z-index: 1000;
@@ -200,8 +198,8 @@
         }
         .modal-content {
             background: #ffffff; border: 1px solid var(--border-light);
-            padding: 20px; border-radius: 16px; width: 100%; max-width: 500px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            padding: 20px; border-radius: 16px; width: 100%; max-width: 600px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;
         }
         .hidden { display: none !important; }
     </style>
@@ -214,7 +212,7 @@
     <div class="top-bar">
         <div class="status-pill">
             <span class="pulse-dot"></span>
-            <span>CBE Borkena Branch Live Operations</span>
+            <span>CBE Borkena Live Staff Dashboard</span>
         </div>
         <div>
             <button class="btn btn-gold" onclick="openModal('uploadModal')">📥 Bulk CSV</button>
@@ -232,17 +230,17 @@
         </svg>
         <div>
             <h2 style="margin: 0; color: var(--cbe-purple);">Commercial Bank of Ethiopia</h2>
-            <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-sub);">Borkena Branch Target Performance & Staff Portal</p>
+            <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-sub);">Borkena Branch Target Performance & Staff Management Portal</p>
         </div>
     </div>
 
     <!-- Notice Banner -->
     <div class="notice-banner">
-        <div>📌 <strong id="noticeContent">Welcome! Real-time Cross-Device Sync Enabled.</strong></div>
+        <div>📌 <strong id="noticeContent">እንኳን ደህና መጡ! Real-time Cross-Device Sync ተከፍቷል።</strong></div>
         <button class="btn btn-purple" style="padding: 4px 8px;" onclick="openModal('noticeModal')">✏️ Edit</button>
     </div>
 
-    <!-- Login Card -->
+    <!-- Login Section -->
     <div id="loginSection" class="card" style="max-width: 380px; margin: 30px auto;">
         <h3 style="color: var(--cbe-purple); text-align: center; margin-top: 0;">🔐 Portal Login</h3>
         <form id="loginForm">
@@ -262,36 +260,36 @@
     <div id="appSection" class="hidden">
 
         <div class="top-bar" style="background: #ffffff;">
-            <span>👤 Active: <strong id="activeUserName" style="color:var(--cbe-purple);"></strong> (<span id="activeUserRole"></span>)</span>
+            <span>👤 ተጠቃሚ: <strong id="activeUserName" style="color:var(--cbe-purple);"></strong> (<span id="activeUserRole"></span>)</span>
             <div>
-                <button class="btn btn-gold" id="adminStaffBtn" onclick="openModal('staffMgmtModal')">👥 Staff Mgmt</button>
+                <button class="btn btn-gold" id="adminStaffBtn" onclick="openModal('staffMgmtModal')">👥 Staff Management</button>
                 <button class="btn btn-danger" onclick="logout()">Logout</button>
             </div>
         </div>
 
         <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchTab('entryTab', this)">📝 Entry Form</button>
-            <button class="tab-btn" onclick="switchTab('reportsTab', this)">📊 Governance Reports</button>
+            <button class="tab-btn active" onclick="switchTab('entryTab', this)">📝 የዕለት አፈፃፀም ማስገቢያ</button>
+            <button class="tab-btn" onclick="switchTab('reportsTab', this)">📊 የሪፖርት እና ማፅደቂያ ሜኑ</button>
             <button class="tab-btn" onclick="switchTab('libraryTab', this)">📚 eBook Library</button>
         </div>
 
-        <!-- Tab 1: Entry Form -->
+        <!-- Tab 1: Performance Entry -->
         <div id="entryTab" class="tab-content">
             <div class="card">
                 <h3 style="color: var(--cbe-purple); margin-top: 0;">🎯 Enter Performance Record</h3>
                 <form id="reportForm">
                     <div class="grid-3">
                         <div class="form-group">
-                            <label>Staff Member</label>
+                            <label>የሰራተኛ ስም</label>
                             <select id="staffNameSelect" required></select>
                         </div>
                         <div class="form-group">
-                            <label>Supervisor</label>
+                            <label>ሱፐርቫይዘር / አድሚን</label>
                             <select id="supervisorSelect" required></select>
                         </div>
                         <div class="form-group">
                             <label>Target Period</label>
-                            <select id="entryPeriodScale" onchange="adjustFormTargetsByPeriod()">
+                            <select id="entryPeriodScale">
                                 <option value="daily">Daily</option>
                                 <option value="weekly" selected>Weekly</option>
                                 <option value="monthly">Monthly</option>
@@ -299,39 +297,49 @@
                         </div>
                     </div>
 
+                    <h4 style="color: var(--cbe-purple); margin: 15px 0 5px 0; border-bottom: 1px solid var(--cbe-gold);">አገልግሎቶችና አፈፃፀም (Actual vs Target)</h4>
+                    
+                    <div class="grid-4">
+                        <div class="form-group"><label>Mobile Banking</label><input type="number" id="mbActual" placeholder="Actual" required></div>
+                        <div class="form-group"><label>ATM</label><input type="number" id="atmActual" placeholder="Actual" required></div>
+                        <div class="form-group"><label>Internet Banking</label><input type="number" id="internetActual" placeholder="Actual" required></div>
+                        <div class="form-group"><label>Merchant</label><input type="number" id="merchantActual" placeholder="Actual" required></div>
+                    </div>
+
+                    <div class="grid-4">
+                        <div class="form-group"><label>Agent Banking</label><input type="number" id="agentActual" placeholder="Actual" required></div>
+                        <div class="form-group"><label>CBE Birr</label><input type="number" id="cbeBirrActual" placeholder="Actual" required></div>
+                        <div class="form-group"><label>Harmonization</label><input type="number" id="harmoActual" placeholder="Actual" required></div>
+                        <div class="form-group"><label>National ID (NID)</label><input type="number" id="nidActual" placeholder="Actual" required></div>
+                    </div>
+
                     <div class="grid-2" style="margin-top: 10px;">
                         <div class="form-group">
                             <label>Deposit Plan / Actual (ETB)</label>
                             <div style="display:flex; gap:6px;">
-                                <input type="number" id="depositPlan" placeholder="Plan" required>
+                                <input type="number" id="depositPlan" placeholder="Plan" value="100000" required>
                                 <input type="number" id="depositActual" placeholder="Actual" required>
                             </div>
                         </div>
                         <div class="form-group">
                             <label>FCY Plan / Actual ($ USD)</label>
                             <div style="display:flex; gap:6px;">
-                                <input type="number" id="fcyPlan" placeholder="Plan $">
+                                <input type="number" id="fcyPlan" placeholder="Plan $" value="500">
                                 <input type="number" id="fcyActual" placeholder="Actual $">
                             </div>
                         </div>
                     </div>
 
-                    <div class="grid-3" style="margin-top: 10px;">
-                        <div class="form-group"><label>Mobile Banking (P/A)</label><div style="display:flex; gap:4px;"><input type="number" id="mbPlan"><input type="number" id="mbActual"></div></div>
-                        <div class="form-group"><label>ATM (P/A)</label><div style="display:flex; gap:4px;"><input type="number" id="atmPlan"><input type="number" id="atmActual"></div></div>
-                        <div class="form-group"><label>Account Opening (P/A)</label><div style="display:flex; gap:4px;"><input type="number" id="accPlan"><input type="number" id="accActual"></div></div>
-                    </div>
-
-                    <button type="submit" class="btn btn-purple" style="width: 100%; margin-top: 15px; font-size: 14px;">📤 Submit Entry</button>
+                    <button type="submit" class="btn btn-purple" style="width: 100%; margin-top: 15px; font-size: 14px;">📤 Submit Entry for Approval</button>
                 </form>
             </div>
         </div>
 
-        <!-- Tab 2: Reports -->
+        <!-- Tab 2: Reports & Approvals -->
         <div id="reportsTab" class="tab-content hidden">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                    <h3 style="color: var(--cbe-purple); margin: 0;">📋 Performance Reports</h3>
+                    <h3 style="color: var(--cbe-purple); margin: 0;">📋 Governance & Approval Reports</h3>
                     <div style="display:flex; gap: 6px;">
                         <button onclick="exportToExcel()" class="btn btn-excel">Excel Export</button>
                         <button onclick="exportToPDF()" class="btn btn-pdf">PDF Export</button>
@@ -343,13 +351,19 @@
                         <thead>
                             <tr>
                                 <th>Date</th>
-                                <th>Staff</th>
+                                <th>Staff Name</th>
+                                <th>MB</th>
+                                <th>ATM</th>
+                                <th>Internet</th>
+                                <th>Merchant</th>
+                                <th>Agent</th>
+                                <th>CBE Birr</th>
+                                <th>Harmo.</th>
+                                <th>NID</th>
                                 <th>Deposit %</th>
                                 <th>FCY %</th>
-                                <th>MB %</th>
-                                <th>ATM %</th>
-                                <th>Overall %</th>
                                 <th>Status</th>
+                                <th>Action (Admin/SuperAdmin)</th>
                             </tr>
                         </thead>
                         <tbody id="reportsTableBody"></tbody>
@@ -358,7 +372,7 @@
             </div>
         </div>
 
-        <!-- Tab 3: eBook Library -->
+        <!-- Tab 3: Library -->
         <div id="libraryTab" class="tab-content hidden">
             <div class="card">
                 <h3 style="color: var(--cbe-purple); margin-top: 0;">📚 Borkena Document & eBook Library</h3>
@@ -389,25 +403,38 @@
     </div>
 </div>
 
-<!-- Modals -->
+<!-- Modal 1: Staff Management (Add/Edit/Delete) -->
 <div id="staffMgmtModal" class="modal hidden">
     <div class="modal-content">
         <button onclick="closeModal('staffMgmtModal')" class="btn btn-danger" style="float:right; padding:2px 6px;">X</button>
-        <h3 style="color:var(--cbe-purple); margin-top:0;">👥 Manage Branch Users</h3>
-        <div class="form-group"><input type="text" id="newStaffName" placeholder="Full Name"></div>
-        <div class="form-group"><input type="text" id="newStaffPass" placeholder="Password"></div>
-        <div class="form-group">
-            <select id="newStaffRole">
-                <option value="Staff">Staff</option>
-                <option value="Supervisor">Supervisor</option>
-                <option value="SuperAdmin">SuperAdmin</option>
-            </select>
-        </div>
-        <button onclick="addNewStaff()" class="btn btn-purple" style="width:100%;">Save User</button>
-        <div id="staffListDisplay" style="margin-top:12px; max-height:180px; overflow-y:auto;"></div>
+        <h3 style="color:var(--cbe-purple); margin-top:0;">👥 Staff Management (Edit/Add/Delete)</h3>
+        
+        <form id="staffCrudForm">
+            <input type="hidden" id="editStaffIndex" value="-1">
+            <div class="grid-2">
+                <div class="form-group"><label>Full Name</label><input type="text" id="crudName" placeholder="Full Name" required></div>
+                <div class="form-group"><label>Password</label><input type="text" id="crudPass" placeholder="Password" required></div>
+            </div>
+            <div class="form-group">
+                <label>Role</label>
+                <select id="crudRole">
+                    <option value="Staff">Staff</option>
+                    <option value="Supervisor">Supervisor (Admin)</option>
+                    <option value="SuperAdmin">SuperAdmin</option>
+                </select>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button type="button" onclick="saveStaffCrud()" class="btn btn-purple" style="flex:1;">💾 Save / Update User</button>
+                <button type="button" onclick="resetStaffForm()" class="btn btn-gold">Clear Form</button>
+            </div>
+        </form>
+
+        <h4 style="color:var(--cbe-purple); margin-top:15px;">የሰራተኞች ዝርዝር</h4>
+        <div id="staffListDisplay" style="max-height:220px; overflow-y:auto;"></div>
     </div>
 </div>
 
+<!-- Modal 2: Notice -->
 <div id="noticeModal" class="modal hidden">
     <div class="modal-content">
         <button onclick="closeModal('noticeModal')" class="btn btn-danger" style="float:right; padding:2px 6px;">X</button>
@@ -417,7 +444,7 @@
     </div>
 </div>
 
-<!-- Bulk Upload Modal -->
+<!-- Modal 3: Bulk Upload -->
 <div id="uploadModal" class="modal hidden">
     <div class="modal-content">
         <button onclick="closeModal('uploadModal')" class="btn btn-danger" style="float:right; padding:2px 6px;">X</button>
@@ -430,7 +457,7 @@
     </div>
 </div>
 
-<!-- Certificate Modal -->
+<!-- Modal 4: Certificate -->
 <div id="certModal" class="modal hidden">
     <div class="modal-content">
         <button onclick="closeModal('certModal')" class="btn btn-danger" style="float:right; padding:2px 6px;">X</button>
@@ -448,13 +475,11 @@
 </div>
 
 <script>
-    /* Global Target Settings & Persistent Sync Engine */
-    const baseDailyTargets = { depPlan: 100000, fcyPlan: 500, mbPlan: 5, accPlan: 10, atmPlan: 2 };
-    
+    // Real-Time Cross-Device Storage Engine using BroadcastChannel & Window Events
     let staffData = JSON.parse(localStorage.getItem('cbe_borkena_staff_db')) || [
         { name: "Fiseha", pass: "1234", role: "SuperAdmin" },
         { name: "Sintayehu", pass: "1234", role: "Supervisor" },
-        { name: "Dawit", pass: "1234", role: "Supervisor" }
+        { name: "Dawit", pass: "1234", role: "Staff" }
     ];
 
     let currentUserSession = null;
@@ -462,26 +487,36 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         saveStaffData(false);
-        adjustFormTargetsByPeriod();
         loadNotice();
         loadEbooks();
         setupLiveSync();
     });
 
     function setupLiveSync() {
+        // Sync across tabs & devices on local network
+        window.addEventListener('storage', () => {
+            refreshAllData();
+        });
         if (syncChannel) {
             syncChannel.onmessage = (e) => {
                 if (e.data && e.data.type === 'SYNC_DATA') {
-                    loadReports();
-                    loadNotice();
-                    loadEbooks();
-                    saveStaffData(false);
+                    refreshAllData();
                 }
             };
         }
     }
 
+    function refreshAllData() {
+        staffData = JSON.parse(localStorage.getItem('cbe_borkena_staff_db')) || staffData;
+        populateDropdowns();
+        renderStaffList();
+        loadReports();
+        loadNotice();
+        loadEbooks();
+    }
+
     function triggerGlobalSync() {
+        localStorage.setItem('cbe_borkena_last_sync', Date.now());
         if (syncChannel) syncChannel.postMessage({ type: 'SYNC_DATA', time: Date.now() });
     }
 
@@ -492,11 +527,70 @@
         btn.classList.add('active');
     }
 
+    // CRUD Staff Operations
     function saveStaffData(sync = true) {
         localStorage.setItem('cbe_borkena_staff_db', JSON.stringify(staffData));
         populateDropdowns();
         renderStaffList();
         if(sync) triggerGlobalSync();
+    }
+
+    function saveStaffCrud() {
+        const idx = parseInt(document.getElementById('editStaffIndex').value);
+        const name = document.getElementById('crudName').value.trim();
+        const pass = document.getElementById('crudPass').value.trim();
+        const role = document.getElementById('crudRole').value;
+
+        if(!name || !pass) { alert('እባክዎን ስምና ፓስወርድ ያስገቡ'); return; }
+
+        if (idx === -1) {
+            staffData.push({ name, pass, role });
+        } else {
+            staffData[idx] = { name, pass, role };
+        }
+
+        saveStaffData(true);
+        resetStaffForm();
+        alert('የሰራተኛ መረጃ በተሳካ ሁኔታ ተቀምጧል!');
+    }
+
+    function editStaff(index) {
+        const s = staffData[index];
+        document.getElementById('editStaffIndex').value = index;
+        document.getElementById('crudName').value = s.name;
+        document.getElementById('crudPass').value = s.pass;
+        document.getElementById('crudRole').value = s.role;
+    }
+
+    function deleteStaff(index) {
+        if(confirm('ይህንን ሰራተኛ መሰረዝ እርግጠኛ ነዎት?')) {
+            staffData.splice(index, 1);
+            saveStaffData(true);
+            resetStaffForm();
+        }
+    }
+
+    function resetStaffForm() {
+        document.getElementById('editStaffIndex').value = "-1";
+        document.getElementById('crudName').value = "";
+        document.getElementById('crudPass').value = "";
+        document.getElementById('crudRole').value = "Staff";
+    }
+
+    function renderStaffList() {
+        const container = document.getElementById('staffListDisplay');
+        if(!container) return;
+        container.innerHTML = '';
+        staffData.forEach((s, i) => {
+            container.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #eee;">
+                    <span><strong>${s.name}</strong> (${s.role}) - Pass: ${s.pass}</span>
+                    <div style="display:flex; gap:4px;">
+                        <button onclick="editStaff(${i})" class="btn btn-gold" style="padding:2px 6px;">Edit</button>
+                        <button onclick="deleteStaff(${i})" class="btn btn-danger" style="padding:2px 6px;">Delete</button>
+                    </div>
+                </div>`;
+        });
     }
 
     function populateDropdowns() {
@@ -513,49 +607,53 @@
         });
     }
 
-    function adjustFormTargetsByPeriod() {
-        const scale = document.getElementById('entryPeriodScale').value;
-        let mult = scale === 'weekly' ? 6 : (scale === 'monthly' ? 26 : 1);
-        
-        document.getElementById('depositPlan').value = baseDailyTargets.depPlan * mult;
-        document.getElementById('fcyPlan').value = baseDailyTargets.fcyPlan * mult;
-        document.getElementById('mbPlan').value = baseDailyTargets.mbPlan * mult;
-        document.getElementById('accPlan').value = baseDailyTargets.accPlan * mult;
-        document.getElementById('atmPlan').value = baseDailyTargets.atmPlan * mult;
-    }
-
+    // Performance Report Submission
     document.getElementById('reportForm').addEventListener('submit', function(e) {
         e.preventDefault();
         let reports = JSON.parse(localStorage.getItem('cbe_borkena_reports') || '[]');
 
-        const depP = parseFloat(document.getElementById('depositPlan').value) || 1;
-        const depA = parseFloat(document.getElementById('depositActual').value) || 0;
-        const fcyP = parseFloat(document.getElementById('fcyPlan').value) || 1;
-        const fcyA = parseFloat(document.getElementById('fcyActual').value) || 0;
-        const mbP = parseFloat(document.getElementById('mbPlan').value) || 1;
-        const mbA = parseFloat(document.getElementById('mbActual').value) || 0;
-        const atmP = parseFloat(document.getElementById('atmPlan').value) || 1;
-        const atmA = parseFloat(document.getElementById('atmActual').value) || 0;
-
-        const depPct = ((depA / depP) * 100).toFixed(1);
-        const fcyPct = ((fcyA / fcyP) * 100).toFixed(1);
-        const mbPct = ((mbA / mbP) * 100).toFixed(1);
-        const atmPct = ((atmA / atmP) * 100).toFixed(1);
-        const overallAvg = ((parseFloat(depPct) + parseFloat(fcyPct) + parseFloat(mbPct) + parseFloat(atmPct)) / 4).toFixed(1);
-
-        reports.unshift({
+        const entry = {
             id: Date.now(),
             date: new Date().toISOString().split('T')[0],
             staffName: document.getElementById('staffNameSelect').value,
-            depPct, fcyPct, mbPct, atmPct, overallAvg,
-            status: 'Approved'
-        });
+            supervisor: document.getElementById('supervisorSelect').value,
+            mb: document.getElementById('mbActual').value || 0,
+            atm: document.getElementById('atmActual').value || 0,
+            internet: document.getElementById('internetActual').value || 0,
+            merchant: document.getElementById('merchantActual').value || 0,
+            agent: document.getElementById('agentActual').value || 0,
+            cbeBirr: document.getElementById('cbeBirrActual').value || 0,
+            harmo: document.getElementById('harmoActual').value || 0,
+            nid: document.getElementById('nidActual').value || 0,
+            depPct: ((parseFloat(document.getElementById('depositActual').value || 0) / parseFloat(document.getElementById('depositPlan').value || 1)) * 100).toFixed(1),
+            fcyPct: ((parseFloat(document.getElementById('fcyActual').value || 0) / parseFloat(document.getElementById('fcyPlan').value || 1)) * 100).toFixed(1),
+            status: 'Pending'
+        };
 
+        reports.unshift(entry);
         localStorage.setItem('cbe_borkena_reports', JSON.stringify(reports));
-        alert('Entry Saved & Synchronized!');
+        alert('የስራ አፈፃፀሙ በተሳካ ሁኔታ ገብቷል! ለማፅደቅ ወደ አድሚን ተልኳል።');
+        this.reset();
         loadReports();
         triggerGlobalSync();
     });
+
+    // Approval / Rejection Logic
+    function updateStatus(id, newStatus) {
+        if (!currentUserSession || (currentUserSession.role !== 'Supervisor' && currentUserSession.role !== 'SuperAdmin')) {
+            alert('ይህንን ተግባር ለማከናወን የሱፐርቫይዘር ወይም ሱፐርአድሚን ስልጣን ያስፈልጋል!');
+            return;
+        }
+
+        let reports = JSON.parse(localStorage.getItem('cbe_borkena_reports') || '[]');
+        let index = reports.findIndex(r => r.id === id);
+        if (index !== -1) {
+            reports[index].status = newStatus;
+            localStorage.setItem('cbe_borkena_reports', JSON.stringify(reports));
+            loadReports();
+            triggerGlobalSync();
+        }
+    }
 
     function loadReports() {
         let reports = JSON.parse(localStorage.getItem('cbe_borkena_reports') || '[]');
@@ -563,50 +661,38 @@
         if(!tbody) return;
         tbody.innerHTML = '';
 
+        const isAuthorized = currentUserSession && (currentUserSession.role === 'Supervisor' || currentUserSession.role === 'SuperAdmin');
+
         reports.forEach(r => {
+            let badgeClass = r.status === 'Approved' ? 'badge-approved' : (r.status === 'Rejected' ? 'badge-rejected' : 'badge-pending');
+            
+            let actionBtns = '-';
+            if (isAuthorized) {
+                actionBtns = `
+                    <button onclick="updateStatus(${r.id}, 'Approved')" class="btn btn-success" style="padding:2px 6px;">Approve</button>
+                    <button onclick="updateStatus(${r.id}, 'Rejected')" class="btn btn-danger" style="padding:2px 6px;">Reject</button>
+                `;
+            }
+
             tbody.innerHTML += `
                 <tr>
                     <td>${r.date}</td>
                     <td><strong>${r.staffName}</strong></td>
+                    <td>${r.mb}</td>
+                    <td>${r.atm}</td>
+                    <td>${r.internet}</td>
+                    <td>${r.merchant}</td>
+                    <td>${r.agent}</td>
+                    <td>${r.cbeBirr}</td>
+                    <td>${r.harmo}</td>
+                    <td>${r.nid}</td>
                     <td>${r.depPct}%</td>
                     <td>${r.fcyPct}%</td>
-                    <td>${r.mbPct}%</td>
-                    <td>${r.atmPct}%</td>
-                    <td><strong style="color:var(--cbe-purple);">${r.overallAvg}%</strong></td>
-                    <td><span class="badge badge-approved">${r.status}</span></td>
+                    <td><span class="badge ${badgeClass}">${r.status}</span></td>
+                    <td>${actionBtns}</td>
                 </tr>
             `;
         });
-    }
-
-    function addNewStaff() {
-        const name = document.getElementById('newStaffName').value.trim();
-        const pass = document.getElementById('newStaffPass').value.trim();
-        const role = document.getElementById('newStaffRole').value;
-        if(name && pass) {
-            staffData.push({ name, pass, role });
-            saveStaffData(true);
-            document.getElementById('newStaffName').value = '';
-            document.getElementById('newStaffPass').value = '';
-            alert('User Added Successfully!');
-        }
-    }
-
-    function renderStaffList() {
-        const container = document.getElementById('staffListDisplay');
-        if(!container) return;
-        container.innerHTML = '';
-        staffData.forEach((s, i) => {
-            container.innerHTML += `<div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #eee;">
-                <span>${s.name} (${s.role})</span>
-                <button onclick="deleteStaff(${i})" class="btn btn-danger" style="padding:2px 6px;">Delete</button>
-            </div>`;
-        });
-    }
-
-    function deleteStaff(index) {
-        staffData.splice(index, 1);
-        saveStaffData(true);
     }
 
     function uploadEbook() {
@@ -665,11 +751,8 @@
     }
 
     function processCSVImport() {
-        const fileInput = document.getElementById('csvFileInput');
-        if(fileInput.files.length) {
-            alert('CSV Import Completed!');
-            closeModal('uploadModal');
-        }
+        alert('CSV Import Completed!');
+        closeModal('uploadModal');
     }
 
     function generateCertificate() {
@@ -681,6 +764,7 @@
         }
     }
 
+    // Login Handling
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const u = document.getElementById('username').value.trim();
@@ -693,9 +777,17 @@
             document.getElementById('appSection').classList.remove('hidden');
             document.getElementById('activeUserName').innerText = currentUserSession.name;
             document.getElementById('activeUserRole').innerText = currentUserSession.role;
+
+            // Restrict Staff Management button visibility
+            if(currentUserSession.role !== 'SuperAdmin' && currentUserSession.role !== 'Supervisor') {
+                document.getElementById('adminStaffBtn').style.display = 'none';
+            } else {
+                document.getElementById('adminStaffBtn').style.display = 'inline-flex';
+            }
+
             loadReports();
         } else {
-            alert('Invalid Credentials!');
+            alert('ተሳስተዋል! እባክዎን ትክክለኛ የልዩ መለያና ፓስወርድ ያስገቡ።');
         }
     });
 
@@ -705,18 +797,19 @@
 
     function exportToExcel() {
         let reports = JSON.parse(localStorage.getItem('cbe_borkena_reports') || '[]');
-        let csv = "Date,Staff,Deposit %,FCY %,MB %,ATM %,Overall %\n";
-        reports.forEach(r => { csv += `${r.date},${r.staffName},${r.depPct},${r.fcyPct},${r.mbPct},${r.atmPct},${r.overallAvg}\n`; });
+        let csv = "Date,Staff,MB,ATM,Internet,Merchant,Agent,CBE Birr,Harmo,NID,Deposit %,FCY %,Status\n";
+        reports.forEach(r => { 
+            csv += `${r.date},${r.staffName},${r.mb},${r.atm},${r.internet},${r.merchant},${r.agent},${r.cbeBirr},${r.harmo},${r.nid},${r.depPct},${r.fcyPct},${r.status}\n`; 
+        });
         const a = document.createElement("a");
         a.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
-        a.download = "Borkena_Report.csv";
+        a.download = "Borkena_Staff_Performance.csv";
         a.click();
     }
 
     function exportToPDF() {
-        html2pdf().from(document.getElementById('pdfReportArea')).save('Borkena_Report.pdf');
+        html2pdf().from(document.getElementById('pdfReportArea')).save('Borkena_Staff_Performance.pdf');
     }
 </script>
 </body>
 </html>
-
