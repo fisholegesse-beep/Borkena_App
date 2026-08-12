@@ -1,67 +1,111 @@
-<!-- 2. PERFORMANCE ENTRY FORM (ALL KPIs IN ONE VIEW) -->
-<section id="section-entry" class="hidden max-w-5xl mx-auto bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-    <div class="border-b pb-3 mb-5 flex justify-between items-center">
-        <div>
-            <h3 class="text-lg font-bold text-purple-950" id="entry-form-title">Batch Performance Entry (ሁሉም KPIs በአንድ ላይ)</h3>
-            <p class="text-xs text-slate-500">ለአንዱ ሰራተኛ የሁሉም KPIs ፕላን እና አቺቭመንት እኩል ይመዝግቡ።</p>
-        </div>
-        <span class="bg-amber-100 text-amber-900 text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-300">All KPIs Active</span>
-    </div>
+// 1. የላክኸው HTML ውስጥ የሚገኘውን #kpi-batch-container በ KPIs እና በ Plan/Actual Input መስኮቶች የሚሞላ function
+function renderBatchKpiForm() {
+    const container = document.getElementById('kpi-batch-container');
+    if (!container) return;
 
-    <form id="daily-entry-form" onsubmit="submitBatchEntries(event)" class="space-y-5">
-        
-        <!-- Common Metadata -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Date</label>
-                <input type="date" id="entry-date" class="w-full p-2.5 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-amber-400" required>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Time Period</label>
-                <select id="entry-period" class="w-full p-2.5 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-amber-400 font-semibold">
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="quarterly">Quarterly</option>
-                </select>
+    if (!window.kpiCategories || window.kpiCategories.length === 0) {
+        container.innerHTML = `<p class="text-xs text-red-500 font-bold p-2">ምንም አይነት KPI አልተገኘም!</p>`;
+        return;
+    }
+
+    container.innerHTML = kpiCategories.map((kpi, index) => `
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 hover:border-amber-400 transition">
+            <div class="font-bold text-xs text-purple-950 mb-2 truncate" title="${kpi}">${index + 1}. ${kpi}</div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase">Plan</label>
+                    <input type="number" step="any" min="0" id="plan_${index}" placeholder="0.00" class="w-full p-2 border rounded-lg text-xs font-semibold outline-none focus:ring-1 focus:ring-amber-400 bg-white">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase">Actual</label>
+                    <input type="number" step="any" min="0" id="actual_${index}" placeholder="0.00" class="w-full p-2 border rounded-lg text-xs font-semibold outline-none focus:ring-1 focus:ring-amber-400 bg-white">
+                </div>
             </div>
         </div>
+    `).join('');
+}
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-purple-50 p-3.5 rounded-xl border border-purple-100">
-            <div>
-                <label class="block text-xs font-bold text-purple-950 uppercase mb-1 flex items-center">
-                    <i class="fa-solid fa-user-tie text-purple-700 mr-1.5"></i> Performer (Staff Member Name)
-                </label>
-                <select id="entry-staff-select" class="w-full p-2.5 border border-purple-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-amber-400 font-semibold bg-white" required></select>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-purple-950 uppercase mb-1 flex items-center">
-                    <i class="fa-solid fa-user-shield text-purple-700 mr-1.5"></i> Assigned Supervisor
-                </label>
-                <select id="entry-supervisor-select" class="w-full p-2.5 border border-purple-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-amber-400 font-semibold bg-white" required></select>
-            </div>
-        </div>
+// 2. የላክኸው form id="daily-entry-form" onsubmit="submitBatchEntries(event)" ሲደረግ ዳታውን የሚቀበል function
+function submitBatchEntries(e) {
+    e.preventDefault();
+    
+    const dateVal = document.getElementById('entry-date').value;
+    const periodVal = document.getElementById('entry-period').value;
+    const staffVal = document.getElementById('entry-staff-select').value;
+    const supervisorVal = document.getElementById('entry-supervisor-select').value;
+    const remarksVal = document.getElementById('entry-remarks').value.trim();
+    const isAutoApproved = state.currentUser && (state.currentUser.role === 'Super Admin' || state.currentUser.role === 'Admin');
 
-        <!-- ALL KPIs BATCH INPUT GRID -->
-        <div>
-            <label class="block text-xs font-bold text-purple-950 uppercase mb-3 flex items-center">
-                <i class="fa-solid fa-list-check text-amber-500 mr-2 text-sm"></i> 
-                Enter Target Plan & Actual for All KPIs
-            </label>
-            <div id="kpi-batch-container" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[450px] overflow-y-auto custom-scrollbar p-1">
-                <!-- Rendered Dynamically via JS -->
-            </div>
-        </div>
+    let savedCount = 0;
 
-        <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">General Remarks / Details</label>
-            <textarea id="entry-remarks" rows="2" placeholder="Provide overall notes or summary..." class="w-full p-2.5 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-amber-400"></textarea>
-        </div>
+    // የቆዩትን ዳታዎች ሳያጠፋ አዳዲሶቹን ብቻ ይጨምራል
+    kpiCategories.forEach((kpi, index) => {
+        const planInput = document.getElementById(`plan_${index}`);
+        const actualInput = document.getElementById(`actual_${index}`);
 
-        <div class="flex items-center space-x-3 pt-2">
-            <button type="submit" id="btn-submit-entry" class="flex-1 bg-purple-900 hover:bg-purple-950 text-amber-400 font-bold py-3 rounded-lg text-xs shadow transition uppercase tracking-wider flex items-center justify-center">
-                <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Save All KPI Entries
-            </button>
-        </div>
-    </form>
-</section>
+        const planVal = planInput ? (parseFloat(planInput.value) || 0) : 0;
+        const actualVal = actualInput ? (parseFloat(actualInput.value) || 0) : 0;
+
+        // Plan ወይም Actual > 0 ከሆነ ብቻ ይመዘግበዋል
+        if (planVal > 0 || actualVal > 0) {
+            const entryData = {
+                id: 'entry_' + Date.now() + '_' + index,
+                date: dateVal,
+                period: periodVal,
+                staff: staffVal,
+                kpi: kpi,
+                plan: planVal,
+                actual: actualVal,
+                supervisor: supervisorVal,
+                remarks: remarksVal,
+                status: isAutoApproved ? 'Approved' : 'Pending',
+                timestamp: Date.now()
+            };
+
+            // የቀደመውን state ሳይነካ አዲሱን መረጃ ከፊት ይጨምራል
+            state.entries.unshift(entryData);
+
+            // Firebase / Realtime DB ካለ እዚያ ላይ ይመዘግባል
+            if (typeof db !== 'undefined' && db) {
+                db.ref('entries/' + entryData.id).set(entryData);
+            }
+            savedCount++;
+        }
+    });
+
+    if (savedCount === 0) {
+        if (typeof showToast === 'function') {
+            showToast("እባክዎ ቢያንስ ለአንዱ KPI ፕላን ወይም አቺቭመንት ያስገቡ!", false);
+        } else {
+            alert("እባክዎ ቢያንስ ለአንዱ KPI ፕላን ወይም አቺቭመንት ያስገቡ!");
+        }
+        return;
+    }
+
+    if (typeof syncLocalStorage === 'function') syncLocalStorage();
+    
+    if (typeof showToast === 'function') {
+        showToast(`${savedCount} የ KPI መረጃዎች በስኬት ተመዝግበዋል!`);
+    } else {
+        alert(`${savedCount} የ KPI መረጃዎች በስኬት ተመዝግበዋል!`);
+    }
+
+    resetEntryForm();
+    if (typeof switchTab === 'function') switchTab('dashboard', 'Dashboard Overview');
+    if (typeof renderDashboard === 'function') renderDashboard();
+}
+
+// 3. Form ሲላክ ወይም Reset ሲደረግ ፎርሙን የሚያፀዳ function
+function resetEntryForm() {
+    const form = document.getElementById('daily-entry-form');
+    if (form) form.reset();
+    
+    const dateInput = document.getElementById('entry-date');
+    if (dateInput) dateInput.valueAsDate = new Date();
+    
+    const staffSelect = document.getElementById('entry-staff-select');
+    if (staffSelect && state.currentUser) staffSelect.value = state.currentUser.name;
+    
+    // የገባውን Input ዳታ አጽድቶ እንደገና ይስላል
+    renderBatchKpiForm();
+}
