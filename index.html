@@ -5,6 +5,8 @@
     <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Commercial Bank of Ethiopia - Borkena Branch Dashboard</title>
+    <!-- jsPDF and html2canvas for robust PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
             --cbe-purple: #4a0072;
@@ -157,6 +159,10 @@
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
         .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
 
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+        }
+
         .form-group { margin-bottom: 12px; }
         label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #f0f0f0; }
         input, select, textarea {
@@ -181,6 +187,8 @@
         button:hover { background-color: var(--cbe-purple-light); transform: translateY(-2px); }
         .btn-excel { background-color: #2e7d32; color: #fff; }
         .btn-excel:hover { background-color: #1b5e20; }
+        .btn-pdf { background-color: #c62828; color: #fff; }
+        .btn-pdf:hover { background-color: #b71c1c; }
         .btn-word { background-color: #1565c0; color: #fff; }
         .btn-word:hover { background-color: #0d47a1; }
         .btn-danger { background-color: var(--danger-color); color: #fff; }
@@ -223,6 +231,7 @@
         }
 
         .hidden { display: none !important; }
+        .live-status { display: inline-block; width: 10px; height: 10px; background-color: var(--success-color); border-radius: 50%; margin-right: 5px; box-shadow: 0 0 8px var(--success-color); }
     </style>
 </head>
 <body class="notranslate">
@@ -230,7 +239,7 @@
 <div class="container">
 
     <div class="top-lang-bar">
-        <span>Commercial Bank of Ethiopia - Borkena Branch Dashboard</span>
+        <span><span class="live-status"></span>Commercial Bank of Ethiopia - Borkena Branch Dashboard (Live Synchronized)</span>
         <div>
             <button class="lang-btn" onclick="openModal('uploadModal')">📥 Bulk Upload CSV</button>
             <button class="lang-btn" onclick="openModal('certModal')">📜 Certificates Menu</button>
@@ -246,17 +255,17 @@
         </svg>
         <div>
             <h2 style="color:var(--cbe-gold); margin: 0 0 5px 0;">Commercial Bank of Ethiopia - Borkena Branch</h2>
-            <p style="color: #e0e0e0; margin:0; font-size:13px;">Target Performance Governance Portal</p>
+            <p style="color: #e0e0e0; margin:0; font-size:13px;">Target Performance & Operations Governance Portal</p>
         </div>
     </div>
 
-    <!-- ተስተካክሎ እንዲሰራ የተደረገ የኢንተርናል ኖቲስ ቦርድ -->
+    <!-- Internal Notice Board -->
     <div class="notice-board">
         <h4>
             <span>📌 Internal Notice Board</span>
             <button class="btn-gold" style="padding: 2px 8px; font-size: 11px;" onclick="openModal('noticeModal')">✏️ Post / Update Notice</button>
         </h4>
-        <div id="noticeContent" style="font-size: 13px; font-weight:600;">Welcome to Borkena Branch Dashboard! Reversal, Excel Export & Digital Banking Channels fully updated.</div>
+        <div id="noticeContent" style="font-size: 13px; font-weight:600;">Welcome to Borkena Branch Dashboard! Reversal, Real-time Online Sync & Digital Banking Channels fully updated.</div>
     </div>
 
     <div id="loginSection" class="card" style="max-width:400px; margin: 20px auto;">
@@ -287,6 +296,7 @@
         <div class="main-nav">
             <button class="nav-tab active" onclick="switchTab('dashboardTab', this)">📊 Main Entry & Operations</button>
             <button class="nav-tab" onclick="switchTab('governanceTab', this)">📋 Reports Governance</button>
+            <button class="nav-tab" onclick="switchTab('libraryTab', this)">📚 Borkena eBook Library</button>
             <button class="nav-tab" onclick="switchTab('performanceTab', this)">🏆 Staff Performance Highlights</button>
             <button class="nav-tab" onclick="switchTab('archiveTab', this)">📦 Cancelled Data Archive</button>
         </div>
@@ -308,7 +318,7 @@
             </div>
         </div>
 
-        <!-- Tab 1: Main Dashboard Entry Form -->
+        <!-- Tab 1: Main Entry Form -->
         <div id="dashboardTab" class="tab-content">
             <div class="card">
                 <h3 style="margin:0 0 10px 0; color:var(--cbe-gold);">📝 Target Entry Form</h3>
@@ -352,18 +362,25 @@
                         </div>
                     </div>
 
-                    <!-- የተጨመሩ አዳዲስ Digital Banking Channels (ATM, Merchant, Agent, Aster Pay) -->
-                    <div class="section-title">2. Digital Banking & Channels (Plan / Actual)</div>
+                    <!-- Digital Banking Channels (አካውንት ለብቻ ወጥቷል) -->
+                    <div class="section-title">2. Digital Banking Channels (Plan / Actual)</div>
                     <div class="grid-3">
                         <div class="form-group"><label>Mobile Banking (P/A)</label><div class="grid-2"><input type="number" id="mbPlan" placeholder="P"><input type="number" id="mbActual" placeholder="A"></div></div>
                         <div class="form-group"><label>CBE Birr (P/A)</label><div class="grid-2"><input type="number" id="cbeBirrPlan" placeholder="P"><input type="number" id="cbeBirrActual" placeholder="A"></div></div>
-                        <div class="form-group"><label>Accounts (P/A)</label><div class="grid-2"><input type="number" id="accPlan" placeholder="P"><input type="number" id="accActual" placeholder="A"></div></div>
-                    </div>
-                    <div class="grid-4">
                         <div class="form-group"><label>ATM (P/A)</label><div class="grid-2"><input type="number" id="atmPlan" placeholder="P"><input type="number" id="atmActual" placeholder="A"></div></div>
+                    </div>
+                    <div class="grid-3">
                         <div class="form-group"><label>Merchant (P/A)</label><div class="grid-2"><input type="number" id="merchantPlan" placeholder="P"><input type="number" id="merchantActual" placeholder="A"></div></div>
                         <div class="form-group"><label>Agent (P/A)</label><div class="grid-2"><input type="number" id="agentPlan" placeholder="P"><input type="number" id="agentActual" placeholder="A"></div></div>
                         <div class="form-group"><label>Aster Pay (P/A)</label><div class="grid-2"><input type="number" id="asterPayPlan" placeholder="P"><input type="number" id="asterPayActual" placeholder="A"></div></div>
+                    </div>
+
+                    <!-- አካውንት፣ ሀርሞናይዜሽን እና NID ለብቻቸዉ -->
+                    <div class="section-title">3. Account Opening, Harmonization & NID Registration</div>
+                    <div class="grid-3">
+                        <div class="form-group"><label>Account Opening (P/A)</label><div class="grid-2"><input type="number" id="accPlan" placeholder="P"><input type="number" id="accActual" placeholder="A"></div></div>
+                        <div class="form-group"><label>Harmonization (P/A)</label><div class="grid-2"><input type="number" id="harmPlan" placeholder="P"><input type="number" id="harmActual" placeholder="A"></div></div>
+                        <div class="form-group"><label>NID Registration (P/A)</label><div class="grid-2"><input type="number" id="nidPlan" placeholder="P"><input type="number" id="nidActual" placeholder="A"></div></div>
                     </div>
 
                     <button type="submit" class="btn-gold" style="width:100%; font-size:14px; margin-top:10px;">📤 Submit Report Entry</button>
@@ -395,19 +412,19 @@
                     <div>
                         <label>Export Options (ዳታ ማውረጃ)</label>
                         <div style="display:flex; gap:6px;">
-                            <button onclick="exportToExcel()" class="btn-excel" style="width:100%;">📥 Excel (.CSV)</button>
-                            <button onclick="exportToWord()" class="btn-word" style="width:100%;">📄 Word (.DOC)</button>
+                            <button onclick="exportToExcel()" class="btn-excel" style="width:100%;">Excel</button>
+                            <button onclick="exportToPDF()" class="btn-pdf" style="width:100%;">PDF</button>
+                            <button onclick="exportToWord()" class="btn-word" style="width:100%;">Word</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="table-responsive">
+                <div class="table-responsive" id="pdfReportArea">
                     <table class="data-table" id="exportTable">
                         <thead>
                             <tr>
                                 <th>Date</th>
                                 <th>Staff Name</th>
-                                <th>Supervisor</th>
                                 <th>Deposit %</th>
                                 <th>FCY %</th>
                                 <th>MB %</th>
@@ -415,6 +432,9 @@
                                 <th>Merchant %</th>
                                 <th>Agent %</th>
                                 <th>AsterPay %</th>
+                                <th>Account %</th>
+                                <th>Harm %</th>
+                                <th>NID %</th>
                                 <th>Overall %</th>
                                 <th>Status</th>
                             </tr>
@@ -425,7 +445,40 @@
             </div>
         </div>
 
-        <!-- Tab 3: Staff Performance Highlights -->
+        <!-- Tab 3: Borkena eBook Library (አዲስ የተጨመረ) -->
+        <div id="libraryTab" class="tab-content hidden">
+            <div class="card">
+                <h3 style="margin-top:0; color:var(--cbe-gold);">📚 Borkena eBook Library</h3>
+                <p style="font-size:12px; color:#ccc;">አስፈላጊ የባንክ መመሪያዎች፣ ሰርኩላሮች እና የትምህርት ቁሳቁሶችን እዚህ መጫንና ማውረድ ይችላሉ።</p>
+                
+                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:15px;">
+                    <h4 style="margin-top:0; color:var(--cbe-gold);">📤 Upload New Book / Document</h4>
+                    <div class="grid-3">
+                        <input type="text" id="ebookTitle" placeholder="Document Title / Name">
+                        <input type="text" id="ebookCategory" placeholder="Category (e.g. Circular, Manual)">
+                        <input type="file" id="ebookFileInput" accept=".pdf,.doc,.docx,.epub">
+                    </div>
+                    <button onclick="uploadEbook()" class="btn-gold" style="width:100%; margin-top:10px;">Upload to Library</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Upload Date</th>
+                                <th>Document Title</th>
+                                <th>Category</th>
+                                <th>Uploaded By</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ebookTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Staff Performance Highlights -->
         <div id="performanceTab" class="tab-content hidden">
             <div class="card">
                 <h3 style="margin-top:0; color:var(--cbe-gold);">🏆 Staff Performance Highlights</h3>
@@ -442,11 +495,11 @@
             </div>
         </div>
 
-        <!-- Tab 4: Cancelled Data Archive Menu -->
+        <!-- Tab 5: Cancelled Data Archive Menu -->
         <div id="archiveTab" class="tab-content hidden">
             <div class="card">
                 <h3 style="margin-top:0; color:var(--danger-color);">📦 Cancelled & Reverted Data Archive</h3>
-                <p style="font-size:12px; color:#ccc;">እዚህ ክፍለ-ጊዜ የተሰረዙ (Cancelled) ወይም ሪቨርስ የተደረጉ ዳታዎች ብቻ ይቀመጣሉ (ከዋናው ዳሽቦርድ ተለይተው የተቀመጡ)።</p>
+                <p style="font-size:12px; color:#ccc;">እዚህ ክፍለ-ጊዜ የተሰረዙ (Cancelled) ወይም ሪቨርስ የተደረጉ ዳታዎች ብቻ ይቀመጣሉ።</p>
                 <div class="table-responsive">
                     <table class="data-table">
                         <thead>
@@ -467,7 +520,7 @@
     </div>
 </div>
 
-<!-- 1. CSV Bulk Import / Upload Modal -->
+<!-- Modal 1: CSV Bulk Import -->
 <div id="uploadModal" class="modal-overlay hidden">
     <div class="modal-body">
         <button onclick="closeModal('uploadModal')" class="btn-danger" style="float:right;">X</button>
@@ -480,12 +533,11 @@
     </div>
 </div>
 
-<!-- 2. Certificate Menu Modal -->
+<!-- Modal 2: Certificate Menu -->
 <div id="certModal" class="modal-overlay hidden">
     <div class="modal-body">
         <button onclick="closeModal('certModal')" class="btn-danger" style="float:right;">X</button>
         <h3 style="color:var(--cbe-gold);">📜 Generate Staff Performance Certificate</h3>
-        <p style="font-size:12px; color:#ccc;">ለተሻለ ሠራተኛ የምስክር ወረቀት (Certificate) እዚህ ማዘጋጀት ይችላሉ።</p>
         <div class="form-group">
             <label>Select Staff</label>
             <select id="certStaffSelect"></select>
@@ -498,7 +550,7 @@
     </div>
 </div>
 
-<!-- 3. Internal Notice Board Modal -->
+<!-- Modal 3: Internal Notice Board -->
 <div id="noticeModal" class="modal-overlay hidden">
     <div class="modal-body">
         <button onclick="closeModal('noticeModal')" class="btn-danger" style="float:right;">X</button>
@@ -511,13 +563,11 @@
     </div>
 </div>
 
-<!-- SuperAdmin Reversal & Cancel Modal -->
+<!-- Modal 4: SuperAdmin Reversal -->
 <div id="reversalModal" class="modal-overlay hidden">
     <div class="modal-body">
         <button onclick="closeModal('reversalModal')" class="btn-danger" style="float:right;">X</button>
         <h3 style="color:var(--cbe-gold);">🔄 SuperAdmin Reversal & Delete Governance</h3>
-        <p style="font-size:12px; color:#ccc;">መሰረዝ የሚፈልጉትን ሪፖርት መርጠው "Cancel Entry" የሚለውን ይጫኑ። ዳታው ወደ Archive ይዛወራል።</p>
-        
         <div class="table-responsive">
             <table class="data-table">
                 <thead>
@@ -535,6 +585,7 @@
     </div>
 </div>
 
+<!-- Modal 5: Staff Management (የተስተካከለ Add User) -->
 <div id="staffMgmtModal" class="modal-overlay hidden">
     <div class="modal-body">
         <button onclick="closeModal('staffMgmtModal')" class="btn-danger" style="float:right;">X</button>
@@ -556,7 +607,7 @@
 </div>
 
 <script>
-    const baseDailyTargets = { depPlan: 100000, fcyPlan: 500, mbPlan: 5, cbeBirrPlan: 5, accPlan: 10, atmPlan: 2, merchantPlan: 2, agentPlan: 2, asterPayPlan: 5 };
+    const baseDailyTargets = { depPlan: 100000, fcyPlan: 500, mbPlan: 5, cbeBirrPlan: 5, accPlan: 10, atmPlan: 2, merchantPlan: 2, agentPlan: 2, asterPayPlan: 5, harmPlan: 5, nidPlan: 20 };
 
     let staffData = [
         { name: "Fiseha", pass: "1234", role: "SuperAdmin" },
@@ -570,12 +621,35 @@
     ];
 
     let currentUserSession = null;
+    let syncChannel = null;
 
     document.addEventListener('DOMContentLoaded', () => {
         loadStaffData();
         adjustFormTargetsByPeriod();
         loadNotice();
+        setupLiveSync();
+        loadEbooks();
     });
+
+    // Real-time Cross-Device/Tab Live Sync System
+    function setupLiveSync() {
+        if ('BroadcastChannel' in window) {
+            syncChannel = new BroadcastChannel('cbe_borkena_live_channel');
+            syncChannel.onmessage = (event) => {
+                if (event.data && event.data.type === 'DATA_UPDATED') {
+                    loadReports();
+                    loadNotice();
+                    loadEbooks();
+                }
+            };
+        }
+    }
+
+    function triggerLiveSync() {
+        if (syncChannel) {
+            syncChannel.postMessage({ type: 'DATA_UPDATED', timestamp: Date.now() });
+        }
+    }
 
     function switchTab(tabId, btnElement) {
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
@@ -596,6 +670,7 @@
     function saveStaffData() {
         localStorage.setItem('cbe_borkena_staff_db_v22', JSON.stringify(staffData));
         loadStaffData();
+        triggerLiveSync();
     }
 
     function populateDropdowns() {
@@ -636,6 +711,8 @@
         document.getElementById('merchantPlan').value = baseDailyTargets.merchantPlan * mult;
         document.getElementById('agentPlan').value = baseDailyTargets.agentPlan * mult;
         document.getElementById('asterPayPlan').value = baseDailyTargets.asterPayPlan * mult;
+        document.getElementById('harmPlan').value = baseDailyTargets.harmPlan * mult;
+        document.getElementById('nidPlan').value = baseDailyTargets.nidPlan * mult;
     }
 
     document.getElementById('reportForm').addEventListener('submit', function(e) {
@@ -660,6 +737,11 @@
         const astP = parseFloat(document.getElementById('asterPayPlan').value) || 1;
         const astA = parseFloat(document.getElementById('asterPayActual').value) || 0;
 
+        const harmP = parseFloat(document.getElementById('harmPlan').value) || 1;
+        const harmA = parseFloat(document.getElementById('harmActual').value) || 0;
+        const nidP = parseFloat(document.getElementById('nidPlan').value) || 1;
+        const nidA = parseFloat(document.getElementById('nidActual').value) || 0;
+
         const depPct = calcPerc(depA, depP);
         const fcyPct = calcPerc(fcyA, fcyP);
         const mbPct = calcPerc(mbA, mbP);
@@ -668,15 +750,17 @@
         const merPct = calcPerc(merA, merP);
         const agPct = calcPerc(agA, agP);
         const astPct = calcPerc(astA, astP);
+        const harmPct = calcPerc(harmA, harmP);
+        const nidPct = calcPerc(nidA, nidP);
 
-        const overallAvg = ((parseFloat(depPct) + parseFloat(fcyPct) + parseFloat(mbPct) + parseFloat(accPct) + parseFloat(atmPct) + parseFloat(merPct) + parseFloat(agPct) + parseFloat(astPct)) / 8).toFixed(1);
+        const overallAvg = ((parseFloat(depPct) + parseFloat(fcyPct) + parseFloat(mbPct) + parseFloat(accPct) + parseFloat(atmPct) + parseFloat(merPct) + parseFloat(agPct) + parseFloat(astPct) + parseFloat(harmPct) + parseFloat(nidPct)) / 10).toFixed(1);
 
         const newReport = {
             id: Date.now(),
             date: new Date().toISOString().split('T')[0],
             staffName: document.getElementById('staffNameSelect').value,
             supervisorName: document.getElementById('supervisorSelect').value,
-            depPct, fcyPct, mbPct, accPct, atmPct, merPct, agPct, astPct, overallAvg,
+            depPct, fcyPct, mbPct, accPct, atmPct, merPct, agPct, astPct, harmPct, nidPct, overallAvg,
             status: 'Pending'
         };
 
@@ -684,6 +768,7 @@
         localStorage.setItem('cbe_borkena_v22_reports', JSON.stringify(reports));
         alert('Report entry submitted successfully!');
         loadReports();
+        triggerLiveSync();
     });
 
     function loadReports() {
@@ -724,7 +809,6 @@
                 <tr>
                     <td>${r.date}</td>
                     <td><strong>${r.staffName}</strong></td>
-                    <td>${r.supervisorName || '-'}</td>
                     <td>${r.depPct}%</td>
                     <td>${r.fcyPct}%</td>
                     <td>${r.mbPct}%</td>
@@ -732,6 +816,9 @@
                     <td>${r.merPct || 0}%</td>
                     <td>${r.agPct || 0}%</td>
                     <td>${r.astPct || 0}%</td>
+                    <td>${r.accPct || 0}%</td>
+                    <td>${r.harmPct || 0}%</td>
+                    <td>${r.nidPct || 0}%</td>
                     <td><strong style="color:var(--cbe-gold);">${r.overallAvg}%</strong></td>
                     <td><span class="badge ${badgeClass}">${r.status}</span></td>
                 </tr>
@@ -740,6 +827,69 @@
 
         loadArchiveTable(allReports);
         loadReversalTable(allReports);
+    }
+
+    /* eBook Library Functions */
+    function uploadEbook() {
+        const title = document.getElementById('ebookTitle').value.trim();
+        const category = document.getElementById('ebookCategory').value.trim();
+        const fileInput = document.getElementById('ebookFileInput');
+
+        if(!title || !fileInput.files.length) {
+            alert('እባክዎን የፋይሉን ርዕስ እና ፋይል ይምረጡ!');
+            return;
+        }
+
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            let ebooks = JSON.parse(localStorage.getItem('cbe_borkena_ebooks') || '[]');
+            ebooks.unshift({
+                id: Date.now(),
+                date: new Date().toISOString().split('T')[0],
+                title: title,
+                category: category || 'General',
+                uploadedBy: currentUserSession ? currentUserSession.name : 'System',
+                fileData: e.target.result,
+                fileName: file.name
+            });
+            localStorage.setItem('cbe_borkena_ebooks', JSON.stringify(ebooks));
+            alert('መጽሐፉ/ሰነዱ በተሳካ ሁኔታ ወደ ላይብረሪው ተጭኗል!');
+            document.getElementById('ebookTitle').value = '';
+            document.getElementById('ebookCategory').value = '';
+            fileInput.value = '';
+            loadEbooks();
+            triggerLiveSync();
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    function loadEbooks() {
+        let ebooks = JSON.parse(localStorage.getItem('cbe_borkena_ebooks') || '[]');
+        const tbody = document.getElementById('ebookTableBody');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+
+        if(ebooks.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="color:#aaa;">ምንም የተጫነ መጽሐፍ ወይም ሰነድ የለም።</td></tr>`;
+            return;
+        }
+
+        ebooks.forEach(book => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${book.date}</td>
+                    <td><strong>${book.title}</strong></td>
+                    <td>${book.category}</td>
+                    <td>${book.uploadedBy}</td>
+                    <td>
+                        <a href="${book.fileData}" download="${book.fileName}" class="lang-btn" style="text-decoration:none; display:inline-block;">📥 Download</a>
+                    </td>
+                </tr>
+            `;
+        });
     }
 
     function loadArchiveTable(allReports) {
@@ -804,11 +954,11 @@
             localStorage.setItem('cbe_borkena_v22_reports', JSON.stringify(reports));
             alert('ሪፖርቱ ተሰርዟል! ወደ Cancelled Archive ተዛውሯል።');
             loadReports();
+            triggerLiveSync();
             closeModal('reversalModal');
         }
     }
 
-    /* CSV Import Processor */
     function processCSVUpload() {
         const fileInput = document.getElementById('csvFileInput');
         if(!fileInput.files.length) {
@@ -833,7 +983,7 @@
                         fcyPct: cols[4] ? cols[4].trim() : 100,
                         mbPct: cols[5] ? cols[5].trim() : 100,
                         accPct: cols[6] ? cols[6].trim() : 100,
-                        atmPct: 100, merPct: 100, agPct: 100, astPct: 100,
+                        atmPct: 100, merPct: 100, agPct: 100, astPct: 100, harmPct: 100, nidPct: 100,
                         overallAvg: cols[7] ? cols[7].trim() : 100,
                         status: 'Approved'
                     });
@@ -843,11 +993,11 @@
             alert('የ-CSV ዳታው በተሳካ ሁኔታ አፕሎድ ተደርጓል!');
             closeModal('uploadModal');
             loadReports();
+            triggerLiveSync();
         };
         reader.readAsText(fileInput.files[0]);
     }
 
-    /* Certificate Generator */
     function generateCertificate() {
         const name = document.getElementById('certStaffSelect').value;
         const reason = document.getElementById('certReason').value || 'Excellent Performance Achievement';
@@ -878,13 +1028,13 @@
         `);
     }
 
-    /* Notice Board Controls */
     function saveNotice() {
         const val = document.getElementById('noticeInput').value.trim();
         if(val) {
             localStorage.setItem('cbe_borkena_notice', val);
             loadNotice();
             closeModal('noticeModal');
+            triggerLiveSync();
             alert('ማስታወቂያው በተሳካ ሁኔታ ተቀይሯል!');
         }
     }
@@ -900,9 +1050,9 @@
             alert("የሚወርድ ምንም ዳታ የለም!");
             return;
         }
-        let csvContent = "data:text/csv;charset=utf-8,Date,Staff Name,Supervisor,Deposit %,FCY %,MB %,ATM %,Merchant %,Agent %,AsterPay %,Overall %,Status\n";
+        let csvContent = "data:text/csv;charset=utf-8,Date,Staff Name,Deposit %,FCY %,MB %,ATM %,Merchant %,Agent %,AsterPay %,Account %,Harmonization %,NID %,Overall %,Status\n";
         reports.forEach(r => {
-            csvContent += `${r.date},${r.staffName},${r.supervisorName || ''},${r.depPct},${r.fcyPct},${r.mbPct},${r.atmPct||0},${r.merPct||0},${r.agPct||0},${r.astPct||0},${r.overallAvg},${r.status}\n`;
+            csvContent += `${r.date},${r.staffName},${r.depPct},${r.fcyPct},${r.mbPct},${r.atmPct||0},${r.merPct||0},${r.agPct||0},${r.astPct||0},${r.accPct||0},${r.harmPct||0},${r.nidPct||0},${r.overallAvg},${r.status}\n`;
         });
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
@@ -911,6 +1061,19 @@
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    }
+
+    // የተስተካከለ የPDF ማውረጃ
+    function exportToPDF() {
+        const element = document.getElementById('pdfReportArea');
+        const opt = {
+            margin:       0.5,
+            filename:     'Borkena_Branch_Performance_Report.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+        };
+        html2pdf().set(opt).from(element).save();
     }
 
     function exportToWord() {
@@ -940,6 +1103,7 @@
         });
     }
 
+    // የተስተካከለ Add User
     function addNewStaff() {
         const name = document.getElementById('newStaffName').value.trim();
         const pass = document.getElementById('newStaffPass').value.trim();
@@ -949,7 +1113,9 @@
             saveStaffData();
             document.getElementById('newStaffName').value = '';
             document.getElementById('newStaffPass').value = '';
-            alert('User added!');
+            alert('ተጠቃሚው በተሳካ ሁኔታ ተጨምሯል!');
+        } else {
+            alert('እባክዎን ስም እና ፓስወርድ ያስገቡ!');
         }
     }
 
@@ -966,6 +1132,7 @@
         localStorage.setItem('cbe_borkena_v22_reports', JSON.stringify(reports));
         alert('All active reports approved!');
         loadReports();
+        triggerLiveSync();
     }
 
     document.getElementById('loginForm').addEventListener('submit', function(e) {
